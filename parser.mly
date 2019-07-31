@@ -12,6 +12,8 @@
 
 %token LPAR RPAR
 
+%token RETURN IF ELSE
+
 %token <string> NUM         // 整数トークン
 %token <string> IDENT
 
@@ -28,6 +30,10 @@ translation_unit:
 
 stmt:
 | e=expr SEMI { Expr e }
+| RETURN e=expr SEMI { Return e }
+| IF LPAR e=expr RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
+    If (e, then_stmt, else_stmt)
+}
 
 expr:
 | e=assign { e }

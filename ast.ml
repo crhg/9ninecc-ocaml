@@ -1,5 +1,7 @@
 type stmt = 
-Expr of expr
+| Expr of expr
+| Return of expr
+| If of expr * stmt * stmt option
 
 and expr =
 | Num of string

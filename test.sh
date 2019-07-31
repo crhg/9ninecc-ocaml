@@ -78,6 +78,11 @@ try_expr 1 "0<=1"
 try_stmt_list 1 'a=1;a;'
 try_stmt_list 3 'a=1;b=2;a+b;'
 try_stmt_list 3 'foo=1;bar=2;foo+bar;'
+try_stmt_list 3 'foo=2;bar=1;return foo+bar;foo-bar;'
+try_stmt_list 1 'if(1) return 1; return 2;'
+try_stmt_list 2 'if(0) return 1; return 2;'
+try_stmt_list 1 'if(1) return 1; else return 2; return 3;'
+try_stmt_list 2 'if(0) return 1; else return 2; return 3;'
 
 $RUN bash tmp.sh
 

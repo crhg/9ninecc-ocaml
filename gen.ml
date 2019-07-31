@@ -1,6 +1,13 @@
 open Ast
 open Printf
 
+let seq = ref 0
+
+let new_seq _ =
+    let r = !seq in
+    seq := !seq + 1;
+    r
+
 module Env = Map.Make(String)
 
 let local_env = ref Env.empty
@@ -34,7 +41,32 @@ let rec gen stmt_list =
 and gen_stmt stmt = match stmt with
 | Expr expr ->
     gen_expr expr;
+    printf "    pop rax\n"
+| Return expr ->
+    gen_expr expr;
     printf "    pop rax\n";
+    printf "    mov rsp, rbp\n";
+    printf "    pop rbp\n";
+    printf "    ret\n"
+| If (expr, then_stmt, None) ->
+    let seq=new_seq() in
+    gen_expr expr;
+    printf "    pop rax\n";
+    printf "    cmp rax, 0\n";
+    printf "    je .Lend%d\n" seq;
+    gen_stmt then_stmt;
+    printf ".Lend%d:\n" seq
+| If (expr, then_stmt, Some(else_stmt)) ->
+    let seq=new_seq() in
+    gen_expr expr;
+    printf "    pop rax\n";
+    printf "    cmp rax, 0\n";
+    printf "    je .Lelse%d\n" seq;
+    gen_stmt then_stmt;
+    printf "    jmp .Lend%d\n" seq;
+    printf ".Lelse%d:\n" seq;
+    gen_stmt else_stmt;
+    printf ".Lend%d:\n" seq
 
 and gen_lval expr = match expr with
 | Ident name ->

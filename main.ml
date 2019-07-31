@@ -46,7 +46,8 @@ let parse_with_error source filename =
 
 let compile filename source =
     try
-        parse_with_error source filename
+        let ast = parse_with_error source filename in
+        Gen.gen ast
     with
     | Error_at (message, loc) ->
         let pos = loc.pos_cnum in

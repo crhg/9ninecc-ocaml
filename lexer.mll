@@ -11,6 +11,14 @@ rule token = parse
 | '-' { MINUS }
 | '*' { AST }
 | '/' { SLASH }
+
+| "<"  { LT }
+| "<=" { LE }
+| ">"  { GT }
+| ">=" { GE }
+| "==" { EQ }
+| "!=" { NE }
+
 | '(' { LPAR }
 | ')' { RPAR }
 

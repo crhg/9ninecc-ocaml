@@ -41,3 +41,31 @@ and gen_expr expr = match expr with
         printf "    idiv rdi\n"
     in
     binop op l r
+| Eq (l, r) ->
+    let op _ =
+        printf "    cmp rax, rdi\n";
+        printf "    sete al\n";
+        printf "    movzb rax, al\n"
+    in
+    binop op l r
+| Ne (l, r) ->
+    let op _ =
+        printf "    cmp rax, rdi\n";
+        printf "    setne al\n";
+        printf "    movzb rax, al\n"
+    in
+    binop op l r
+| Lt (l, r) ->
+    let op _ =
+        printf "    cmp rax, rdi\n";
+        printf "    setl al\n";
+        printf "    movzb rax, al\n"
+    in
+    binop op l r
+| Le (l, r) ->
+    let op _ =
+        printf "    cmp rax, rdi\n";
+        printf "    setle al\n";
+        printf "    movzb rax, al\n"
+    in
+    binop op l r

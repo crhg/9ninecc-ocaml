@@ -35,17 +35,7 @@ let parse_with_error source filename =
         fprintf stderr "%s^\n" (repeat pos_in_line " ");
         exit (-1)
 
-let verbose = ref false
-
-let spec = [
-    ("-v", Arg.Set verbose, "Turn on verbose message");
-]
-
-let filenames = ref []
-
-let compile filename =
-    let file = open_in filename in
-    let source = really_input_string file (in_channel_length file) in
+let compile filename source =
     try
         parse_with_error source filename
     with
@@ -57,10 +47,22 @@ let compile filename =
         fprintf stderr "%s^\n" (repeat pos_in_line " ");
         exit (-1)
 
+let compile_file filename =
+    let file = open_in filename in
+    let source = really_input_string file (in_channel_length file) in
+    compile filename source
+
+let verbose = ref false
+
+let filenames = ref []
+
+let spec = [
+    ("-v", Arg.Set verbose, "Turn on verbose message");
+    ("-s", Arg.String (compile "-"), "Source string");
+]
+
 let () =
     Arg.parse spec
         (fun s -> filenames := s :: !filenames)
         "Usage: 9ninecc -v filename ...";
-    match !filenames with
-    | [filename] -> compile filename
-    | _ -> failwith "filename?"
+    List.iter compile_file !filenames

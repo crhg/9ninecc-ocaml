@@ -16,8 +16,7 @@ try() {
   expected="$1"
   input="$2"
 
-  echo "$input" > tmp-$n.c
-  ./9ninecc tmp-$n.c > tmp-$n.s
+  ./9ninecc -s "$input" > tmp-$n.s
   (
       echo gcc -o tmp-$n tmp-$n.s
       echo ./tmp-$n

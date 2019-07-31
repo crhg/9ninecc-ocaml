@@ -1,13 +1,37 @@
 open Ast
 open Printf
 
-let rec gen expr =
+let rec gen stmt_list =
     printf ".intel_syntax noprefix\n";
     printf ".global main\n";
     printf "main:\n";
+
+    (* 変数26個分の領域を確保 *)
+    printf "    push rbp\n";
+    printf "    mov rbp, rsp\n";
+    printf "    sub rsp, %d\n" (8 * 26);
+
+    List.iter gen_stmt stmt_list;
+
+    printf "    mov rsp, rbp\n";
+    printf "    pop rbp\n";
+    printf "    ret\n"
+
+and gen_stmt stmt = match stmt with
+| Expr expr ->
     gen_expr expr;
     printf "    pop rax\n";
-    printf "    ret\n"
+
+and lvar_offset name =
+    let c = name.[0] in
+    (Char.code c - Char.code 'a' + 1) * 8
+
+and gen_lval expr = match expr with
+| Ident name ->
+    printf "    mov rax, rbp\n";
+    printf "    sub rax, %d\n" (lvar_offset name);
+    printf "    push rax\n"
+| _ -> failwith("not lval: " ^ show_expr expr)
 
 and binop op l r = 
     gen_expr l;
@@ -20,6 +44,18 @@ and binop op l r =
 and gen_expr expr = match expr with
 | Num n ->
     printf "    push %d\n" (int_of_string n)
+| Ident name ->
+    gen_lval expr;
+    printf "    pop rax\n";
+    printf "    mov rax, [rax]\n";
+    printf "    push rax\n"
+| Assign (l, r) ->
+    gen_lval l;
+    gen_expr r;
+    printf "    pop rdi\n";
+    printf "    pop rax\n";
+    printf "    mov [rax], rdi\n";
+    printf "    push rdi\n";
 | Add (l, r) ->
     let op _ =
         printf "    add rax, rdi\n"

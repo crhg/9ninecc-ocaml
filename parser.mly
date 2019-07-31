@@ -1,29 +1,40 @@
 %{
     open Ast
-    open Printf
 %}
 
 %token PLUS MINUS AST SLASH
 
 %token LT LE GT GE EQ NE
 
+%token ASSIGN
+
+%token SEMI
+
 %token LPAR RPAR
 
 %token <string> NUM         // 整数トークン
+%token <string> IDENT
 
 %token EOF
 
-%type <Ast.expr> translation_unit
+%type <Ast.stmt list> translation_unit
 
 %start translation_unit
 
 %%
 
 translation_unit:
-| e=expr EOF { e }
+| l=stmt* EOF { l }
+
+stmt:
+| e=expr SEMI { Expr e }
 
 expr:
+| e=assign { e }
+
+assign:
 | e=equality { e }
+| l=assign ASSIGN r=equality { Assign (l, r) }
 
 equality:
 | e=relational { e }
@@ -54,4 +65,5 @@ unary:
 
 term:
 | n=NUM { Num n }
+| id=IDENT { Ident id }
 | LPAR e=expr RPAR { e }

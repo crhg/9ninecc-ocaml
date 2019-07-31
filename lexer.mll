@@ -22,8 +22,12 @@ rule token = parse
 | '(' { LPAR }
 | ')' { RPAR }
 
-| ['0'-'9']+ as num { Parser.NUM (num) }
-| eof { Parser.EOF }
+| '=' { ASSIGN }
+| ';' { SEMI }
+
+| ['0'-'9']+ as num { NUM num }
+| ['a'-'z'] as name { IDENT (String.make 1 name) }
+| eof { EOF }
 
 {
 }

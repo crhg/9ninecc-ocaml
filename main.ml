@@ -24,16 +24,25 @@ let rec repeat n s =
         then ""
         else s ^ repeat (n-1) s
 
+let error_at filename source pos s =
+    let (line, line_no, pos_in_line) = get_line source pos in
+    fprintf stderr "%s:%d:%d: %s\n" filename line_no pos_in_line s;
+    fprintf stderr "%s\n" line;
+    fprintf stderr "%s^\n" (repeat pos_in_line " ")
+
+let error_at_lex_pos filename source lexbuf s =
+    let pos = (Lexing.lexeme_start lexbuf) in
+    error_at filename source pos s
+
 let parse_with_error source filename =
     let lexbuf = Lexing.from_string source in
     try Parser.translation_unit Lexer.token lexbuf with
     | Parser.Error ->
-        let pos = (Lexing.lexeme_start lexbuf) in
-        let (line, line_no, pos_in_line) = get_line source pos in
-        fprintf stderr "%s:%d:%d: Parser.Error\n" filename line_no pos_in_line;
-        fprintf stderr "%s\n" line;
-        fprintf stderr "%s^\n" (repeat pos_in_line " ");
-        exit (-1)
+            error_at_lex_pos filename source lexbuf "Parser.Error";
+            exit (-1)
+    | Failure s ->
+            error_at_lex_pos filename source lexbuf s;
+            exit (-1)
 
 let compile filename source =
     try
@@ -41,10 +50,7 @@ let compile filename source =
     with
     | Error_at (message, loc) ->
         let pos = loc.pos_cnum in
-        let (line, line_no, pos_in_line) = get_line source pos in
-        fprintf stderr "%s:%d:%d: %s\n" filename line_no pos_in_line message;
-        fprintf stderr "%s\n" line;
-        fprintf stderr "%s^\n" (repeat pos_in_line " ");
+        error_at filename source pos message;
         exit (-1)
 
 let compile_file filename =

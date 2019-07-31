@@ -10,9 +10,9 @@
 
 %token SEMI
 
-%token LPAR RPAR
+%token LPAR RPAR LBRACE RBRACE
 
-%token RETURN IF ELSE
+%token RETURN IF ELSE WHILE FOR
 
 %token <string> NUM         // 整数トークン
 %token <string> IDENT
@@ -34,6 +34,9 @@ stmt:
 | IF LPAR e=expr RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
     If (e, then_stmt, else_stmt)
 }
+| WHILE LPAR e=expr RPAR s=stmt { While (e, s) }
+| FOR LPAR init=expr? SEMI cond=expr? SEMI next=expr? RPAR s=stmt { For (init, cond, next, s) }
+| LBRACE l=stmt* RBRACE { Block l }
 
 expr:
 | e=assign { e }

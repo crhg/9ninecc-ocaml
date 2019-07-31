@@ -21,6 +21,8 @@ rule token = parse
 
 | '(' { LPAR }
 | ')' { RPAR }
+| '{' { LBRACE }
+| '}' { RBRACE }
 
 | '=' { ASSIGN }
 | ';' { SEMI }
@@ -28,6 +30,8 @@ rule token = parse
 | "return" { RETURN }
 | "if"     { IF }
 | "else"   { ELSE }
+| "while"  { WHILE }
+| "for"    { FOR }
 
 | ['0'-'9']+ as num { NUM num }
 | ['a'-'z']['a'-'z' '0'-'9']* as name { IDENT name }

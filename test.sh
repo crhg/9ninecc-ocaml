@@ -83,7 +83,15 @@ try_stmt_list 1 'if(1) return 1; return 2;'
 try_stmt_list 2 'if(0) return 1; return 2;'
 try_stmt_list 1 'if(1) return 1; else return 2; return 3;'
 try_stmt_list 2 'if(0) return 1; else return 2; return 3;'
+try_stmt_list 2 'a=100; while (a > 2) a=a-1; return a;'
+try_stmt_list 55 'sum=0; for(i=1; i<=10; i=i+1) sum = sum + i; return sum;'
+try_stmt_list 1 'n=0; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
+try_stmt_list 1 'n=1; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
+try_stmt_list 2 'n=2; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
+try_stmt_list 3 'n=3; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
+try_stmt_list 5 'n=4; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
+
+echo echo OK >> tmp.sh
 
 $RUN bash tmp.sh
 
-echo OK

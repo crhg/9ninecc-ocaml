@@ -20,6 +20,10 @@ let lvar_offset name =
         local_env := Env.add name new_offset !local_env;
         new_offset
 
+let may f x = match x with
+| Some x' -> f x'
+| None    -> ()
+
 let rec gen stmt_list =
     local_env := Env.empty;
 
@@ -67,6 +71,37 @@ and gen_stmt stmt = match stmt with
     printf ".Lelse%d:\n" seq;
     gen_stmt else_stmt;
     printf ".Lend%d:\n" seq
+| While (expr, stmt) ->
+    let seq=new_seq() in
+    printf ".Lbegin%d:\n" seq;
+    gen_expr expr;
+    printf "    pop rax\n";
+    printf "    cmp rax, 0\n";
+    printf "    je .Lend%d\n" seq;
+    gen_stmt stmt;
+    printf "    jmp .Lbegin%d\n" seq;
+    printf ".Lend%d:\n" seq
+| For (init, cond, next, stmt) ->
+    let seq=new_seq() in
+    let gen_expr' expr =
+        gen_expr expr;
+        printf "    pop rax\n"
+    in
+    let gen_cond expr =
+        gen_expr expr;
+        printf "    pop rax\n";
+        printf "    cmp rax, 0\n";
+        printf "    je .Lend%d\n" seq
+    in
+    may gen_expr' init;
+    printf ".Lbegin%d:\n" seq;
+    may gen_cond cond;
+    gen_stmt stmt;
+    may gen_expr' next;
+    printf "    jmp .Lbegin%d\n" seq;
+    printf ".Lend%d:\n" seq
+| Block stmt_list ->
+    List.iter gen_stmt stmt_list
 
 and gen_lval expr = match expr with
 | Ident name ->

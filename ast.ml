@@ -2,6 +2,9 @@ type stmt =
 | Expr of expr
 | Return of expr
 | If of expr * stmt * stmt option
+| While of expr * stmt
+| For of expr option * expr option * expr option * stmt
+| Block of stmt list
 
 and expr =
 | Num of string

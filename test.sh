@@ -77,6 +77,7 @@ try_expr 1 "1<=1"
 try_expr 1 "0<=1"
 try_stmt_list 1 'a=1;a;'
 try_stmt_list 3 'a=1;b=2;a+b;'
+try_stmt_list 3 'foo=1;bar=2;foo+bar;'
 
 $RUN bash tmp.sh
 

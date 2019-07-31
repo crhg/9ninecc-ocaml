@@ -1,7 +1,21 @@
 open Ast
 open Printf
 
+module Env = Map.Make(String)
+
+let local_env = ref Env.empty
+
+let lvar_offset name =
+    try Env.find name !local_env
+    with
+    | Not_found ->
+        let new_offset = (Env.cardinal !local_env + 1) * 8 in
+        local_env := Env.add name new_offset !local_env;
+        new_offset
+
 let rec gen stmt_list =
+    local_env := Env.empty;
+
     printf ".intel_syntax noprefix\n";
     printf ".global main\n";
     printf "main:\n";
@@ -21,10 +35,6 @@ and gen_stmt stmt = match stmt with
 | Expr expr ->
     gen_expr expr;
     printf "    pop rax\n";
-
-and lvar_offset name =
-    let c = name.[0] in
-    (Char.code c - Char.code 'a' + 1) * 8
 
 and gen_lval expr = match expr with
 | Ident name ->

@@ -26,7 +26,7 @@ rule token = parse
 | ';' { SEMI }
 
 | ['0'-'9']+ as num { NUM num }
-| ['a'-'z'] as name { IDENT (String.make 1 name) }
+| ['a'-'z']['a'-'z' '0'-'9']* as name { IDENT name }
 | eof { EOF }
 
 {

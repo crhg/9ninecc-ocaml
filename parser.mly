@@ -5,6 +5,11 @@
 
 %token PLUS
 %token MINUS
+%token AST
+%token SLASH
+
+%token LPAR
+%token RPAR
 
 %token <string> NUM         // 整数トークン
 
@@ -20,9 +25,20 @@ translation_unit:
 | e=expr EOF { e }
 
 expr:
+| m=mul { m }
+| e=expr PLUS m=mul { Add (e, m) }
+| e=expr MINUS m=mul { Sub (e, m) }
+
+mul:
+| u=unary { u }
+| m=mul AST u=unary { Mul (m, u) }
+| m=mul SLASH u=unary { Div (m, u) }
+
+unary:
 | t=term { t }
-| e=expr PLUS t=term { Add (e, t) }
-| e=expr MINUS t=term { Sub (e, t) }
+| PLUS t=term { t }
+| MINUS t=term { Sub (Num "0", t) }
 
 term:
 | n=NUM { Num n }
+| LPAR e=expr RPAR { e }

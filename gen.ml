@@ -166,6 +166,8 @@ and gen_lval expr = match expr.exp.e with
         with Not_found ->
             raise (Error_at("undefined: " ^ name, expr.loc))
     end
+| Deref e ->
+    gen_expr e
 | _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
 
 and binop op l r = 
@@ -176,16 +178,34 @@ and binop op l r =
     op ();
     Stack.push "rax"
 
+
+and get_type expr = Option.get(expr.exp.ty)
+
+and assign_type_array expr = 
+    let ty = find_type_array expr in
+    expr.exp.ty <- Some ty;
+    ty
+
+(* array型をそのまま返す版, &とsizeofのオペランドにだけ使う *)
+and find_type_array expr = match expr.exp.e with
+| Ident name -> Env.lvar_type name
+| _ -> find_type expr
+
 and assign_type expr = 
     let ty = find_type expr in
     expr.exp.ty <- Some ty;
     ty
 
-and get_type expr = Option.get(expr.exp.ty)
-
 and find_type expr = match expr.exp.e with
 | Num _ -> Type.Int
-| Ident name -> Env.lvar_type name
+| Ident name ->
+    let ty = Env.lvar_type name in
+    begin
+        (* 配列型はポインタ型に読みかえる *)
+        match ty with
+        | Array (t, _) -> Type.Ptr t
+        | _ -> ty
+    end
 | Assign (l, r) ->
     let lty = assign_type l in
     let _ = assign_type r in
@@ -194,7 +214,7 @@ and find_type expr = match expr.exp.e with
     let _ = List.map assign_type expr_list in
     Type.Int
 | Addr e ->
-    let ty = assign_type e in
+    let ty = assign_type_array e in
     Type.Ptr ty
 | Deref e ->
     let ty = assign_type e in
@@ -204,7 +224,7 @@ and find_type expr = match expr.exp.e with
         | _ -> raise (Error_at("deref of non pointer", expr.loc))
     end
 | Sizeof e ->
-    let _ = assign_type e in
+    let _ = assign_type_array e in
     Type.Int
 | Add (l, r) ->
     let lty = assign_type l in
@@ -249,11 +269,17 @@ match expr.exp.e with
 | Num n ->
     Stack.push n
 | Ident name ->
-    let ty = get_type expr in
-    gen_lval expr;
-    Stack.pop "rax";
-    load ty "rax" "[rax]";
-    Stack.push "rax";
+    let ty = Env.lvar_type name in
+    begin
+        match ty with
+        | Array (_, _) -> 
+            gen_lval expr
+        | _ ->
+            gen_lval expr;
+            Stack.pop "rax";
+            load ty "rax" "[rax]";
+            Stack.push "rax"
+    end
 | Assign (l, r) ->
     let ty = get_type expr in
     gen_lval l;

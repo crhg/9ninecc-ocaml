@@ -1,4 +1,7 @@
-type stmt = 
+type decl =
+| Function of string * string list * stmt
+
+and stmt = 
 | Expr of expr
 | Return of expr
 | If of expr * stmt * stmt option

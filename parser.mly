@@ -19,14 +19,19 @@
 
 %token EOF
 
-%type <Ast.stmt list> translation_unit
+%type <Ast.decl list> translation_unit
 
 %start translation_unit
 
 %%
 
 translation_unit:
-| l=stmt* EOF { l }
+| l=decl* EOF { l }
+
+decl:
+| func=IDENT LPAR params=separated_list(COMMA, id=IDENT { id }) RPAR body=block {
+    Function (func, params, body)
+}
 
 stmt:
 | e=expr SEMI { Expr e }
@@ -36,6 +41,9 @@ stmt:
 }
 | WHILE LPAR e=expr RPAR s=stmt { While (e, s) }
 | FOR LPAR init=expr? SEMI cond=expr? SEMI next=expr? RPAR s=stmt { For (init, cond, next, s) }
+| b=block { b }
+
+block:
 | LBRACE l=stmt* RBRACE { Block l }
 
 expr:

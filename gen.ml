@@ -10,35 +10,45 @@ let new_seq _ =
     seq := !seq + 1;
     r
 
-(* ローカル変数の環境 *)
-module Env = Map.Make(String)
 
-let local_env = ref Env.empty
-
-let lvar_offset name =
-    try Env.find name !local_env
-    with
-    | Not_found ->
-        let new_offset = (Env.cardinal !local_env + 1) * 8 in
-        local_env := Env.add name new_offset !local_env;
-        new_offset
-
-
-let rec gen stmt_list =
-    local_env := Env.empty;
-    Stack.reset();
-
+let rec gen decl_list =
     printf ".intel_syntax noprefix\n";
     printf ".global main\n";
-    printf "main:\n";
 
-    (* 変数26個分の領域を確保 *)
+    List.iter gen_decl decl_list
+
+and gen_decl decl = match decl with
+| Function (func, params, body) ->
+    Env.prepare params body;
+    Stack.reset();
+
+    printf "%s:\n" func;
+
     printf "    push rbp\n";
     printf "    mov rbp, rsp\n";
-    printf "    sub rsp, %d\n" (8 * 26);
-    Stack.add (8 * 26);
+    printf "    sub rsp, %d\n" (8 * Env.size());
+    Stack.add (8 * Env.size());
 
-    List.iter gen_stmt stmt_list;
+    let copy_param i name =
+        gen_lval_lvar name;
+        Stack.pop "rax";
+        match i with
+        | 0 -> printf "    mov [rax], rdi\n"
+        | 1 -> printf "    mov [rax], rsi\n"
+        | 2 -> printf "    mov [rax], rdx\n"
+        | 3 -> printf "    mov [rax], rcx\n"
+        | 4 -> printf "    mov [rax], r8\n"
+        | 5 -> printf "    mov [rax], r9\n"
+        | _ ->
+            let offset = (i - 6) * 8 + 16 in
+            printf "    mov r10, rbp\n";
+            printf "    add r10, %d # %s\n" offset name;
+            printf "    mov r10, [r10]\n";
+            printf "    mov [rax], r10\n"
+    in
+        Array.iteri copy_param (Array.of_list params);
+
+    gen_stmt body;
 
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
@@ -109,11 +119,13 @@ match stmt with
 | Block stmt_list ->
     List.iter gen_stmt stmt_list
 
-and gen_lval expr = match expr with
-| Ident name ->
+and gen_lval_lvar name = 
     printf "    mov rax, rbp\n";
-    printf "    sub rax, %d\n" (lvar_offset name);
+    printf "    sub rax, %d\n" (Env.lvar_offset name);
     Stack.push "rax"
+
+and gen_lval expr = match expr with
+| Ident name -> gen_lval_lvar name
 | _ -> failwith("not lval: " ^ show_expr expr)
 
 and binop op l r = 

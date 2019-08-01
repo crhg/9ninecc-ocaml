@@ -14,6 +14,8 @@
 
 %token RETURN IF ELSE WHILE FOR
 
+%token INT
+
 %token <string> NUM         // 整数トークン
 %token <string> IDENT
 
@@ -29,61 +31,72 @@ translation_unit:
 | l=decl* EOF { l }
 
 decl:
-| func=IDENT LPAR params=separated_list(COMMA, id=IDENT { id }) RPAR body=block {
-    Function (func, params, body)
+| INT func=IDENT LPAR params=separated_list(COMMA, t=type_spec d=declarator { type_and_var t d }) RPAR body=block {
+    { exp = Function (func, params, body); loc = $startpos(func) }
 }
 
+type_spec:
+| INT { Type.Int }
+
+declarator:
+| var=IDENT { { exp = DeclIdent var; loc = $startpos(var) } }
+| token=AST d=declarator { { exp = PointerOf d; loc = $startpos(token) } }
+
 stmt:
-| e=expr SEMI { Expr e }
-| RETURN e=expr SEMI { Return e }
-| IF LPAR e=expr RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
-    If (e, then_stmt, else_stmt)
+| t=type_spec d=declarator SEMI {
+    let (ty, name) = type_and_var t d in
+    { exp = Var (ty, name); loc = d.loc }
 }
-| WHILE LPAR e=expr RPAR s=stmt { While (e, s) }
-| FOR LPAR init=expr? SEMI cond=expr? SEMI next=expr? RPAR s=stmt { For (init, cond, next, s) }
+| e=expr SEMI { { exp = Expr e; loc = e.loc } }
+| token=RETURN e=expr SEMI { { exp = Return e; loc = $startpos(token) } }
+| token=IF LPAR e=expr RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
+    { exp = If (e, then_stmt, else_stmt); loc = $startpos(token) }
+}
+| token=WHILE LPAR e=expr RPAR s=stmt { { exp = While (e, s); loc = $startpos(token) } }
+| token=FOR LPAR init=expr? SEMI cond=expr? SEMI next=expr? RPAR s=stmt { { exp = For (init, cond, next, s); loc = $startpos(token) } }
 | b=block { b }
 
 block:
-| LBRACE l=stmt* RBRACE { Block l }
+| token=LBRACE l=stmt* RBRACE { { exp = Block l; loc = $startpos(token) } }
 
 expr:
 | e=assign { e }
 
 assign:
 | e=equality { e }
-| l=assign ASSIGN r=equality { Assign (l, r) }
+| l=assign token=ASSIGN r=equality { { exp = Assign (l, r); loc = $startpos(token) } }
 
 equality:
 | e=relational { e }
-| l=equality EQ r=relational { Eq (l, r) }
-| l=equality NE r=relational { Ne (l, r) }
+| l=equality token=EQ r=relational { { exp = Eq (l, r); loc = $startpos(token) } }
+| l=equality token=NE r=relational { { exp = Ne (l, r); loc = $startpos(token) } }
 
 relational:
 | e=add { e }
-| l=relational LT r=add { Lt (l, r) }
-| l=relational LE r=add { Le (l, r) }
-| l=relational GT r=add { Lt (r, l) }
-| l=relational GE r=add { Le (r, l) }
+| l=relational token=LT r=add { { exp = Lt (l, r); loc = $startpos(token) } }
+| l=relational token=LE r=add { { exp = Le (l, r); loc = $startpos(token) } }
+| l=relational token=GT r=add { { exp = Lt (r, l); loc = $startpos(token) } }
+| l=relational token=GE r=add { { exp = Le (r, l); loc = $startpos(token) } }
 
 add:
 | e=mul { e }
-| e=add PLUS m=mul { Add (e, m) }
-| e=add MINUS m=mul { Sub (e, m) }
+| e=add token=PLUS m=mul { { exp = Add (e, m); loc = $startpos(token) } }
+| e=add token=MINUS m=mul { { exp = Sub (e, m); loc = $startpos(token) } }
 
 mul:
 | e=unary { e }
-| l=mul AST r=unary { Mul (l, r) }
-| l=mul SLASH r=unary { Div (l, r) }
+| l=mul token=AST r=unary { { exp = Mul (l, r); loc = $startpos(token) } }
+| l=mul token=SLASH r=unary { { exp = Div (l, r); loc = $startpos(token) } }
 
 unary:
 | e=term { e }
 | PLUS e=term { e }
-| MINUS e=term { Sub (Num "0", e) }
-| AST e=unary { Deref e }
-| AMP e=unary { Addr e }
+| token=MINUS e=term { { exp = Sub ({ exp = Num "0"; loc = $startpos(token) }, e); loc = $startpos(token) } }
+| token=AST e=unary { { exp = Deref e; loc = $startpos(token) } }
+| token=AMP e=unary { { exp = Addr e; loc = $startpos(token) } }
 
 term:
-| n=NUM { Num n }
-| id=IDENT { Ident id }
-| func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { Call (func, l) }
+| n=NUM { { exp = Num n; loc = $startpos(n) } }
+| id=IDENT { { exp = Ident id; loc = $startpos(id) } }
+| func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = Call (func, l); loc = $startpos(func) } }
 | LPAR e=expr RPAR { e }

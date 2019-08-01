@@ -17,7 +17,7 @@ let rec gen decl_list =
 
     List.iter gen_decl decl_list
 
-and gen_decl decl = match decl with
+and gen_decl decl = match decl.exp with
 | Function (func, params, body) ->
     Env.prepare params body;
     Stack.reset();
@@ -26,10 +26,11 @@ and gen_decl decl = match decl with
 
     printf "    push rbp\n";
     printf "    mov rbp, rsp\n";
-    printf "    sub rsp, %d\n" (8 * Env.size());
-    Stack.add (8 * Env.size());
+    printf "    sub rsp, %d\n" (Env.size());
+    Stack.add (Env.size());
 
-    let copy_param i name =
+    let copy_param i ty_name =
+        let (ty, name) = ty_name in
         gen_lval_lvar name;
         Stack.pop "rax";
         match i with
@@ -58,7 +59,8 @@ and gen_stmt stmt =
 let gen_expr expr =
     Stack.with_save (fun _ -> gen_expr expr)
 in
-match stmt with
+match stmt.exp with
+| Var _ -> ()
 | Expr expr ->
     gen_expr expr;
     printf "    pop rax\n"
@@ -124,7 +126,7 @@ and gen_lval_lvar name =
     printf "    sub rax, %d\n" (Env.lvar_offset name);
     Stack.push "rax"
 
-and gen_lval expr = match expr with
+and gen_lval expr = match expr.exp with
 | Ident name -> gen_lval_lvar name
 | _ -> failwith("not lval: " ^ show_expr expr)
 
@@ -136,7 +138,7 @@ and binop op l r =
     op ();
     Stack.push "rax"
 
-and gen_expr expr = match expr with
+and gen_expr expr = match expr.exp with
 | Num n ->
     Stack.push n
 | Ident name ->

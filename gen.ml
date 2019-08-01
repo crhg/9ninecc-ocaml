@@ -1,4 +1,5 @@
 open Ast
+open Env
 open Misc
 open Printf
 
@@ -45,20 +46,35 @@ let rec gen decl_list =
     List.iter gen_decl decl_list
 
 and gen_decl decl = match decl.exp with
-| Function (func, params, body) ->
-    Env.prepare params body;
+| GlobalVarDef (ty, name) ->
+    register_global_var ty name;
+
+    printf "    .globl %s\n", name;
+    printf "    .bss\n";
+    printf "    .align %d\n" (Type.get_alignment ty);
+    printf "    .type %s, @object\n" name;
+    printf "    .size %s, %d\n" name (Type.get_size ty);
+    printf "%s:\n" name;
+    printf "    .zero %d\n" (Type.get_size ty)
+
+| Function (_, func, params, body) ->
+    Type_check.prepare params body;
     Stack.reset();
 
+    let size = local_var_size() in
+
+    printf "    .text\n";
+    printf "    .globl %s\n" func;
+    printf "    .type %s, @function\n" func;
     printf "%s:\n" func;
 
     printf "    push rbp\n";
     printf "    mov rbp, rsp\n";
-    printf "    sub rsp, %d\n" (Env.size());
-    Stack.add (Env.size());
+    printf "    sub rsp, %d\n" size;
+    Stack.add size;
 
-    let copy_param i ty_name =
-        let (ty, name) = ty_name in
-        gen_lval_lvar name;
+    let copy_param i (ty, name) =
+        gen_lval_name name;
         Stack.pop "rax";
         match i with
         | 0 ->
@@ -154,18 +170,20 @@ match stmt.exp with
 | Block stmt_list ->
     List.iter gen_stmt stmt_list
 
-and gen_lval_lvar name = 
+and gen_lval_entry entry = match entry with
+| LocalVar (_, offset) ->
     printf "    mov rax, rbp\n";
-    printf "    sub rax, %d\n" (Env.lvar_offset name);
+    printf "    sub rax, %d\n" offset;
+    Stack.push "rax"
+| GlobalVar (_, name) ->
+    printf "    mov rax, OFFSET FLAT:%s\n" name;
     Stack.push "rax"
 
+and gen_lval_name name = gen_lval_entry (get_entry name)
+
 and gen_lval expr = match expr.exp.e with
-| Ident name ->
-    begin
-        try gen_lval_lvar name
-        with Not_found ->
-            raise (Error_at("undefined: " ^ name, expr.loc))
-    end
+| Ident (_, entry_ref) ->
+    gen_lval_entry !entry_ref
 | Deref e ->
     gen_expr e
 | _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
@@ -181,111 +199,14 @@ and binop op l r =
 
 and get_type expr = Option.get(expr.exp.ty)
 
-and assign_type_array expr = 
-    let ty = find_type_array expr in
-    expr.exp.ty <- Some ty;
-    ty
-
-(* array型をそのまま返す版, &とsizeofのオペランドにだけ使う *)
-and find_type_array expr = match expr.exp.e with
-| Ident name -> Env.lvar_type name
-| _ -> find_type expr
-
-and assign_type expr = 
-    let ty = find_type expr in
-    expr.exp.ty <- Some ty;
-    ty
-
-and find_type expr = match expr.exp.e with
-| Num _ -> Type.Int
-| Ident name ->
-    let ty = Env.lvar_type name in
-    begin
-        (* 配列型はポインタ型に読みかえる *)
-        match ty with
-        | Array (t, _) -> Type.Ptr t
-        | _ -> ty
-    end
-| Assign (l, r) ->
-    let lty = assign_type l in
-    let _ = assign_type r in
-    lty
-| Call (_, expr_list) ->
-    let _ = List.map assign_type expr_list in
-    Type.Int
-| Addr e ->
-    let ty = assign_type_array e in
-    Type.Ptr ty
-| Deref e ->
-    let ty = assign_type e in
-    begin
-        match ty with
-        | Type.Ptr t -> t
-        | _ -> raise (Error_at("deref of non pointer", expr.loc))
-    end
-| Sizeof e ->
-    let _ = assign_type_array e in
-    Type.Int
-| Add (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
-    begin
-        match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
-        | (Type.Ptr _, Type.Int) -> lty
-        | (Type.Int, Type.Ptr _) -> rty
-        | _ -> raise (Error_at("cannot add", expr.loc))
-    end
-| Sub (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
-    begin
-        match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
-        | (Type.Ptr _, Type.Ptr _) -> Type.Int
-        | (Type.Ptr _, Type.Int) -> lty
-        | _ -> raise (Error_at("cannot sub", expr.loc))
-    end
-| Mul (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
-    begin
-        match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
-        | _ -> raise (Error_at("cannot mul", expr.loc))
-    end
-| Div (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
-    begin
-        match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
-        | _ -> raise (Error_at("cannot div", expr.loc))
-    end
-| Eq (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
-| Ne (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
-| Lt (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
-| Le (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
 
 and gen_expr expr =
-let _ = assign_type expr in
+let _ = Type_check.assign_type expr in
 match expr.exp.e with
 | Num n ->
     Stack.push n
-| Ident name ->
-    let ty = Env.lvar_type name in
+| Ident (_, entry_ref) ->
+    let ty = entry_type !entry_ref in
     begin
         match ty with
         | Array (_, _) -> 

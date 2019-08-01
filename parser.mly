@@ -1,5 +1,6 @@
 %{
     open Ast
+    open Misc
 %}
 
 %token PLUS MINUS AST SLASH AMP
@@ -33,8 +34,16 @@ translation_unit:
 | l=decl* EOF { l }
 
 decl:
-| INT func=IDENT LPAR params=separated_list(COMMA, t=type_spec d=declarator { type_and_var t d }) RPAR body=block {
-    { exp = Function (func, params, body); loc = $startpos(func) }
+| t=type_spec d=declarator SEMI {
+    let (ty, name) = type_and_var t d in
+    { exp = GlobalVarDef (ty, name); loc = d.loc }
+}
+| t=type_spec d=declarator body=block {
+    match d.exp with
+    | Func (_, params) -> 
+        let (ty, name) = type_and_var t d in
+        { exp = Function (ty, name, params, body); loc = d.loc }
+    | _ -> raise(Error_at("body exists but not function", body.loc))
 }
 
 type_spec:
@@ -50,6 +59,12 @@ direct_declarator:
 | d=direct_declarator LBRACKET n=NUM RBRACKET {
     {
         exp = Array (d, int_of_string n);
+        loc = d.loc
+    }
+}
+| d=direct_declarator LPAR params=separated_list(COMMA, t=type_spec d=declarator { type_and_var t d }) RPAR {
+    {
+        exp = Func (d, params);
         loc = d.loc
     }
 }
@@ -110,7 +125,7 @@ unary:
 
 term:
 | n=NUM { { exp = no_type (Num n); loc = $startpos(n) } }
-| id=IDENT { { exp = no_type (Ident id); loc = $startpos(id) } }
+| id=IDENT { { exp = no_type (Ident (id, ref Env.DummyEntry)); loc = $startpos(id) } }
 | func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = no_type (Call (func, l)); loc = $startpos(func) } }
 | arr=term token=LBRACKET offset=expr RBRACKET {
     let pointer = { exp = no_type (Add (arr, offset)); loc = $startpos(token) } in

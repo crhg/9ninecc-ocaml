@@ -2,6 +2,7 @@ type t =
 | Int
 | Ptr of t
 | Array of t * int
+| Function of t * t list (* 戻り値とパラメタ *)
 [@@deriving show]
 
 let rec get_size ty = match ty with

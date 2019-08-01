@@ -181,6 +181,8 @@ and assign_type expr =
     expr.exp.ty <- Some ty;
     ty
 
+and get_type expr = Option.get(expr.exp.ty)
+
 and find_type expr = match expr.exp.e with
 | Num _ -> Type.Int
 | Ident name -> Env.lvar_type name
@@ -244,13 +246,13 @@ match expr.exp.e with
 | Num n ->
     Stack.push n
 | Ident name ->
-    let ty = Option.get(expr.exp.ty) in
+    let ty = get_type expr in
     gen_lval expr;
     Stack.pop "rax";
     load ty "rax" "[rax]";
     Stack.push "rax";
 | Assign (l, r) ->
-    let ty = Option.get(expr.exp.ty) in
+    let ty = get_type expr in
     gen_lval l;
     gen_expr r;
     Stack.pop "rdi";
@@ -275,19 +277,49 @@ match expr.exp.e with
 | Addr e ->
     gen_lval e
 | Deref e ->
-    let ty = Option.get(expr.exp.ty) in
+    let ty = get_type expr in
     gen_expr e;
     Stack.pop "rax";
     load ty "rax" "[rax]";
     Stack.push "rax";
 | Add (l, r) ->
     let op _ =
-        printf "    add rax, rdi\n"
+        let lty = get_type l in
+        let rty = get_type r in
+        match (lty, rty) with
+        | (Type.Ptr ty, Type.Int) ->
+            let size = Type.get_size ty in
+            printf "    mov rbx, %d\n" size;
+            printf "    imul rdi, rbx\n";
+            printf "    add rax, rdi\n"
+        | (Type.Int, Type.Int) ->
+            printf "    add rax, rdi\n"
     in
     binop op l r
 | Sub (l, r) ->
     let op _ =
-        printf "    sub rax, rdi\n"
+        let lty = get_type l in
+        let rty = get_type r in
+        match (lty, rty) with
+        | (Type.Ptr lty', Type.Ptr rty') ->
+            if lty' == rty' then
+                let size = Type.get_size lty' in
+                printf "    sub rax, rdi\n";
+                printf "    mov rdi, %d\n" size;
+                printf "    cqo\n";
+                printf "    idiv rdi\n"
+            else
+                raise(Error_at(
+                    "different pointer type: lhs=" ^ (Type.show lty) ^ ", rhs=" ^ (Type.show rty),
+                    expr.loc
+                ))
+        | (Type.Ptr ty, Type.Int) ->
+            let size = Type.get_size ty in
+            printf "    mov rbx, %d\n" size;
+            printf "    imul rdi, rbx\n";
+            printf "    sub rax, rdi\n"
+        | (Type.Int, Type.Int) ->
+            printf "    sub rax, rdi\n"
     in
     binop op l r
 | Mul (l, r) ->

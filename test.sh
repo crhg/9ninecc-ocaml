@@ -147,6 +147,9 @@ try_decl_list 6 'int main() {return f(1,2,3,4,5,6);} int f(int x1,int x2,int x3,
 try_decl_list 7 'int main() {return f(1,2,3,4,5,6,7);} int f(int x1,int x2,int x3,int x4,int x5,int x6,int x7){return x7;}'
 try_decl_list 8 'int main() {return f(1,2,3,4,5,6,7,8);} int f(int x1,int x2,int x3,int x4,int x5,int x6,int x7,int x8){return x8;}'
 try_decl_list 1 'int main() {int x; int *p; int y; x = 1; p = &x; y = *p; return y; }'
+try_decl_list 1 'int main() {int x; int y; x = 1; y = 2; return *(&y + 1);}'
+try_decl_list 2 'int main() {int x; int y; int z; return &x - &z; }'
+try_decl_list 2 'int main() {int x; int y; x = 1; y = 2; return *(&x - 1);}'
 
 echo echo OK >> tmp.sh
 

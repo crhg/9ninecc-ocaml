@@ -228,24 +228,40 @@ and find_type expr = match expr.exp.e with
     Type.Int
 | Add (l, r) ->
     let lty = assign_type l in
-    let _ = assign_type r in
-    lty
+    let rty = assign_type r in
+    begin
+        match (lty, rty) with
+        | (Type.Int, Type.Int) -> Type.Int
+        | (Type.Ptr _, Type.Int) -> lty
+        | (Type.Int, Type.Ptr _) -> rty
+        | _ -> raise (Error_at("cannot add", expr.loc))
+    end
 | Sub (l, r) ->
     let lty = assign_type l in
     let rty = assign_type r in
     begin
         match (lty, rty) with
+        | (Type.Int, Type.Int) -> Type.Int
         | (Type.Ptr _, Type.Ptr _) -> Type.Int
-        | (_, _) -> lty
+        | (Type.Ptr _, Type.Int) -> lty
+        | _ -> raise (Error_at("cannot sub", expr.loc))
     end
 | Mul (l, r) ->
     let lty = assign_type l in
-    let _ = assign_type r in
-    lty
+    let rty = assign_type r in
+    begin
+        match (lty, rty) with
+        | (Type.Int, Type.Int) -> Type.Int
+        | _ -> raise (Error_at("cannot mul", expr.loc))
+    end
 | Div (l, r) ->
     let lty = assign_type l in
-    let _ = assign_type r in
-    lty
+    let rty = assign_type r in
+    begin
+        match (lty, rty) with
+        | (Type.Int, Type.Int) -> Type.Int
+        | _ -> raise (Error_at("cannot div", expr.loc))
+    end
 | Eq (l, r) ->
     let _ = assign_type l in
     let _ = assign_type r in
@@ -315,19 +331,26 @@ match expr.exp.e with
     printf "    mov rax, %d\n" (Type.get_size (get_type e));
     Stack.push "rax"
 | Add (l, r) ->
-    let op _ =
-        let lty = get_type l in
-        let rty = get_type r in
-        match (lty, rty) with
-        | (Type.Ptr ty, Type.Int) ->
-            let size = Type.get_size ty in
-            printf "    mov rbx, %d\n" size;
-            printf "    imul rdi, rbx\n";
+    let add l r =
+        let op _ =
+            let lty = get_type l in
+            let rty = get_type r in
+            match (lty, rty) with
+            | (Type.Ptr ty, Type.Int) ->
+                let size = Type.get_size ty in
+                printf "    mov rbx, %d\n" size;
+                printf "    imul rdi, rbx\n";
+                printf "    add rax, rdi\n"
+            | (Type.Int, Type.Int) ->
             printf "    add rax, rdi\n"
-        | (Type.Int, Type.Int) ->
-            printf "    add rax, rdi\n"
+        in
+        binop op l r
     in
-    binop op l r
+    begin
+        match get_type r with
+        | Type.Ptr _ -> add r l
+        | _          -> add l r
+    end
 | Sub (l, r) ->
     let op _ =
         let lty = get_type l in

@@ -112,4 +112,8 @@ term:
 | n=NUM { { exp = no_type (Num n); loc = $startpos(n) } }
 | id=IDENT { { exp = no_type (Ident id); loc = $startpos(id) } }
 | func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = no_type (Call (func, l)); loc = $startpos(func) } }
+| arr=term token=LBRACKET offset=expr RBRACKET {
+    let pointer = { exp = no_type (Add (arr, offset)); loc = $startpos(token) } in
+    { exp = no_type (Deref pointer); loc = $startpos(token) }
+}
 | LPAR e=expr RPAR { e }

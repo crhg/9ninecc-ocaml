@@ -155,6 +155,8 @@ try_decl_list 8 'int main() {int x; return sizeof &x; }'
 try_decl_list 32 'int main() {int x[8]; return sizeof x; }'
 try_decl_list 10 'int main() {int x[8]; *(x+2) = 10; return *(x+2);}'
 try_decl_list 10 'int main() {int x[8]; int *p; p = x; *(p+2) = 10; return *(x+2);}'
+try_decl_list 10 'int main() {int x[8]; x[2] = 10; return x[2];}'
+try_decl_list 10 'int main() {int x[8]; 2[x] = 10; return 2[x];}'
 
 
 echo echo OK >> tmp.sh

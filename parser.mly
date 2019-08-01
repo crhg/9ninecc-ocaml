@@ -14,6 +14,8 @@
 
 %token RETURN IF ELSE WHILE FOR
 
+%token SIZEOF
+
 %token INT
 
 %token <string> NUM         // 整数トークン
@@ -94,6 +96,7 @@ unary:
 | token=MINUS e=term { { exp = no_type (Sub ({ exp = no_type (Num "0"); loc = $startpos(token) }, e)); loc = $startpos(token) } }
 | token=AST e=unary { { exp = no_type (Deref e); loc = $startpos(token) } }
 | token=AMP e=unary { { exp = no_type (Addr e); loc = $startpos(token) } }
+| token=SIZEOF e=unary { { exp = no_type (Sizeof e); loc = $startpos(token) } }
 
 term:
 | n=NUM { { exp = no_type (Num n); loc = $startpos(n) } }

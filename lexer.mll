@@ -35,6 +35,7 @@ rule token = parse
 | "while"  { WHILE }
 | "for"    { FOR }
 | "int"    { INT }
+| "sizeof" { SIZEOF }
 
 | ['0'-'9']+ as num { NUM num }
 | ['a'-'z']['a'-'z' '0'-'9']* as name { IDENT name }

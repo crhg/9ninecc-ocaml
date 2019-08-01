@@ -42,6 +42,7 @@ and expr_e =
 | Call of string * expr list
 | Deref of expr
 | Addr of expr
+| Sizeof of expr
 and expr_exp = expr_e with_type
 and expr = expr_exp node
 [@@deriving show]

@@ -203,6 +203,9 @@ and find_type expr = match expr.exp.e with
         | Type.Ptr t -> t
         | _ -> raise (Error_at("deref of non pointer", expr.loc))
     end
+| Sizeof e ->
+    let _ = assign_type e in
+    Type.Int
 | Add (l, r) ->
     let lty = assign_type l in
     let _ = assign_type r in
@@ -271,7 +274,7 @@ match expr.exp.e with
         (if n_param >= 5 then Stack.pop "r8");
         (if n_param >= 6 then Stack.pop "r9");
         printf "    mov rax, %d\n" n_param;
-        printf "    call %s\n" func;
+        printf "    call %s\n" func
     );
     Stack.push "rax"
 | Addr e ->
@@ -281,7 +284,10 @@ match expr.exp.e with
     gen_expr e;
     Stack.pop "rax";
     load ty "rax" "[rax]";
-    Stack.push "rax";
+    Stack.push "rax"
+| Sizeof e ->
+    printf "    mov rax, %d\n" (Type.get_size (get_type e));
+    Stack.push "rax"
 | Add (l, r) ->
     let op _ =
         let lty = get_type l in

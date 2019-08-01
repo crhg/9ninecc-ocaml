@@ -150,6 +150,8 @@ try_decl_list 1 'int main() {int x; int *p; int y; x = 1; p = &x; y = *p; return
 try_decl_list 1 'int main() {int x; int y; x = 1; y = 2; return *(&y + 1);}'
 try_decl_list 2 'int main() {int x; int y; int z; return &x - &z; }'
 try_decl_list 2 'int main() {int x; int y; x = 1; y = 2; return *(&x - 1);}'
+try_decl_list 4 'int main() {int x; return sizeof x; }'
+try_decl_list 8 'int main() {int x; return sizeof &x; }'
 
 echo echo OK >> tmp.sh
 

@@ -126,7 +126,7 @@ and gen_lval_lvar name =
     printf "    sub rax, %d\n" (Env.lvar_offset name);
     Stack.push "rax"
 
-and gen_lval expr = match expr.exp with
+and gen_lval expr = match expr.exp.e with
 | Ident name ->
     begin
         try gen_lval_lvar name
@@ -143,7 +143,7 @@ and binop op l r =
     op ();
     Stack.push "rax"
 
-and gen_expr expr = match expr.exp with
+and gen_expr expr = match expr.exp.e with
 | Num n ->
     Stack.push n
 | Ident name ->

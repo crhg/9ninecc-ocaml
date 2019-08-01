@@ -2,9 +2,8 @@ type 't node = {
     exp: 't;
     loc: Lexing.position [@opaque]
 }
-[@@deriving show]
 
-type decl_exp =
+and decl_exp =
 | Function of string * (Type.t * string) list * stmt
 and decl = decl_exp node
 
@@ -23,7 +22,12 @@ and stmt_exp =
 | Block of stmt list
 and stmt = stmt_exp node
 
-and expr_exp =
+and 't with_type = {
+    e: 't;
+    mutable ty: Type.t option
+}
+
+and expr_e =
 | Num of string
 | Ident of string
 | Add of expr * expr
@@ -38,8 +42,11 @@ and expr_exp =
 | Call of string * expr list
 | Deref of expr
 | Addr of expr
+and expr_exp = expr_e with_type
 and expr = expr_exp node
 [@@deriving show]
+
+let no_type e = { e = e; ty = None }
 
 let rec type_and_var t d = match d.exp with
 | DeclIdent var -> (t, var)

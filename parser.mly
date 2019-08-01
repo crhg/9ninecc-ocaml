@@ -64,39 +64,39 @@ expr:
 
 assign:
 | e=equality { e }
-| l=assign token=ASSIGN r=equality { { exp = Assign (l, r); loc = $startpos(token) } }
+| l=assign token=ASSIGN r=equality { { exp = no_type (Assign (l, r)); loc = $startpos(token) } }
 
 equality:
 | e=relational { e }
-| l=equality token=EQ r=relational { { exp = Eq (l, r); loc = $startpos(token) } }
-| l=equality token=NE r=relational { { exp = Ne (l, r); loc = $startpos(token) } }
+| l=equality token=EQ r=relational { { exp = no_type (Eq (l, r)); loc = $startpos(token) } }
+| l=equality token=NE r=relational { { exp = no_type (Ne (l, r)); loc = $startpos(token) } }
 
 relational:
 | e=add { e }
-| l=relational token=LT r=add { { exp = Lt (l, r); loc = $startpos(token) } }
-| l=relational token=LE r=add { { exp = Le (l, r); loc = $startpos(token) } }
-| l=relational token=GT r=add { { exp = Lt (r, l); loc = $startpos(token) } }
-| l=relational token=GE r=add { { exp = Le (r, l); loc = $startpos(token) } }
+| l=relational token=LT r=add { { exp = no_type (Lt (l, r)); loc = $startpos(token) } }
+| l=relational token=LE r=add { { exp = no_type (Le (l, r)); loc = $startpos(token) } }
+| l=relational token=GT r=add { { exp = no_type (Lt (r, l)); loc = $startpos(token) } }
+| l=relational token=GE r=add { { exp = no_type (Le (r, l)); loc = $startpos(token) } }
 
 add:
 | e=mul { e }
-| e=add token=PLUS m=mul { { exp = Add (e, m); loc = $startpos(token) } }
-| e=add token=MINUS m=mul { { exp = Sub (e, m); loc = $startpos(token) } }
+| e=add token=PLUS m=mul { { exp = no_type (Add (e, m)); loc = $startpos(token) } }
+| e=add token=MINUS m=mul { { exp = no_type (Sub (e, m)); loc = $startpos(token) } }
 
 mul:
 | e=unary { e }
-| l=mul token=AST r=unary { { exp = Mul (l, r); loc = $startpos(token) } }
-| l=mul token=SLASH r=unary { { exp = Div (l, r); loc = $startpos(token) } }
+| l=mul token=AST r=unary { { exp = no_type (Mul (l, r)); loc = $startpos(token) } }
+| l=mul token=SLASH r=unary { { exp = no_type (Div (l, r)); loc = $startpos(token) } }
 
 unary:
 | e=term { e }
 | PLUS e=term { e }
-| token=MINUS e=term { { exp = Sub ({ exp = Num "0"; loc = $startpos(token) }, e); loc = $startpos(token) } }
-| token=AST e=unary { { exp = Deref e; loc = $startpos(token) } }
-| token=AMP e=unary { { exp = Addr e; loc = $startpos(token) } }
+| token=MINUS e=term { { exp = no_type (Sub ({ exp = no_type (Num "0"); loc = $startpos(token) }, e)); loc = $startpos(token) } }
+| token=AST e=unary { { exp = no_type (Deref e); loc = $startpos(token) } }
+| token=AMP e=unary { { exp = no_type (Addr e); loc = $startpos(token) } }
 
 term:
-| n=NUM { { exp = Num n; loc = $startpos(n) } }
-| id=IDENT { { exp = Ident id; loc = $startpos(id) } }
-| func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = Call (func, l); loc = $startpos(func) } }
+| n=NUM { { exp = no_type (Num n); loc = $startpos(n) } }
+| id=IDENT { { exp = no_type (Ident id); loc = $startpos(id) } }
+| func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = no_type (Call (func, l)); loc = $startpos(func) } }
 | LPAR e=expr RPAR { e }

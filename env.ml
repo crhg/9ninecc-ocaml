@@ -51,5 +51,7 @@ and allocate_expr expr = match expr with
 | Ne (l, r) -> allocate_expr l; allocate_expr r
 | Assign (l, r) -> allocate_expr l; allocate_expr r
 | Call (_, params) -> List.iter allocate_expr params
+| Addr e -> allocate_expr e
+| Deref e -> allocate_expr e
 
 let lvar_offset name = Env.find name !local_env

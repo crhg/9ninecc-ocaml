@@ -166,6 +166,13 @@ and gen_expr expr = match expr with
         printf "    call %s\n" func;
     );
     Stack.push "rax"
+| Addr e ->
+    gen_lval e
+| Deref e ->
+    gen_expr e;
+    Stack.pop "rax";
+    printf "    mov rax, [rax]\n";
+    Stack.push "rax";
 | Add (l, r) ->
     let op _ =
         printf "    add rax, rdi\n"

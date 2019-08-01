@@ -22,4 +22,6 @@ and expr =
 | Ne of expr * expr
 | Assign of expr * expr
 | Call of string * expr list
+| Deref of expr
+| Addr of expr
 [@@deriving show]

@@ -132,6 +132,7 @@ try_decl_list 5 'main() {return f(1,2,3,4,5);} f(x1,x2,x3,x4,x5){return x5;}'
 try_decl_list 6 'main() {return f(1,2,3,4,5,6);} f(x1,x2,x3,x4,x5,x6){return x6;}'
 try_decl_list 7 'main() {return f(1,2,3,4,5,6,7);} f(x1,x2,x3,x4,x5,x6,x7){return x7;}'
 try_decl_list 8 'main() {return f(1,2,3,4,5,6,7,8);} f(x1,x2,x3,x4,x5,x6,x7,x8){return x8;}'
+try_decl_list 1 'main() {x = 1; p = &x; y = *p; return y; }'
 
 echo echo OK >> tmp.sh
 

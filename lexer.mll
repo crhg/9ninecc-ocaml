@@ -11,6 +11,7 @@ rule token = parse
 | '-' { MINUS }
 | '*' { AST }
 | '/' { SLASH }
+| '&' { AMP }
 
 | "<"  { LT }
 | "<=" { LE }

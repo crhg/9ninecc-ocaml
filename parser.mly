@@ -2,7 +2,7 @@
     open Ast
 %}
 
-%token PLUS MINUS AST SLASH
+%token PLUS MINUS AST SLASH AMP
 
 %token LT LE GT GE EQ NE
 
@@ -79,6 +79,8 @@ unary:
 | e=term { e }
 | PLUS e=term { e }
 | MINUS e=term { Sub (Num "0", e) }
+| AST e=unary { Deref e }
+| AMP e=unary { Addr e }
 
 term:
 | n=NUM { Num n }

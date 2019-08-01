@@ -75,4 +75,5 @@ unary:
 term:
 | n=NUM { Num n }
 | id=IDENT { Ident id }
+| func=IDENT LPAR RPAR { Call func }
 | LPAR e=expr RPAR { e }

@@ -1,6 +1,8 @@
 open Ast
+open Misc
 open Printf
 
+(* ラベル用のシーケンス *)
 let seq = ref 0
 
 let new_seq _ =
@@ -8,6 +10,7 @@ let new_seq _ =
     seq := !seq + 1;
     r
 
+(* ローカル変数の環境 *)
 module Env = Map.Make(String)
 
 let local_env = ref Env.empty
@@ -20,12 +23,10 @@ let lvar_offset name =
         local_env := Env.add name new_offset !local_env;
         new_offset
 
-let may f x = match x with
-| Some x' -> f x'
-| None    -> ()
 
 let rec gen stmt_list =
     local_env := Env.empty;
+    Stack.reset();
 
     printf ".intel_syntax noprefix\n";
     printf ".global main\n";
@@ -35,6 +36,7 @@ let rec gen stmt_list =
     printf "    push rbp\n";
     printf "    mov rbp, rsp\n";
     printf "    sub rsp, %d\n" (8 * 26);
+    Stack.add (8 * 26);
 
     List.iter gen_stmt stmt_list;
 
@@ -42,7 +44,11 @@ let rec gen stmt_list =
     printf "    pop rbp\n";
     printf "    ret\n"
 
-and gen_stmt stmt = match stmt with
+and gen_stmt stmt =
+let gen_expr expr =
+    Stack.with_save (fun _ -> gen_expr expr)
+in
+match stmt with
 | Expr expr ->
     gen_expr expr;
     printf "    pop rax\n"
@@ -107,32 +113,37 @@ and gen_lval expr = match expr with
 | Ident name ->
     printf "    mov rax, rbp\n";
     printf "    sub rax, %d\n" (lvar_offset name);
-    printf "    push rax\n"
+    Stack.push "rax"
 | _ -> failwith("not lval: " ^ show_expr expr)
 
 and binop op l r = 
     gen_expr l;
     gen_expr r;
-    printf "    pop rdi\n";
-    printf "    pop rax\n";
+    Stack.pop "rdi";
+    Stack.pop "rax";
     op ();
-    printf "    push rax\n"
+    Stack.push "rax"
 
 and gen_expr expr = match expr with
 | Num n ->
-    printf "    push %d\n" (int_of_string n)
+    Stack.push n
 | Ident name ->
     gen_lval expr;
-    printf "    pop rax\n";
+    Stack.pop "rax";
     printf "    mov rax, [rax]\n";
-    printf "    push rax\n"
+    Stack.push "rax";
 | Assign (l, r) ->
     gen_lval l;
     gen_expr r;
-    printf "    pop rdi\n";
-    printf "    pop rax\n";
+    Stack.pop "rdi";
+    Stack.pop "rax";
     printf "    mov [rax], rdi\n";
-    printf "    push rdi\n";
+    Stack.push "rdi"
+| Call func ->
+    Stack.with_adjust 0 (fun _ ->
+        printf "    call %s\n" func;
+        Stack.push "rax"
+    )
 | Add (l, r) ->
     let op _ =
         printf "    add rax, rdi\n"

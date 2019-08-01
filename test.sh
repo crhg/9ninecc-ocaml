@@ -36,10 +36,12 @@ try_expr() {
 try_stmt_list() {
   expected="$1"
   input="$2"
+  shift
+  shift
 
   ./9ninecc -s "$input" > tmp-$n.s
   (
-      echo gcc -o tmp-$n tmp-$n.s
+      echo gcc -o tmp-$n tmp-$n.s "$@"
       echo ./tmp-$n
       echo 'actual="$?"'
 
@@ -90,6 +92,7 @@ try_stmt_list 1 'n=1; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } retur
 try_stmt_list 2 'n=2; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
 try_stmt_list 3 'n=3; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
 try_stmt_list 5 'n=4; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
+try_stmt_list 100 'return f();' test1.c
 
 echo echo OK >> tmp.sh
 

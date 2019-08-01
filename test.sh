@@ -93,6 +93,8 @@ try_stmt_list 2 'n=2; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } retur
 try_stmt_list 3 'n=3; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
 try_stmt_list 5 'n=4; a=0; b=1; for (i=0; i<n; i=i+1) { t=b; b=b+a; a=t; } return b;'
 try_stmt_list 100 'return f();' test1.c
+try_stmt_list 6 'return add(1, add(2, 3));' test2.c
+try_stmt_list 36 'return add8(1,2,3,4,5,6,7,8);' test2.c
 
 echo echo OK >> tmp.sh
 

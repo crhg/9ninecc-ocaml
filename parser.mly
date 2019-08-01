@@ -8,7 +8,7 @@
 
 %token ASSIGN
 
-%token SEMI
+%token SEMI COMMA
 
 %token LPAR RPAR LBRACE RBRACE
 
@@ -75,5 +75,5 @@ unary:
 term:
 | n=NUM { Num n }
 | id=IDENT { Ident id }
-| func=IDENT LPAR RPAR { Call func }
+| func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { Call (func, l) }
 | LPAR e=expr RPAR { e }

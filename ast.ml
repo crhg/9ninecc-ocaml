@@ -18,5 +18,5 @@ and expr =
 | Eq of expr * expr
 | Ne of expr * expr
 | Assign of expr * expr
-| Call of string
+| Call of string * expr list
 [@@deriving show]

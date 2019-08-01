@@ -26,6 +26,7 @@ rule token = parse
 
 | '=' { ASSIGN }
 | ';' { SEMI }
+| ',' { COMMA }
 
 | "return" { RETURN }
 | "if"     { IF }

@@ -139,11 +139,21 @@ and gen_expr expr = match expr with
     Stack.pop "rax";
     printf "    mov [rax], rdi\n";
     Stack.push "rdi"
-| Call func ->
-    Stack.with_adjust 0 (fun _ ->
+| Call (func, expr_list) ->
+    let n_param = List.length expr_list in
+    let n_stack_param = if n_param > 6 then n_param - 6 else 0 in
+    Stack.with_adjust (n_stack_param * 8) (fun _ ->
+        List.iter gen_expr (List.rev expr_list);
+        (if n_param >= 1 then Stack.pop "rdi");
+        (if n_param >= 2 then Stack.pop "rsi");
+        (if n_param >= 3 then Stack.pop "rdx");
+        (if n_param >= 4 then Stack.pop "rcx");
+        (if n_param >= 5 then Stack.pop "r8");
+        (if n_param >= 6 then Stack.pop "r9");
+        printf "    mov rax, %d\n" n_param;
         printf "    call %s\n" func;
-        Stack.push "rax"
-    )
+    );
+    Stack.push "rax"
 | Add (l, r) ->
     let op _ =
         printf "    add rax, rdi\n"

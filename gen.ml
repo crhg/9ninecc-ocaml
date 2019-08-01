@@ -10,7 +10,34 @@ let new_seq _ =
     seq := !seq + 1;
     r
 
+(* typeのサイズを考慮したloadとstore *)
+(* レジスタ名は64bitのもので指定 *)
+(* 指定したタイプに応じて変化する *)
+exception Invalid_size
 
+let select_size ty = match ty with
+| Type.Ptr _ -> 64
+| Type.Int -> 32
+
+let select_reg ty reg = match (select_size ty, reg) with
+| (64, _) -> reg
+| (32, "rax") -> "eax"
+| (32, "rdi") -> "edi"
+| (32, "rsi") -> "esi"
+| (32, "rdx") -> "edx"
+| (32, "rcx") -> "ecx"
+| (32, "rbx") -> "ebx"
+| (32, "r8")  -> "r8d"
+| (32, "r9")  -> "r9d"
+| (32, "r10") -> "r10d"
+
+let load ty dst src =
+    printf "    mov %s, %s\n" (select_reg ty dst) src
+
+let store ty dst src =
+    printf "    mov %s, %s\n" dst (select_reg ty src)
+
+(* コード生成 本体 *)
 let rec gen decl_list =
     printf ".intel_syntax noprefix\n";
     printf ".global main\n";
@@ -34,18 +61,24 @@ and gen_decl decl = match decl.exp with
         gen_lval_lvar name;
         Stack.pop "rax";
         match i with
-        | 0 -> printf "    mov [rax], rdi\n"
-        | 1 -> printf "    mov [rax], rsi\n"
-        | 2 -> printf "    mov [rax], rdx\n"
-        | 3 -> printf "    mov [rax], rcx\n"
-        | 4 -> printf "    mov [rax], r8\n"
-        | 5 -> printf "    mov [rax], r9\n"
+        | 0 ->
+            store ty "[rax]"  "rdi"
+        | 1 ->
+            store ty "[rax]"  "rsi"
+        | 2 ->
+            store ty "[rax]"  "rdx"
+        | 3 ->
+            store ty "[rax]"  "rcx"
+        | 4 ->
+            store ty "[rax]"  "r8"
+        | 5 ->
+            store ty "[rax]"  "r9"
         | _ ->
             let offset = (i - 6) * 8 + 16 in
             printf "    mov r10, rbp\n";
             printf "    add r10, %d # %s\n" offset name;
             printf "    mov r10, [r10]\n";
-            printf "    mov [rax], r10\n"
+            store ty "[rax]" "r10"
     in
         Array.iteri copy_param (Array.of_list params);
 
@@ -143,20 +176,86 @@ and binop op l r =
     op ();
     Stack.push "rax"
 
-and gen_expr expr = match expr.exp.e with
+and assign_type expr = 
+    let ty = find_type expr in
+    expr.exp.ty <- Some ty;
+    ty
+
+and find_type expr = match expr.exp.e with
+| Num _ -> Type.Int
+| Ident name -> Env.lvar_type name
+| Assign (l, r) ->
+    let lty = assign_type l in
+    let _ = assign_type r in
+    lty
+| Call (_, expr_list) ->
+    let _ = List.map assign_type expr_list in
+    Type.Int
+| Addr e ->
+    let ty = assign_type e in
+    Type.Ptr ty
+| Deref e ->
+    let ty = assign_type e in
+    begin
+        match ty with
+        | Type.Ptr t -> t
+        | _ -> raise (Error_at("deref of non pointer", expr.loc))
+    end
+| Add (l, r) ->
+    let lty = assign_type l in
+    let _ = assign_type r in
+    lty
+| Sub (l, r) ->
+    let lty = assign_type l in
+    let rty = assign_type r in
+    begin
+        match (lty, rty) with
+        | (Type.Ptr _, Type.Ptr _) -> Type.Int
+        | (_, _) -> lty
+    end
+| Mul (l, r) ->
+    let lty = assign_type l in
+    let _ = assign_type r in
+    lty
+| Div (l, r) ->
+    let lty = assign_type l in
+    let _ = assign_type r in
+    lty
+| Eq (l, r) ->
+    let _ = assign_type l in
+    let _ = assign_type r in
+    Type.Int
+| Ne (l, r) ->
+    let _ = assign_type l in
+    let _ = assign_type r in
+    Type.Int
+| Lt (l, r) ->
+    let _ = assign_type l in
+    let _ = assign_type r in
+    Type.Int
+| Le (l, r) ->
+    let _ = assign_type l in
+    let _ = assign_type r in
+    Type.Int
+
+and gen_expr expr =
+let _ = assign_type expr in
+match expr.exp.e with
 | Num n ->
     Stack.push n
 | Ident name ->
+    let ty = Option.get(expr.exp.ty) in
     gen_lval expr;
     Stack.pop "rax";
-    printf "    mov rax, [rax]\n";
+    load ty "rax" "[rax]";
     Stack.push "rax";
 | Assign (l, r) ->
+    let ty = Option.get(expr.exp.ty) in
     gen_lval l;
     gen_expr r;
     Stack.pop "rdi";
     Stack.pop "rax";
-    printf "    mov [rax], rdi\n";
+    store ty "[rax]" "rdi";
     Stack.push "rdi"
 | Call (func, expr_list) ->
     let n_param = List.length expr_list in
@@ -176,9 +275,10 @@ and gen_expr expr = match expr.exp.e with
 | Addr e ->
     gen_lval e
 | Deref e ->
+    let ty = Option.get(expr.exp.ty) in
     gen_expr e;
     Stack.pop "rax";
-    printf "    mov rax, [rax]\n";
+    load ty "rax" "[rax]";
     Stack.push "rax";
 | Add (l, r) ->
     let op _ =

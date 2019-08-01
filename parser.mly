@@ -10,7 +10,7 @@
 
 %token SEMI COMMA
 
-%token LPAR RPAR LBRACE RBRACE
+%token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET
 
 %token RETURN IF ELSE WHILE FOR
 
@@ -41,8 +41,18 @@ type_spec:
 | INT { Type.Int }
 
 declarator:
+| d=direct_declarator { d }
+| token=AST d=declarator { { exp = PointerOf d; loc = d.loc } }
+
+direct_declarator:
 | var=IDENT { { exp = DeclIdent var; loc = $startpos(var) } }
-| token=AST d=declarator { { exp = PointerOf d; loc = $startpos(token) } }
+| LPAR d=declarator RPAR { d }
+| d=direct_declarator LBRACKET n=NUM RBRACKET {
+    {
+        exp = Array (d, int_of_string n);
+        loc = d.loc
+    }
+}
 
 stmt:
 | t=type_spec d=declarator SEMI {

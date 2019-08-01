@@ -10,6 +10,7 @@ and decl = decl_exp node
 and declarator_exp =
 | DeclIdent of string
 | PointerOf of declarator
+| Array of declarator * int
 and declarator = declarator_exp node
 
 and stmt_exp = 
@@ -52,3 +53,4 @@ let no_type e = { e = e; ty = None }
 let rec type_and_var t d = match d.exp with
 | DeclIdent var -> (t, var)
 | PointerOf d -> type_and_var (Type.Ptr t) d
+| Array (d,n) -> type_and_var (Type.Array(t, n)) d 

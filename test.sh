@@ -152,6 +152,7 @@ try_decl_list 2 'int main() {int x; int y; int z; return &x - &z; }'
 try_decl_list 2 'int main() {int x; int y; x = 1; y = 2; return *(&x - 1);}'
 try_decl_list 4 'int main() {int x; return sizeof x; }'
 try_decl_list 8 'int main() {int x; return sizeof &x; }'
+try_decl_list 32 'int main() {int x[8]; return sizeof x; }'
 
 echo echo OK >> tmp.sh
 

@@ -127,8 +127,13 @@ and gen_lval_lvar name =
     Stack.push "rax"
 
 and gen_lval expr = match expr.exp with
-| Ident name -> gen_lval_lvar name
-| _ -> failwith("not lval: " ^ show_expr expr)
+| Ident name ->
+    begin
+        try gen_lval_lvar name
+        with Not_found ->
+            raise (Error_at("undefined: " ^ name, expr.loc))
+    end
+| _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
 
 and binop op l r = 
     gen_expr l;

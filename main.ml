@@ -2,8 +2,8 @@ open Printf
 open Lexer
 open Lexing
 open String
+open Misc
 
-exception Error_at of string * position
 
 (* 文字列sの位置posを含む行を取り出す *)
 (* 戻り値は (行の文字列(改行を含まない), 行番号(1-origin), 行の先頭からのposの位置(0-origin)) *)

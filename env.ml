@@ -13,10 +13,12 @@ let local_env = ref Env.empty
 
 let offset = ref 0
 
+exception Duplicated
+
 let allocate ty_name =
     let (ty, name) = ty_name in
     if Env.mem name !local_env then
-        failwith ("duplicated: " ^ name)
+        raise Duplicated
     else
         let size = Type.get_size ty in
         let alignment = Type.get_alignment ty in
@@ -32,7 +34,12 @@ let rec prepare params stmt =
     allocate_stmt stmt
 
 and allocate_stmt stmt = match stmt.exp with
-| Var (ty, name) -> allocate (ty, name)
+| Var (ty, name) ->
+    begin
+        try allocate (ty, name) with
+        | Duplicated ->
+            raise (Error_at("duplicated: " ^ name, stmt.loc))
+    end
 | If (expr, then_stmt, else_stmt_opt) ->
     allocate_stmt then_stmt;
     may allocate_stmt else_stmt_opt

@@ -44,3 +44,6 @@ a.out
 .depend
 .sorted_srcs
 tmp*
+
+test_source/test.s
+test_source/test_main.c

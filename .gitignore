@@ -45,5 +45,5 @@ a.out
 .sorted_srcs
 tmp*
 
-test_source/test.s
+test_source/*.s
 test_source/test_main.c

@@ -26,7 +26,7 @@ parser.cmx: parser.cmi
 
 .PHONY: test
 test: 9ninecc
-	./test.sh
+	(cd test_source; make test)
 
 # suffix rules
 %.cmx: %.ml
@@ -67,4 +67,5 @@ endif
 .PHONY: clean
 clean:
 	rm -f .depend .sorted_srcs parser.ml parser.mli lexer.ml *.cmi *.cmx *.cmo *.o *~ $(TARGET) tmp*
+	(cd test_source; make clean)
 

@@ -2,6 +2,7 @@ SRCS=$(filter-out test.c test_main.c dummy_main.c,$(wildcard *.c)) test_main.c
 OBJS=$(SRCS:.c=.o)
 CC=gcc
 CFLAGS=-g
+LDFLAGS=-no-pie
 
 tmp: $(OBJS) test.o
 	$(CC) -o tmp $(OBJS) test.o $(LDFLAGS)

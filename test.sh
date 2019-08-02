@@ -1,42 +1,22 @@
 #!/bin/bash
-RUN=
-
-case $(uname) in
-Linux)
-    ;;
-*)
-    RUN="docker-compose run 9ninecc-env"
-    ;;
-esac
-
-n=1
-echo > tmp.sh
-
-rm tmp-*.s
+CC=gcc
+CFLAGS=-no-pie
 
 try_expr() {
   expected="$1"
-  input="$2;"
+  input="$2"
 
-  if ./9ninecc -s "int main(){$input}" > tmp-$n.s; then
-      (
-          echo gcc -o tmp-$n tmp-$n.s
-          echo ./tmp-$n
-          echo 'actual="$?"'
+  ./9ninecc -s "int main(){$input;}" > tmp.s
+   $CC $CFLAGS -o tmp tmp.s
+   ./tmp
+   actual="$?"
 
-          echo 'if [ "$actual" = "'"$expected"'" ]; then'
-          echo '  echo "'"$input"' => $actual"'
-          echo else
-          echo '  echo "'"$input"' => '"$expected"' expected, but got $actual"'
-          echo exit 1
-          echo fi
-          echo
-      ) >> tmp.sh
-  else
-      echo "compile failed: $input"
-      exit 1;
-  fi
-  n=$(expr $n + 1 )
+   if [ "$actual" = "$expected" ]; then
+       echo "$input => $actual"
+   else
+       echo "$input => $expected expected, but got $actual"
+       exit 1
+   fi
 }
 
 try_stmt_list() {
@@ -45,25 +25,17 @@ try_stmt_list() {
     shift
     shift
 
-    if ./9ninecc -s "int main(){$input}" > tmp-$n.s; then
-        (
-            echo gcc -o tmp-$n tmp-$n.s "$@"
-            echo ./tmp-$n
-            echo 'actual="$?"'
+    ./9ninecc -s "int main(){$input}" > tmp.s
+    $CC $CFLAGS -o tmp tmp.s "$@"
+    ./tmp
+    actual="$?"
 
-            echo 'if [ "$actual" = "'"$expected"'" ]; then'
-            echo '  echo "'"$input"' => $actual"'
-            echo else
-            echo '  echo "'"$input"' => '"$expected"' expected, but got $actual"'
-            echo exit 1
-            echo fi
-            echo
-        ) >> tmp.sh
+    if [ "$actual" = "$expected" ]; then
+        echo "$input => $actual"
     else
-        echo "compile failed: $input"
-        exit 1;
+        echo "$input => $expected expected, but got $actual"
+        exit 1
     fi
-    n=$(expr $n + 1 )
 }
 
 try_decl_list() {
@@ -72,25 +44,17 @@ try_decl_list() {
     shift
     shift
 
-    if ./9ninecc -s "$input" > tmp-$n.s; then
-        (
-          echo gcc -o tmp-$n tmp-$n.s "$@"
-          echo ./tmp-$n
-          echo 'actual="$?"'
+    ./9ninecc -s "$input" > tmp.s
+    $CC $CFLAGS -o tmp tmp.s "$@"
+    ./tmp
+    actual="$?"
 
-          echo 'if [ "$actual" = "'"$expected"'" ]; then'
-          echo '  echo "'"$input"' => $actual"'
-          echo else
-          echo '  echo "'"$input"' => '"$expected"' expected, but got $actual"'
-          echo exit 1
-          echo fi
-          echo
-        ) >> tmp.sh
+    if [ "$actual" = "$expected" ]; then
+        echo "$input => $actual"
     else
-        echo "compile failed: $input"
-        exit 1;
+        echo "$input => $expected expected, but got $actual"
+        exit 1
     fi
-    n=$(expr $n + 1 )
 }
 
 try_expr 0 0
@@ -163,8 +127,6 @@ try_decl_list 33 'int main() { char *p; p = "hoge!"; return p[4];}'
 try_decl_list 0 'int main() { char *p; p = "hoge!"; return p[5];}'
 try_decl_list 0 'int main() { char *p; if (1) { p = "hoge!"; } else { p="fuga"; } return p[5];}'
 
+echo OK
 
-echo echo OK >> tmp.sh
-
-$RUN bash tmp.sh
 

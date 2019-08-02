@@ -253,7 +253,7 @@ match expr.exp.e with
         (if n_param >= 4 then Stack.pop "rcx");
         (if n_param >= 5 then Stack.pop "r8");
         (if n_param >= 6 then Stack.pop "r9");
-        printf "    mov rax, %d\n" n_param;
+        printf "    mov al, 0\n";
         printf "    call %s\n" func
     );
     Stack.push "rax"

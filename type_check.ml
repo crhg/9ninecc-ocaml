@@ -29,25 +29,19 @@ and allocate_stmt stmt = match stmt.exp with
 
 
 (* 式に型をつける *)
-and assign_type_array expr = 
-    let ty = find_type_array expr in
+and assign_type_plane expr = 
+    let ty = find_type expr in
     expr.exp.ty <- Some ty;
     ty
 
-(* array型をそのまま返す版, &とsizeofのオペランドにだけ使う *)
-and find_type_array expr = match expr.exp.e with
-| Ident (name, entry_ref) -> 
-    let entry = get_entry name in
-    entry_ref := entry;
-    begin
-        match entry with
-        | LocalVar (ty, _) -> ty
-        | GlobalVar (ty, _) -> ty
-    end
-| _ -> find_type expr
+(* 型の正規化 *)
+and normalize_type ty = match ty with
+    | Type.Char -> Type.Int (* 式中ではcharもintも同一視してintとみなす。 *)
+    | Type.Array (t, _) -> Type.Ptr t (* 配列型はポインタ型に読みかえる *)
+    | _ -> ty
 
 and assign_type expr = 
-    let ty = find_type expr in
+    let ty = normalize_type (find_type expr) in
     expr.exp.ty <- Some ty;
     ty
 
@@ -57,13 +51,7 @@ and find_type expr = match expr.exp.e with
 | Ident (name, entry_ref) ->
     let entry = get_entry name in
     entry_ref := entry;
-    let ty = entry_type entry in
-    begin
-        (* 配列型はポインタ型に読みかえる *)
-        match ty with
-        | Array (t, _) -> Type.Ptr t
-        | _ -> ty
-    end
+    entry_type entry
 | Assign (l, r) ->
     let lty = assign_type l in
     let _ = assign_type r in
@@ -72,7 +60,7 @@ and find_type expr = match expr.exp.e with
     let _ = List.map assign_type expr_list in
     Type.Int
 | Addr e ->
-    let ty = assign_type_array e in
+    let ty = assign_type_plane e in
     Type.Ptr ty
 | Deref e ->
     let ty = assign_type e in
@@ -82,7 +70,7 @@ and find_type expr = match expr.exp.e with
         | _ -> raise (Error_at("deref of non pointer", expr.loc))
     end
 | Sizeof e ->
-    let _ = assign_type_array e in
+    let _ = assign_type_plane e in
     Type.Int
 | Add (l, r) ->
     let lty = assign_type l in

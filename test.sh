@@ -158,6 +158,10 @@ try_decl_list 10 'int main() {int x[8]; int *p; p = x; *(p+2) = 10; return *(x+2
 try_decl_list 10 'int main() {int x[8]; x[2] = 10; return x[2];}'
 try_decl_list 10 'int main() {int x[8]; 2[x] = 10; return 2[x];}'
 try_decl_list 10 'int x; int main() { x = 10; return x; }'
+try_decl_list 10 'char x; int main() { x = 10; return x; }'
+try_decl_list 33 'int main() { char *p; p = "hoge!"; return p[4];}'
+try_decl_list 0 'int main() { char *p; p = "hoge!"; return p[5];}'
+try_decl_list 0 'int main() { char *p; if (1) { p = "hoge!"; } else { p="fuga"; } return p[5];}'
 
 
 echo echo OK >> tmp.sh

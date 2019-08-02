@@ -17,9 +17,10 @@
 
 %token SIZEOF
 
-%token INT
+%token INT CHAR
 
 %token <string> NUM         // 整数トークン
+%token <string> STR         // 文字列リテラル
 %token <string> IDENT
 
 %token EOF
@@ -47,7 +48,8 @@ decl:
 }
 
 type_spec:
-| INT { Type.Int }
+| INT  { Type.Int }
+| CHAR { Type.Char }
 
 declarator:
 | d=direct_declarator { d }
@@ -125,6 +127,9 @@ unary:
 
 term:
 | n=NUM { { exp = no_type (Num n); loc = $startpos(n) } }
+| str=STR {
+    { exp = no_type (Str (String_literal.add str)); loc = $startpos(str) }
+}
 | id=IDENT { { exp = no_type (Ident (id, ref Env.DummyEntry)); loc = $startpos(id) } }
 | func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = no_type (Call (func, l)); loc = $startpos(func) } }
 | arr=term token=LBRACKET offset=expr RBRACKET {

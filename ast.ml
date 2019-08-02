@@ -32,6 +32,7 @@ and 't with_type = {
 
 and expr_e =
 | Num of string
+| Str of string
 | Ident of string * Env.entry ref
 | Add of expr * expr
 | Sub of expr * expr

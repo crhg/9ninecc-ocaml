@@ -3,6 +3,7 @@
 }
 
 let space = ['\t' '\n' '\r' ' ']
+let str = '"' (['\x20' - '\x7e'] # '"')* '"' 
 
 rule token = parse
 | space+ { token lexbuf }
@@ -37,10 +38,12 @@ rule token = parse
 | "while"  { WHILE }
 | "for"    { FOR }
 | "int"    { INT }
+| "char"   { CHAR }
 | "sizeof" { SIZEOF }
 
 | ['0'-'9']+ as num { NUM num }
 | ['a'-'z']['a'-'z' '0'-'9']* as name { IDENT name }
+| str as str { STR str }
 | eof { EOF }
 
 {

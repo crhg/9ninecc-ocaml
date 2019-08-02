@@ -53,6 +53,7 @@ and assign_type expr =
 
 and find_type expr = match expr.exp.e with
 | Num _ -> Type.Int
+| Str _ -> Type.Ptr Type.Char
 | Ident (name, entry_ref) ->
     let entry = get_entry name in
     entry_ref := entry;

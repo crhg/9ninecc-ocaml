@@ -19,6 +19,7 @@ exception Invalid_size
 let select_size ty = match ty with
 | Type.Ptr _ -> 64
 | Type.Int -> 32
+| Type.Char -> 8
 
 let select_reg ty reg = match (select_size ty, reg) with
 | (64, _) -> reg
@@ -31,8 +32,20 @@ let select_reg ty reg = match (select_size ty, reg) with
 | (32, "r8")  -> "r8d"
 | (32, "r9")  -> "r9d"
 | (32, "r10") -> "r10d"
+| (8, "rax") -> "al"
+| (8, "rdi") -> "dil"
+| (8, "rsi") -> "sil"
+| (8, "rdx") -> "dl"
+| (8, "rcx") -> "cl"
+| (8, "rbx") -> "bl"
+| (8, "r8")  -> "r8b"
+| (8, "r9")  -> "r9b"
+| (8, "r10") -> "r10b"
 
-let load ty dst src =
+let load ty dst src = match ty with
+| Type.Char ->
+    printf "    movsx %s, BYTE PTR [%s]\n" dst src
+| _ ->
     printf "    mov %s, %s\n" (select_reg ty dst) src
 
 let store ty dst src =
@@ -41,7 +54,8 @@ let store ty dst src =
 (* コード生成 本体 *)
 let rec gen decl_list =
     printf ".intel_syntax noprefix\n";
-    printf ".global main\n";
+
+    String_literal.gen();
 
     List.iter gen_decl decl_list
 
@@ -205,6 +219,9 @@ let _ = Type_check.assign_type expr in
 match expr.exp.e with
 | Num n ->
     Stack.push n
+| Str label ->
+    printf "    mov rax, OFFSET FLAT:%s\n" label;
+    Stack.push "rax"
 | Ident (_, entry_ref) ->
     let ty = entry_type !entry_ref in
     begin

@@ -80,7 +80,7 @@ and gen_decl decl = match decl.exp with
     | _ -> raise(Error_at("initializer type mismatch", decl.loc)) in
     let init_ty = Type_check.assign_type init in
     check_initializable ty init_ty;
-    let value = Const.get_value init in
+
     printf "    .data\n";
     printf "    .globl %s\n" name;
     printf "    .align %d\n" (Type.get_alignment ty);
@@ -88,11 +88,13 @@ and gen_decl decl = match decl.exp with
     begin
         match ty with
         | Type.Char ->
-            printf "    .byte %s\n" value
+            printf "    .byte %d\n" (Const.eval_int init)
         | Type.Int ->
-            printf "    .long %s\n" value
+            printf "    .long %d\n" (Const.eval_int init)
         | Type.Ptr _ ->
-            printf "    .quad %s\n" value
+            let (label, offset) = Const.eval_pointer init in
+            let offset' = if offset == 0 then "" else sprintf " + %d" offset in
+            printf "    .quad %s%s\n" label offset'
     end
 | FunctionDecl (_, func, params, body) ->
     Type_check.prepare params body;

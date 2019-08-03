@@ -35,15 +35,15 @@ translation_unit:
 | l=decl* EOF { l }
 
 decl:
-| t=type_spec d=declarator SEMI {
+| t=type_spec d=declarator init=option(ASSIGN e=expr {e}) SEMI {
     let (ty, name) = type_and_var t d in
-    { exp = GlobalVarDef (ty, name); loc = d.loc }
+    { exp = GlobalVarDecl (ty, name, init); loc = d.loc }
 }
 | t=type_spec d=declarator body=block {
     match d.exp with
     | Func (_, params) -> 
         let (ty, name) = type_and_var t d in
-        { exp = Function (ty, name, params, body); loc = d.loc }
+        { exp = FunctionDecl (ty, name, params, body); loc = d.loc }
     | _ -> raise(Error_at("body exists but not function", body.loc))
 }
 

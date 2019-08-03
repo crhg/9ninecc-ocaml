@@ -574,12 +574,12 @@ int test82() {
 }
 // @end
 
-/* // @try_ret test83 42 */
-/* int x83 = 42; */
-/* int test83() { */
-/*     return x83; */
-/* } */
-/*  */
+// @try_ret test83 42
+int x83 = 42;
+int test83() {
+    return x83;
+}
+
 /* // @try_out test84 foo */
 /* char *s84 = "foo"; */
 /* int test84() { */

@@ -4,8 +4,8 @@ type 't node = {
 }
 
 and decl_exp =
-| Function of Type.t * string * (Type.t * string) list * stmt
-| GlobalVarDef of Type.t * string
+| FunctionDecl of Type.t * string * (Type.t * string) list * stmt
+| GlobalVarDecl of Type.t * string * expr option
 and decl = decl_exp node
 
 and declarator_exp =

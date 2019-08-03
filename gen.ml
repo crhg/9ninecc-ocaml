@@ -60,10 +60,10 @@ let rec gen decl_list =
     List.iter gen_decl decl_list
 
 and gen_decl decl = match decl.exp with
-| GlobalVarDef (ty, name) ->
+| GlobalVarDecl (ty, name, None) ->
     register_global_var ty name;
 
-    printf "    .globl %s\n", name;
+    printf "    .globl %s\n" name;
     printf "    .bss\n";
     printf "    .align %d\n" (Type.get_alignment ty);
     printf "    .type %s, @object\n" name;
@@ -71,7 +71,30 @@ and gen_decl decl = match decl.exp with
     printf "%s:\n" name;
     printf "    .zero %d\n" (Type.get_size ty)
 
-| Function (_, func, params, body) ->
+| GlobalVarDecl (ty, name, Some(init)) ->
+    register_global_var ty name;
+    let check_initializable lty rty = match (lty, rty) with
+    | (Type.Char, Type.Int) -> ()
+    | (Type.Int, Type.Int) -> ()
+    | (Ptr lty', Ptr rty') when lty' == rty'-> ()
+    | _ -> raise(Error_at("initializer type mismatch", decl.loc)) in
+    let init_ty = Type_check.assign_type init in
+    check_initializable ty init_ty;
+    let value = Const.get_value init in
+    printf "    .data\n";
+    printf "    .globl %s\n" name;
+    printf "    .align %d\n" (Type.get_alignment ty);
+    printf "%s:\n" name;
+    begin
+        match ty with
+        | Type.Char ->
+            printf "    .byte %s\n" value
+        | Type.Int ->
+            printf "    .long %s\n" value
+        | Type.Ptr _ ->
+            printf "    .quad %s\n" value
+    end
+| FunctionDecl (_, func, params, body) ->
     Type_check.prepare params body;
     Stack.reset();
 

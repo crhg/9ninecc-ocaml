@@ -601,22 +601,22 @@ int test85() {
     try_printf("%s", s85);
 }
 
-/* // @try_ret test86 86 */
-/* int x86[3]; */
-/* int *p86 = x86; */
-/* int test86() { */
-/*     x86[1] = 86; */
-/*     return *(p86 + 1); */
-/* } */
-/*  */
-/* // @try_ret test87 87 */
-/* int x87[3]; */
-/* int *p87 = &x87[1]; */
-/* int test87() { */
-/*     x87[1] = 87; */
-/*     return *p87; */
-/* } */
-/*  */
+// @try_ret test86 86
+int x86[3];
+int *p86 = x86;
+int test86() {
+    x86[1] = 86;
+    return *(p86 + 1);
+}
+
+// @try_ret test87 87
+int x87[3];
+int *p87 = &x87[1];
+int test87() {
+    x87[1] = 87;
+    return *p87;
+}
+
 /* // @try_ret test88 2 */
 /* int a88[] = {1,2}; */
 /* int test88() { */

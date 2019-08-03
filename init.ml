@@ -56,7 +56,7 @@ and init_data_by_list ty n l = match n, l with
 and init_str n s =
     let l = String.length s in
     if l >= n then
-        printf "    .ascii \"%s\"\n" s
+        printf "    .ascii \"%s\"\n" (String.sub s l n)
     else
         begin 
             printf "    .string \"%s\"\n" s;

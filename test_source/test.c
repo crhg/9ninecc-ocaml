@@ -587,20 +587,20 @@ int test84() {
 }
 
 // @try_out test84_2 !
-char s[10];
-char *p = s;
+char s84_2[10];
+char *p84_2 = s84_2;
 int test84_2() {
-    s[0] = 33;
-    s[1] = 0;
-    try_printf("%s", p);
+    s84_2[0] = 33;
+    s84_2[1] = 0;
+    try_printf("%s", p84_2);
 }
 
-/* // @try_out test85 oo */
-/* char *s85 = "foo" + 1; */
-/* int test85() { */
-/*     try_printf("%s", s85); */
-/* } */
-/*  */
+// @try_out test85 oo
+char *s85 = "foo" + 1;
+int test85() {
+    try_printf("%s", s85);
+}
+
 /* // @try_ret test86 86 */
 /* int x86[3]; */
 /* int *p86 = x86; */

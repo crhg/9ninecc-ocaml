@@ -35,7 +35,7 @@ translation_unit:
 | l=decl* EOF { l }
 
 decl:
-| t=type_spec d=declarator init=option(ASSIGN e=expr {e}) SEMI {
+| t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
     let (ty, name) = type_and_var t d in
     { exp = GlobalVarDecl (ty, name, init); loc = d.loc }
 }
@@ -70,6 +70,10 @@ direct_declarator:
         loc = d.loc
     }
 }
+
+init:
+| e=expr { { exp=ExprInitializer e; loc=e.loc } }
+| token=LBRACE l=separated_list(COMMA, init) RBRACE { { exp=ListInitializer l; loc=$startpos(token) } }
 
 stmt:
 | t=type_spec d=declarator SEMI {

@@ -61,7 +61,10 @@ let rec gen decl_list =
 
 and gen_decl decl = match decl.exp with
 | GlobalVarDecl (ty, name, None) ->
-    register_global_var ty name;
+    begin
+        try register_global_var ty name with
+        | DuplicatedGlobal _ -> raise(Error_at("duplicated global: "^name, decl.loc))
+    end;
 
     printf "    .globl %s\n" name;
     printf "    .bss\n";
@@ -72,32 +75,16 @@ and gen_decl decl = match decl.exp with
     printf "    .zero %d\n" (Type.get_size ty)
 
 | GlobalVarDecl (ty, name, Some(init)) ->
-    register_global_var ty name;
-    let check_initializable lty rty = match (lty, rty) with
-    | (Type.Char, Type.Int) -> ()
-    | (Type.Int, Type.Int) -> ()
-    | (Ptr lty', Ptr rty') when lty' == rty'-> ()
-    | _ -> raise(Error_at("initializer type mismatch", decl.loc)) in
-    let init_ty = Type_check.assign_type init in
-    check_initializable ty init_ty;
-
-    printf "    .data\n";
-    printf "    .globl %s\n" name;
-    printf "    .align %d\n" (Type.get_alignment ty);
-    printf "%s:\n" name;
     begin
-        match ty with
-        | Type.Char ->
-            printf "    .byte %d\n" (Const.eval_int init)
-        | Type.Int ->
-            printf "    .long %d\n" (Const.eval_int init)
-        | Type.Ptr _ ->
-            let (label, offset) = Const.eval_pointer init in
-            let offset' = if offset == 0 then "" else sprintf " + %d" offset in
-            printf "    .quad %s%s\n" label offset'
-    end
+        try register_global_var ty name with
+        | DuplicatedGlobal _ -> raise(Error_at("duplicated global: "^name, decl.loc))
+    end;
+
+    Type_check.prepare_init init;
+    Init.init_global ty name init
+
 | FunctionDecl (_, func, params, body) ->
-    Type_check.prepare params body;
+    Type_check.prepare_func params body;
     Stack.reset();
 
     let size = local_var_size() in

@@ -20,7 +20,7 @@ and eval_pointer expr = match expr.exp.e with
     sub_pointer lhs rhs
 | Addr e ->
     eval_lval e
-| _ -> raise(Error_at("not pointer expression or not implemented", expr.loc))
+| _ -> raise(Error_at("not pointer expression or not implemented: " ^ (show_expr expr), expr.loc))
 
 and add_pointer lhs rhs = match lhs.exp.ty, rhs.exp.ty with
 | Some Type.Ptr ty, Some Type.Int ->

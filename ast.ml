@@ -5,7 +5,7 @@ type 't node = {
 
 and decl_exp =
 | FunctionDecl of Type.t * string * (Type.t * string) list * stmt
-| GlobalVarDecl of Type.t * string * expr option
+| GlobalVarDecl of Type.t * string * init option
 and decl = decl_exp node
 
 and declarator_exp =
@@ -14,6 +14,11 @@ and declarator_exp =
 | Array of declarator * int
 | Func of declarator * (Type.t * string) list
 and declarator = declarator_exp node
+
+and init_exp =
+| ExprInitializer of expr
+| ListInitializer of init list
+and init = init_exp node
 
 and stmt_exp = 
 | Var of Type.t * string

@@ -17,20 +17,22 @@ let reset _ =
     local_env := Env.empty;
     offset := 0
 
-exception Duplicated
+exception DuplicatedLocal of Type.t * string
 
 let register_local_var ty name =
     if Env.mem name !local_env then
-        raise Duplicated
+        raise(DuplicatedLocal(ty,name))
     else
         let size = Type.get_size ty in
         let alignment = Type.get_alignment ty in
         offset := round_up !offset alignment + size;
         local_env := Env.add name (LocalVar (ty, !offset)) !local_env
 
+exception DuplicatedGlobal of Type.t * string
+
 let register_global_var ty name =
     if Env.mem name !global_env then
-        raise Duplicated
+        raise(DuplicatedGlobal(ty,name))
     else
         global_env := Env.add name (GlobalVar (ty, name)) !global_env
 

@@ -45,7 +45,7 @@ rule token = parse
 
 | ['0'-'9']+ as num { NUM num }
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { IDENT name }
-| str as str { STR str }
+| str as str { STR (String.sub str 1 (String.length str - 2)) }
 | eof { EOF }
 
 and line_comment = parse

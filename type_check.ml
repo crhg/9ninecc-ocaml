@@ -3,7 +3,7 @@ open Env
 open Misc
 
 (* ローカル変数にオフセットを割り当てる *)
-let rec prepare params stmt =
+let rec prepare_func params stmt =
     let register (ty, name) = register_local_var ty name in
     reset();
     List.iter register params;
@@ -13,7 +13,7 @@ and allocate_stmt stmt = match stmt.exp with
 | Var (ty, name) ->
     begin
         try register_local_var ty name with
-        | Duplicated ->
+        | DuplicatedLocal _ ->
             raise (Error_at("duplicated: " ^ name, stmt.loc))
     end
 | If (expr, then_stmt, else_stmt_opt) ->
@@ -27,6 +27,10 @@ and allocate_stmt stmt = match stmt.exp with
     List.iter allocate_stmt stmt_list
 | _ -> ()
 
+(* 初期化子の式に型を付ける *)
+and prepare_init init = match init.exp with
+| ExprInitializer expr -> ignore (assign_type expr)
+| ListInitializer l -> List.iter prepare_init l
 
 (* 式に型をつける *)
 and assign_type_plane expr = 

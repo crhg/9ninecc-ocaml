@@ -617,6 +617,13 @@ int test87() {
     return *p87;
 }
 
+// @try_ret test88_0 2
+int a88_0[2] = {1,2};
+int test88_0() {
+    return a88_0[1];
+}
+// @end
+
 /* // @try_ret test88 2 */
 /* int a88[] = {1,2}; */
 /* int test88() { */

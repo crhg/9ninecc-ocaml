@@ -586,6 +586,15 @@ int test84() {
     try_printf("%s", s84);
 }
 
+// @try_out test84_2 !
+char s[10];
+char *p = s;
+int test84_2() {
+    s[0] = 33;
+    s[1] = 0;
+    try_printf("%s", p);
+}
+
 /* // @try_out test85 oo */
 /* char *s85 = "foo" + 1; */
 /* int test85() { */

@@ -580,12 +580,12 @@ int test83() {
     return x83;
 }
 
-/* // @try_out test84 foo */
-/* char *s84 = "foo"; */
-/* int test84() { */
-/*     try_printf("%s", s84); */
-/* } */
-/*  */
+// @try_out test84 foo
+char *s84 = "foo";
+int test84() {
+    try_printf("%s", s84);
+}
+
 /* // @try_out test85 oo */
 /* char *s85 = "foo" + 1; */
 /* int test85() { */

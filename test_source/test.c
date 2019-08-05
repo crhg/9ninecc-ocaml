@@ -631,13 +631,13 @@ int test88() {
 }
 // @end
 
-/* // @try_ret test89 89 */
-/* int test89() { */
-/*     int x = 89; */
-/*     return x; */
-/* } */
-/* // @end */
-/*  */
+// @try_ret test89 89
+int test89() {
+    int x = 89;
+    return x;
+}
+// @end
+
 /* // @try_out test90 test90 */
 /* int test90() { */
 /*     char *s = "test90"; */

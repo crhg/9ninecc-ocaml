@@ -46,12 +46,15 @@ and init_data_array ty n init = match init.exp with
     init_str n s
 | _ -> raise(Error_at("cannot initialize", init.loc))
 
-and init_data_by_list ty n l = match n, l with
-| 0, _ -> ()
-| n, [] -> init_zero (Type.get_size ty * n)
-| n, i::r ->
-    init_data ty i;
-    init_data_by_list ty (n-1) r
+and init_data_by_list ty n inits = 
+    inits |> List.iteri (fun i init ->
+        if i < n then 
+            init_data ty init
+    );
+
+    (* 初期化リストが足りなければ残りは0で埋める *)
+    if n > List.length inits then
+        init_zero (Type.get_size ty * (n - List.length inits))
 
 and init_str n s =
     let l = String.length s in

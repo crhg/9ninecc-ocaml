@@ -24,7 +24,8 @@ test:
 include OCamlMakefile
 else
 
-all:
+.PHONY: default
+default:
 	docker-compose run 9ninecc-env make
 
 .PHONY: test

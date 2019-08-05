@@ -75,9 +75,8 @@ init:
 | token=LBRACE l=separated_list(COMMA, init) RBRACE { { exp=ListInitializer l; loc=$startpos(token) } }
 
 stmt:
-| t=type_spec d=declarator SEMI {
-    let (ty, name) = Type_check.type_and_var t d in
-    { exp = Var (ty, name); loc = d.loc }
+| t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
+    { exp = Var (t, d, init); loc = d.loc }
 }
 | e=expr SEMI { { exp = Expr e; loc = e.loc } }
 | token=RETURN e=expr SEMI { { exp = Return e; loc = $startpos(token) } }

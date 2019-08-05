@@ -1,58 +1,27 @@
-TARGET=9ninecc
+RESULT=9ninecc
 
 ifeq ($(shell uname),Linux)
-OCAMLC=ocamlc
-OCAMLOPT=ocamlfind ocamlopt
-OCAMLDEP=ocamldep
-MENHIR=menhir
-OCAMLLEX=ocamllex
+OCAMLYACC=menhir
 
-INCLUDES=
-OCAMLFLAGS=$(INCLUDES)
-PACKAGES=-package ppx_deriving.show,ppx_deriving.runtime
-OCAMLOPTFLAGS=$(PACKAGES) $(INCLUDES)
+PACKS=ppx_deriving.show ppx_deriving.runtime
 
-GENERATED_SRCS=lexer.ml parser.ml
-SRCS=$(sort $(GENERATED_SRCS) $(wildcard *.ml))
+GENERATED_SRCS=lexer.ml parser.ml parser.mli
+SRCS=$(sort $(GENERATED_SRCS) $(wildcard *.ml *.mli))
 include .sorted_srcs
-OBJS=$(SORTED_SRCS:.ml=.cmx)
+SOURCES=$(filter-out parser.mli,$(subst parser.ml,parser.mly,$(subst lexer.ml,lexer.mll,$(SORTED_SRCS))))
 
-all: $(TARGET)
+TRASH=.sorted_srcs
 
-$(TARGET): $(OBJS)
-	$(OCAMLOPT) -o $@ -linkpkg $(OCAMLOPTFLAGS) $(OBJS)
-
-parser.cmx: parser.cmi
+default: native-code
 
 .PHONY: test
-test: 9ninecc
+test:
 	(cd test_source; make test)
-
-# suffix rules
-%.cmx: %.ml
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<
-
-%.mli: %.ml
-	$(OCAMLC) -i $< > $@
-
-%.cmi: %.mli
-	$(OCAMLC) -c $<
-
-%.ml: %.mly
-	$(MENHIR) $<
-
-%.ml: %.mll
-	$(OCAMLLEX) $<
-
-# Dependencies
-.depend: $(SRCS)
-	$(OCAMLDEP) $(INCLUDES) $(SRCS) > $@
-
-include .depend
 
 .sorted_srcs: $(SRCS)
 	echo SORTED_SRCS=$(shell $(OCAMLDEP) $(INCLUDES) -sort $(SRCS)) > $@
 
+include OCamlMakefile
 else
 
 all:
@@ -62,10 +31,8 @@ all:
 test:
 	docker-compose run 9ninecc-env make test
 
-endif
-
 .PHONY: clean
 clean:
-	rm -f .depend .sorted_srcs parser.ml parser.mli lexer.ml *.cmi *.cmx *.cmo *.o *~ $(TARGET) tmp*
-	(cd test_source; make clean)
+	docker-compose run 9ninecc-env make clean
 
+endif

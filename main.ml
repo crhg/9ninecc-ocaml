@@ -25,7 +25,8 @@ let rec repeat n s =
         else s ^ repeat (n-1) s
 
 let compile filename source =
-    let lexbuf = Lexing.from_string (source ^ "\n") in
+    let source = source ^ "\n" in
+    let lexbuf = Lexing.from_string source in
 
     let error_at pos s =
         let (line, line_no, pos_in_line) = get_line source pos in

@@ -1,4 +1,3 @@
-val sp : int ref
 val reset : 'a -> unit
 val add : int -> unit
 val sub : int -> unit

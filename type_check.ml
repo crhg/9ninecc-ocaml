@@ -96,34 +96,18 @@ and find_type expr = match expr.exp.e with
         | (Type.Ptr _, Type.Int) -> lty
         | _ -> raise (Error_at("cannot sub", expr.loc))
     end
-| Mul (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
-    begin
-        match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
-        | _ -> raise (Error_at("cannot mul", expr.loc))
-    end
+| Mul (l, r)
 | Div (l, r) ->
     let lty = assign_type l in
     let rty = assign_type r in
     begin
         match (lty, rty) with
         | (Type.Int, Type.Int) -> Type.Int
-        | _ -> raise (Error_at("cannot div", expr.loc))
+        | _ -> raise (Error_at("cannot mul/div", expr.loc))
     end
-| Eq (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
-| Ne (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
-| Lt (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
+| Eq (l, r)
+| Ne (l, r)
+| Lt (l, r)
 | Le (l, r) ->
     let _ = assign_type l in
     let _ = assign_type r in

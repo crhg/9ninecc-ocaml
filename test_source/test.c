@@ -624,13 +624,13 @@ int test88_0() {
 }
 // @end
 
-/* // @try_ret test88 2 */
-/* int a88[] = {1,2}; */
-/* int test88() { */
-/*     return a88[1]; */
-/* } */
-/* // @end */
-/*  */
+// @try_ret test88 2
+int a88[] = {1,2};
+int test88() {
+    return a88[1];
+}
+// @end
+
 /* // @try_ret test89 89 */
 /* int test89() { */
 /*     int x = 89; */

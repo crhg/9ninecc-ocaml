@@ -17,7 +17,7 @@ and init_data ty init = match ty with
     | Type.Char -> init_data_char init
     | Type.Int -> init_data_int init
     | Type.Ptr _ -> init_data_pointer init
-    | Type.Array (ty, n) -> init_data_array ty n init
+    | Type.Array (ty, Some n) -> init_data_array ty n init
     | _ -> raise(Error_at("cannot initialize type: " ^ (Type.show ty), init.loc))
 
 and init_data_scalar out init = match init.exp with

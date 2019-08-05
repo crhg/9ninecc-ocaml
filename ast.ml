@@ -5,13 +5,13 @@ type 't node = {
 
 and decl_exp =
 | FunctionDecl of Type.t * string * (Type.t * string) list * stmt
-| GlobalVarDecl of Type.t * string * init option
+| GlobalVarDecl of Type.t * declarator * init option
 and decl = decl_exp node
 
 and declarator_exp =
 | DeclIdent of string
 | PointerOf of declarator
-| Array of declarator * int
+| Array of declarator * expr option
 | Func of declarator * (Type.t * string) list
 and declarator = declarator_exp node
 
@@ -58,10 +58,3 @@ and expr = expr_exp node
 
 let no_type e = { e = e; ty = None }
 
-let rec type_and_var t d = match d.exp with
-| DeclIdent var -> (t, var)
-| PointerOf d -> type_and_var (Type.Ptr t) d
-| Array (d,n) -> type_and_var (Type.Array(t, n)) d 
-| Func (d, params) ->
-    let param_type_list = List.map (fun (t, _)->t) params in
-    type_and_var (Type.Function(t, param_type_list)) d

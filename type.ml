@@ -2,7 +2,7 @@ type t =
 | Int
 | Char
 | Ptr of t
-| Array of t * int
+| Array of t * int option
 | Function of t * t list (* 戻り値とパラメタ *)
 [@@deriving show]
 
@@ -10,7 +10,8 @@ let rec get_size ty = match ty with
 | Int -> 4
 | Char -> 1
 | Ptr _ -> 8
-| Array (t, n) -> get_size t * n
+| Array (t, Some n) -> get_size t * n
+| _ -> failwith @@ "size?: " ^ show ty
 
 and get_alignment ty = match ty with
 | Int -> 4

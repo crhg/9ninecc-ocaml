@@ -129,3 +129,14 @@ and find_type expr = match expr.exp.e with
     let _ = assign_type r in
     Type.Int
 
+and type_and_var t d = match d.exp with
+| DeclIdent var ->
+    (t, var)
+| PointerOf d ->
+    type_and_var (Type.Ptr t) d
+| Array (d, e) ->
+    let n = Option.map Const.eval_int e in
+    type_and_var (Type.Array(t, n)) d 
+| Func (d, params) ->
+    let param_type_list = List.map (fun (t, _)->t) params in
+    type_and_var (Type.Function(t, param_type_list)) d

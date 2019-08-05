@@ -36,13 +36,12 @@ translation_unit:
 
 decl:
 | t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
-    let (ty, name) = type_and_var t d in
-    { exp = GlobalVarDecl (ty, name, init); loc = d.loc }
+    { exp = GlobalVarDecl (t, d, init); loc = d.loc }
 }
 | t=type_spec d=declarator body=block {
     match d.exp with
     | Func (_, params) -> 
-        let (ty, name) = type_and_var t d in
+        let (ty, name) = Type_check.type_and_var t d in
         { exp = FunctionDecl (ty, name, params, body); loc = d.loc }
     | _ -> raise(Error_at("body exists but not function", body.loc))
 }
@@ -58,13 +57,13 @@ declarator:
 direct_declarator:
 | var=IDENT { { exp = DeclIdent var; loc = $startpos(var) } }
 | LPAR d=declarator RPAR { d }
-| d=direct_declarator LBRACKET n=NUM RBRACKET {
+| d=direct_declarator LBRACKET e=option(expr) RBRACKET {
     {
-        exp = Array (d, int_of_string n);
+        exp = Array (d, e);
         loc = d.loc
     }
 }
-| d=direct_declarator LPAR params=separated_list(COMMA, t=type_spec d=declarator { type_and_var t d }) RPAR {
+| d=direct_declarator LPAR params=separated_list(COMMA, t=type_spec d=declarator { Type_check.type_and_var t d }) RPAR {
     {
         exp = Func (d, params);
         loc = d.loc
@@ -77,7 +76,7 @@ init:
 
 stmt:
 | t=type_spec d=declarator SEMI {
-    let (ty, name) = type_and_var t d in
+    let (ty, name) = Type_check.type_and_var t d in
     { exp = Var (ty, name); loc = d.loc }
 }
 | e=expr SEMI { { exp = Expr e; loc = e.loc } }

@@ -60,7 +60,8 @@ let rec gen decl_list =
     List.iter gen_decl decl_list
 
 and gen_decl decl = match decl.exp with
-| GlobalVarDecl (ty, name, None) ->
+| GlobalVarDecl (ty, d, None) ->
+    let ty, name = Type_check.type_and_var ty d in
     begin
         try register_global_var ty name with
         | DuplicatedGlobal _ -> raise(Error_at("duplicated global: "^name, decl.loc))
@@ -74,7 +75,14 @@ and gen_decl decl = match decl.exp with
     printf "%s:\n" name;
     printf "    .zero %d\n" (Type.get_size ty)
 
-| GlobalVarDecl (ty, name, Some(init)) ->
+    | GlobalVarDecl (ty, decl, Some init) ->
+    let ty, name = Type_check.type_and_var ty decl in
+    let ty = match ty , init.exp with
+        | Type.Array (t, None), ListInitializer l ->
+            Type.Array (t, Some(List.length l))
+        | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str s } }->
+            Type.Array (Type.Char, Some(String.length s + 1))
+        | _ -> ty in
     begin
         try register_global_var ty name with
         | DuplicatedGlobal _ -> raise(Error_at("duplicated global: "^name, decl.loc))

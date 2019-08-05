@@ -91,7 +91,7 @@ and gen_decl decl = match decl.exp with
             store ty "[rax]" "r10"
         )
     in
-        Array.iteri copy_param (Array.of_list params);
+        List.iteri copy_param params;
 
     gen_stmt body;
 

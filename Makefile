@@ -15,7 +15,7 @@ TRASH=.sorted_srcs
 default: native-code
 
 .PHONY: test
-test:
+test: native-code
 	(cd test_source; make test)
 
 .sorted_srcs: $(SRCS)

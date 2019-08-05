@@ -43,11 +43,10 @@ and gen_array_init_by_string_literal lhs s size =
     ignore(Gen_expr.gen_expr call_strncpy)
 
 and gen_array_init_by_list ty lhs size l =
-    let gen_init_at i init =
+    l |> List.iteri @@ fun i init ->
         if i < size then
             let array_at = make_array_at lhs i in
-            gen_init ty array_at init in
-    List.iteri gen_init_at l
+            gen_init ty array_at init
 
 and make_ident name loc =
     Ast.({

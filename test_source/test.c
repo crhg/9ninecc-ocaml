@@ -638,13 +638,13 @@ int test89() {
 }
 // @end
 
-/* // @try_out test90 test90 */
-/* int test90() { */
-/*     char *s = "test90"; */
-/*     try_printf("%s", s); */
-/* } */
-/* // @end */
-/*  */
+// @try_out test90 test90
+int test90() {
+    char *s = "test90";
+    try_printf("%s", s);
+}
+// @end
+
 /* // @try_out test91 test91 */
 /* int test91() { */
 /*     char s[7] = "test91"; */

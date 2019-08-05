@@ -21,13 +21,6 @@ and gen_assign ident expr =
     let assign = gen_assign ident expr in
     Gen_expr.gen_expr assign;
 
-    (* Gen_expr.gen_lval_name name; *)
-    (* Gen_expr.gen_expr expr; *)
-    (* Stack.pop "rdi"; *)
-    (* Stack.pop "rax"; *)
-    (* Gen_misc.store ty "[rax]" "rdi"; *)
-    (* Stack.push "rdi" *)
-
 and gen_array_init ty name init =
     failwith "not implemented"
 

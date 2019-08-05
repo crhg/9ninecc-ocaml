@@ -21,6 +21,7 @@ and init_exp =
 and init = init_exp node
 
 and stmt_exp = 
+| Empty
 | Var of Type.t * declarator * init option
 | Expr of expr
 | Return of expr

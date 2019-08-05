@@ -75,6 +75,7 @@ init:
 | token=LBRACE l=separated_list(COMMA, init) RBRACE { { exp=ListInitializer l; loc=$startpos(token) } }
 
 stmt:
+| token = SEMI { { exp = Empty; loc = $startpos(token) } }
 | t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
     { exp = Var (t, d, init); loc = d.loc }
 }

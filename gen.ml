@@ -104,6 +104,7 @@ let gen_expr expr =
     Stack.with_save (fun _ -> Gen_expr.gen_expr expr)
 in
 match stmt.exp with
+| Empty -> ()
 | Var (ty, d, None) -> ()
 | Var (ty, d, Some init) ->
     Init_local.gen ty d init

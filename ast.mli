@@ -12,7 +12,8 @@ and declarator = declarator_exp node
 and init_exp = ExprInitializer of expr | ListInitializer of init list
 and init = init_exp node
 and stmt_exp =
-    Var of Type.t * declarator * init option
+    Empty
+  | Var of Type.t * declarator * init option
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt option

@@ -673,14 +673,14 @@ int test94() {
 }
 // @end
 
-/* // @try_ret test95 0 */
-/* int test95() { */
-/*     int x = 5; */
-/*     while ((x = x - 1) > 0); */
-/*     return x; */
-/* } */
-/* // @end */
-/*  */
+// @try_ret test95 0
+int test95() {
+    int x = 5;
+    while ((x = x - 1) > 0);
+    return x;
+}
+// @end
+
 /* // @try_ret test96 8 */
 /* int test96() { */
 /*     struct { */

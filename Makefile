@@ -1,6 +1,6 @@
 RESULT=9ninecc
 
-ifeq ($(shell uname),Linux)
+ifdef 9NINECC_ENV
 OCAMLYACC=menhir
 
 PACKS=ppx_deriving.show ppx_deriving.runtime
@@ -24,16 +24,18 @@ test: native-code
 include OCamlMakefile
 else
 
+RUN=docker-compose run 9ninecc-env env 9NINECC_ENV=1
+
 .PHONY: default
 default:
-	docker-compose run 9ninecc-env make
+	$(RUN) make
 
 .PHONY: test
 test:
-	docker-compose run 9ninecc-env make test
+	$(RUN) make test
 
 .PHONY: clean
 clean:
-	docker-compose run 9ninecc-env make clean
+	$(RUN) make clean
 
 endif

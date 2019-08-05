@@ -130,7 +130,7 @@ unary:
 term:
 | n=NUM { { exp = no_type (Num n); loc = $startpos(n) } }
 | str=STR {
-    { exp = no_type (Str (String_literal.add str)); loc = $startpos(str) }
+    { exp = no_type (Str (str, String_literal.add str)); loc = $startpos(str) }
 }
 | id=IDENT { { exp = no_type (Ident (id, ref Env.DummyEntry)); loc = $startpos(id) } }
 | func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = no_type (Call (func, l)); loc = $startpos(func) } }

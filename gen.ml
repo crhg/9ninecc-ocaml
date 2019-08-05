@@ -40,7 +40,7 @@ and gen_decl decl = match decl.exp with
     let ty = match ty , init.exp with
         | Type.Array (t, None), ListInitializer l ->
             Type.Array (t, Some(List.length l))
-        | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str s } }->
+        | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str (s, _) } }->
             Type.Array (Type.Char, Some(String.length s + 1))
         | _ -> ty in
     begin

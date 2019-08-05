@@ -38,7 +38,7 @@ let _ = Type_check.assign_type expr in
 match expr.exp.e with
 | Num n ->
     Stack.push n
-| Str label ->
+| Str (_, label) ->
     printf "    mov rax, OFFSET FLAT:%s\n" label;
     Stack.push "rax"
 | Ident (_, entry_ref) ->

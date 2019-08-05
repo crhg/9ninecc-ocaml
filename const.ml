@@ -11,7 +11,7 @@ let rec eval_int expr =
     | _ -> raise(Error_at("not int or not implemented", expr.loc))
 
 and eval_pointer expr = match expr.exp.e with
-| Str label -> (label, 0)
+| Str (_, label) -> (label, 0)
 | Ident (_, entry_ref) when is_global_array_entry !entry_ref ->
     (get_label_from_entry !entry_ref, 0)
 | Add (lhs, rhs) ->
@@ -46,6 +46,6 @@ and get_label_from_entry entry = match entry with
 | _ -> failwith ("not GlobalVar " ^ Env.show_entry entry)
 
 and eval_lval expr = match expr.exp.e with
-| Str label -> (label, 0)
+| Str (_, label) -> (label, 0)
 | Ident (_, entry_ref) -> (get_label_from_entry !entry_ref, 0)
 | Deref e -> eval_pointer e

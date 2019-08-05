@@ -42,7 +42,7 @@ let get_entry name =
     try Env.find name !local_env with
     | Not_found ->
         Env.find name !global_env
-
+        
 let entry_type entry = match entry with
 | LocalVar (t, _) -> t
 | GlobalVar (t, _) -> t

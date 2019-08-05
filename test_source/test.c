@@ -645,34 +645,34 @@ int test90() {
 }
 // @end
 
-/* // @try_out test91 test91 */
-/* int test91() { */
-/*     char s[7] = "test91"; */
-/*     try_printf("%s", s); */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test92 92 */
-/* int test92() { */
-/*     int x[3] = {91, 92}; */
-/*     return x[1]; */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test93 1 */
-/* int test93() { */
-/*     int x[] = {91, 92, 93}; */
-/*     return sizeof(x) == sizeof(x[0]) *3; */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test94 1 */
-/* int test94() { */
-/*     char s[] = "hoge"; */
-/*     return sizeof(s) == 5; */
-/* } */
-/* // @end */
-/*  */
+// @try_out test91 test91
+int test91() {
+    char s[7] = "test91";
+    try_printf("%s", s);
+}
+// @end
+
+// @try_ret test92 92
+int test92() {
+    int x[3] = {91, 92};
+    return x[1];
+}
+// @end
+
+// @try_ret test93 1
+int test93() {
+    int x[] = {91, 92, 93};
+    return sizeof(x) == sizeof(x[0]) *3;
+}
+// @end
+
+// @try_ret test94 1
+int test94() {
+    char s[] = "hoge";
+    return sizeof(s) == 5;
+}
+// @end
+
 /* // @try_ret test95 0 */
 /* int test95() { */
 /*     int x = 5; */

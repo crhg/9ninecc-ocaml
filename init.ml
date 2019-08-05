@@ -42,7 +42,7 @@ and init_data_pointer init = init_data_scalar out_pointer init
 and init_data_array ty n init = match init.exp with
 | ListInitializer l ->
     init_data_by_list ty n l
-| ExprInitializer {exp={e=Str s}} when ty == Type.Char -> 
+| ExprInitializer {exp={e=Str (s, _)}} when ty == Type.Char -> 
     init_str n s
 | _ -> raise(Error_at("cannot initialize", init.loc))
 

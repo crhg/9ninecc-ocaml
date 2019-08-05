@@ -22,10 +22,20 @@ and allocate_stmt stmt = match stmt.exp with
     let ty = match ty , init.exp with
         | Type.Array (t, None), ListInitializer l ->
             Type.Array (t, Some(List.length l))
-        | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str s } }->
+        | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str (s, _) } }->
             Type.Array (Type.Char, Some(String.length s + 1))
-        | _ -> ty in
+        | Type.Array (_, Some _), ListInitializer _
+        | Type.Array (Type.Char, Some _), ExprInitializer { exp = { e = Str _ } }
+        | Type.Char, ExprInitializer _
+        | Type.Int, ExprInitializer _
+        | Type.Ptr _, ExprInitializer _
+        | Type.Char, ListInitializer [_]
+        | Type.Int, ListInitializer [_]
+        | Type.Ptr _, ListInitializer [_] ->
+            ty
+        | _ -> raise(Error_at("local var init: " ^ (Type.show ty), d.loc)) in
     begin
+        Printf.fprintf stderr "register_local_var %s %s\n" name (Type.show ty);
         try register_local_var ty name with
         | DuplicatedLocal _ ->
             raise (Error_at("duplicated: " ^ name, stmt.loc))

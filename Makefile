@@ -16,7 +16,7 @@ default: native-code
 
 .PHONY: test
 test: native-code
-	(cd test_source; make test)
+	(cd test_source; make test ONLY=$(ONLY))
 
 .sorted_srcs: $(SRCS)
 	echo SORTED_SRCS=$(shell $(OCAMLDEP) $(INCLUDES) -sort $(SRCS)) > $@
@@ -32,7 +32,7 @@ default:
 
 .PHONY: test
 test:
-	$(RUN) make test
+	$(RUN) make test ONLY=$(ONLY)
 
 .PHONY: clean
 clean:

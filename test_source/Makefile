@@ -1,25 +1,35 @@
-SRCS=$(filter-out test.c test_main.c dummy_main.c,$(wildcard *.c)) test_main.c
+SRCS=$(sort tmp.c test_main.c $(filter-out test.c dummy_main.c,$(wildcard *.c)))
 OBJS=$(SRCS:.c=.o)
 CC=gcc
 CFLAGS=-g
 LDFLAGS=-no-pie
 
-tmp: $(OBJS) test.o
-	$(CC) -o tmp $(OBJS) test.o $(LDFLAGS)
+tmp: $(OBJS)
+	$(CC) -o tmp $(OBJS) $(LDFLAGS)
 
 $(OBJS): try.h
 
-test_main.c: test.c gen_test_main.pl
-	perl gen_test_main.pl test.c |clang-format > test_main.c
+test_main.c: gen_test_main.pl tmp.c
+	perl gen_test_main.pl tmp.c |clang-format > test_main.c
 
-test.s: ../9ninecc test.c
-	../9ninecc test.c > test.s || (mv test.s failed-test.s && exit 1)
+tmp.c: gen_tmp.pl test.c
+	perl gen_tmp.pl test.c $(ONLY) > tmp.c
 
-test.o: test.s
-	$(CC) -c test.s
+tmp.s: ../9ninecc tmp.c
+	../9ninecc tmp.c > tmp.s || (mv tmp.s failed-tmp.s && exit 1)
 
-test: tmp
+tmp.o: tmp.s
+	$(CC) -c tmp.s
+
+.PHONY: test
+test:
+	make clean
+	make test-main
+
+.PHONY: test-main
+test-main: tmp
 	./tmp
 
+.PHONY: clean
 clean:
 	rm -f *~ tmp* *.o test_main.c test.s

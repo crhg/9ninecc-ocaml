@@ -31,7 +31,7 @@ and allocate_stmt stmt = match stmt.exp with
         | Type.Ptr _, ListInitializer [_] ->
             ty
         | _ -> raise(Error_at("local var init: " ^ (Type.show ty), d.loc)) in
-    Printf.fprintf stderr "register_local_var %s %s\n" name (Type.show ty);
+    (* Printf.fprintf stderr "register_local_var %s %s\n" name (Type.show ty); *)
     register_local_var ty name
 | If (expr, then_stmt, else_stmt_opt) ->
     allocate_stmt then_stmt;

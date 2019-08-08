@@ -3,14 +3,6 @@ open Env
 open Misc
 open Printf
 
-(* ラベル用のシーケンス *)
-let seq = ref 0
-
-let new_seq _ =
-    let r = !seq in
-    seq := !seq + 1;
-    r
-
 (* コード生成 本体 *)
 let rec gen decl_list =
     printf ".intel_syntax noprefix\n";
@@ -111,36 +103,39 @@ match stmt.exp with
     printf "    pop rbp\n";
     printf "    ret\n"
 | If (expr, then_stmt, None) ->
-    let seq=new_seq() in
+    let end_label = Unique_id.new_id ".Lend" in
     gen_expr expr;
     printf "    pop rax\n";
     printf "    cmp rax, 0\n";
-    printf "    je .Lend%d\n" seq;
+    printf "    je %s\n" end_label;
     gen_stmt then_stmt;
-    printf ".Lend%d:\n" seq
+    printf "%s:\n" end_label
 | If (expr, then_stmt, Some(else_stmt)) ->
-    let seq=new_seq() in
+    let else_label = Unique_id.new_id ".Lelse" in
+    let end_label = Unique_id.new_id ".Lend" in
     gen_expr expr;
     printf "    pop rax\n";
     printf "    cmp rax, 0\n";
-    printf "    je .Lelse%d\n" seq;
+    printf "    je %s\n" else_label;
     gen_stmt then_stmt;
-    printf "    jmp .Lend%d\n" seq;
-    printf ".Lelse%d:\n" seq;
+    printf "    jmp %s\n" end_label;
+    printf "%s:\n" else_label;
     gen_stmt else_stmt;
-    printf ".Lend%d:\n" seq
+    printf "%s:\n" end_label
 | While (expr, stmt) ->
-    let seq=new_seq() in
-    printf ".Lbegin%d:\n" seq;
+    let begin_label = Unique_id.new_id ".Lbegin" in
+    let end_label = Unique_id.new_id ".Lend" in
+    printf "%s:\n" begin_label;
     gen_expr expr;
     printf "    pop rax\n";
     printf "    cmp rax, 0\n";
-    printf "    je .Lend%d\n" seq;
+    printf "    je %s\n" end_label;
     gen_stmt stmt;
-    printf "    jmp .Lbegin%d\n" seq;
-    printf ".Lend%d:\n" seq
+    printf "    jmp %s\n" begin_label;
+    printf "%s:\n" end_label
 | For (init, cond, next, stmt) ->
-    let seq=new_seq() in
+    let begin_label = Unique_id.new_id ".Lbegin" in
+    let end_label = Unique_id.new_id ".Lend" in
     let gen_expr' expr =
         gen_expr expr;
         printf "    pop rax\n"
@@ -149,14 +144,14 @@ match stmt.exp with
         gen_expr expr;
         printf "    pop rax\n";
         printf "    cmp rax, 0\n";
-        printf "    je .Lend%d\n" seq
+        printf "    je %s\n" end_label
     in
     may gen_expr' init;
-    printf ".Lbegin%d:\n" seq;
+    printf "%s:\n" begin_label;
     may gen_cond cond;
     gen_stmt stmt;
     may gen_expr' next;
-    printf "    jmp .Lbegin%d\n" seq;
-    printf ".Lend%d:\n" seq
+    printf "    jmp %s\n" begin_label;
+    printf "%s:\n" end_label
 | Block stmt_list ->
     List.iter gen_stmt stmt_list

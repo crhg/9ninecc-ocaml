@@ -3,8 +3,7 @@ open Printf
 let queue = Queue.create()
 
 let add s =
-    let seq = Queue.length queue in
-    let label = sprintf ".LC%d" seq in
+    let label = Unique_id.new_id ".LC" in
     Queue.push (label, s) queue;
     label
 

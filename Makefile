@@ -12,10 +12,10 @@ SOURCES=$(filter-out parser.mli,$(subst parser.ml,parser.mly,$(subst lexer.ml,le
 
 TRASH=.sorted_srcs
 
-default: native-code
+default: debug-native-code
 
 .PHONY: test
-test: native-code
+test: default
 	(cd test_source; make test ONLY=$(ONLY))
 
 .sorted_srcs: $(SRCS)

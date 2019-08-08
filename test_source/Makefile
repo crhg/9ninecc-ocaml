@@ -16,7 +16,7 @@ tmp.c: gen_tmp.pl test.c
 	perl gen_tmp.pl test.c $(ONLY) > tmp.c
 
 tmp.s: ../9ninecc tmp.c
-	../9ninecc tmp.c > tmp.s || (mv tmp.s failed-tmp.s && exit 1)
+	env OCAMLRUNPARAM=b ../9ninecc tmp.c > tmp.s || (mv tmp.s failed-tmp.s && exit 1)
 
 tmp.o: tmp.s
 	$(CC) -c tmp.s

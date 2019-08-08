@@ -40,17 +40,21 @@ and gen_decl decl = match decl.exp with
 | FunctionDecl (_, func, params, body) ->
     Env.with_new_scope @@ fun _ ->
     let size = Type_check.prepare_func params body in
-    Stack.reset();
 
     printf "    .text\n";
     printf "    .globl %s\n" func;
     printf "    .type %s, @function\n" func;
     printf "%s:\n" func;
 
-    printf "    push rbp\n";
+    (* call命令の実行時にrspを16バイト境界にするので、呼び出されたときは戻り番地が積まれた分ズレている *)
+    Stack.set(-8);
+
+    Stack.push("rbp");
     printf "    mov rbp, rsp\n";
-    printf "    sub rsp, %d\n" size;
-    Stack.add size;
+    Stack.sub(size);
+
+    (* 文の中で式を実行した場合は必ず生成された値をpopする決まりとするので *)
+    (* この時点でのスタック位置が式のコード生成開始時のスタック位置になる *)
 
     let copy_param i (ty, name) =
         Gen_expr.gen_lval_name name;

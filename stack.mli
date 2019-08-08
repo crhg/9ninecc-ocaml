@@ -1,4 +1,6 @@
-val reset : 'a -> unit
+val set : int -> unit
+val inc : int -> unit
+val dec : int -> unit
 val add : int -> unit
 val sub : int -> unit
 val push : string -> unit

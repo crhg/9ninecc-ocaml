@@ -39,7 +39,7 @@ and 't with_type = {
 and expr_e =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
-| Ident of string * Env.entry ref
+| Ident of { name : string; mutable entry : Env.entry option }
 | Add of expr * expr
 | Sub of expr * expr
 | Mul of expr * expr

@@ -133,7 +133,7 @@ term:
 | str=STR {
     { exp = no_type (Str (str, String_literal.add str)); loc = $startpos(str) }
 }
-| id=IDENT { { exp = no_type (Ident (id, ref Env.DummyEntry)); loc = $startpos(id) } }
+| id=IDENT { { exp = no_type (Ident { name = id; entry = None }); loc = $startpos(id) } }
 | func=IDENT LPAR l=separated_list(COMMA, expr) RPAR { { exp = no_type (Call (func, l)); loc = $startpos(func) } }
 | arr=term token=LBRACKET offset=expr RBRACKET {
     let pointer = { exp = no_type (Add (arr, offset)); loc = $startpos(token) } in

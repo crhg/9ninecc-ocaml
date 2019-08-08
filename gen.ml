@@ -22,10 +22,7 @@ let rec gen decl_list =
 and gen_decl decl = match decl.exp with
 | GlobalVarDecl (ty, d, None) ->
     let ty, name = Type_check.type_and_var ty d in
-    begin
-        try register_global_var ty name with
-        | DuplicatedGlobal _ -> raise(Error_at("duplicated global: "^name, decl.loc))
-    end;
+    register_global_var ty name;
 
     printf "    .globl %s\n" name;
     printf "    .bss\n";
@@ -43,19 +40,15 @@ and gen_decl decl = match decl.exp with
         | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str (s, _) } }->
             Type.Array (Type.Char, Some(String.length s + 1))
         | _ -> ty in
-    begin
-        try register_global_var ty name with
-        | DuplicatedGlobal _ -> raise(Error_at("duplicated global: "^name, decl.loc))
-    end;
+    register_global_var ty name;
 
     Type_check.prepare_init init;
     Init.init_global ty name init
 
 | FunctionDecl (_, func, params, body) ->
-    Type_check.prepare_func params body;
+    Env.with_new_scope @@ fun _ ->
+    let size = Type_check.prepare_func params body in
     Stack.reset();
-
-    let size = local_var_size() in
 
     printf "    .text\n";
     printf "    .globl %s\n" func;

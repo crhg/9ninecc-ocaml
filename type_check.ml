@@ -5,18 +5,15 @@ open Misc
 (* ローカル変数にオフセットを割り当てる *)
 let rec prepare_func params stmt =
     let register (ty, name) = register_local_var ty name in
-    reset();
-    List.iter register params;
-    allocate_stmt stmt
+    Env.with_new_local_frame (fun _ ->
+        List.iter register params;
+        allocate_stmt stmt
+    )
 
 and allocate_stmt stmt = match stmt.exp with
 | Var (ty, d, None) ->
     let ty, name = type_and_var ty d in
-    begin
-        try register_local_var ty name with
-        | DuplicatedLocal _ ->
-            raise (Error_at("duplicated: " ^ name, stmt.loc))
-    end
+    register_local_var ty name
 | Var (ty, d, Some init) ->
     let ty, name = type_and_var ty d in
     let ty = match ty , init.exp with
@@ -34,12 +31,8 @@ and allocate_stmt stmt = match stmt.exp with
         | Type.Ptr _, ListInitializer [_] ->
             ty
         | _ -> raise(Error_at("local var init: " ^ (Type.show ty), d.loc)) in
-    begin
-        Printf.fprintf stderr "register_local_var %s %s\n" name (Type.show ty);
-        try register_local_var ty name with
-        | DuplicatedLocal _ ->
-            raise (Error_at("duplicated: " ^ name, stmt.loc))
-    end
+    Printf.fprintf stderr "register_local_var %s %s\n" name (Type.show ty);
+    register_local_var ty name
 | If (expr, then_stmt, else_stmt_opt) ->
     allocate_stmt then_stmt;
     may allocate_stmt else_stmt_opt
@@ -76,9 +69,9 @@ and assign_type expr =
 and find_type expr = match expr.exp.e with
 | Num _ -> Type.Int
 | Str _ -> Type.Ptr Type.Char
-| Ident (name, entry_ref) ->
+| Ident ({ name = name } as ident)->
     let entry = get_entry name in
-    entry_ref := entry;
+    ident.entry <- Some entry;
     entry_type entry
 | Assign (l, r) ->
     let lty = assign_type l in

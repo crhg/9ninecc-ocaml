@@ -25,7 +25,7 @@ and 't with_type = { e : 't; mutable ty : Type.t option; }
 and expr_e =
     Num of string
   | Str of string * string
-  | Ident of string * Env.entry ref
+  | Ident of { name: string; mutable entry : Env.entry option }
   | Add of expr * expr
   | Sub of expr * expr
   | Mul of expr * expr

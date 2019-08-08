@@ -15,8 +15,8 @@ let rec gen_lval_entry entry = match entry with
 and gen_lval_name name = gen_lval_entry (get_entry name)
 
 and gen_lval expr = match expr.exp.e with
-| Ident (_, entry_ref) ->
-    gen_lval_entry !entry_ref
+| Ident { entry = Some entry} ->
+    gen_lval_entry entry
 | Deref e ->
     gen_expr e
 | _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
@@ -41,8 +41,8 @@ match expr.exp.e with
 | Str (_, label) ->
     printf "    mov rax, OFFSET FLAT:%s\n" label;
     Stack.push "rax"
-| Ident (_, entry_ref) ->
-    let ty = entry_type !entry_ref in
+| Ident { entry = Some entry } ->
+    let ty = entry_type entry in
     begin
         match ty with
         | Array (_, _) -> 
@@ -100,6 +100,7 @@ match expr.exp.e with
                 printf "    add rax, rdi\n"
             | (Type.Int, Type.Int) ->
             printf "    add rax, rdi\n"
+            | _ -> raise(Error_at("invalid operand type combination: " ^ (Ast.show_expr expr), expr.loc))
         in
         binop op l r
     in
@@ -132,6 +133,7 @@ match expr.exp.e with
             printf "    sub rax, rdi\n"
         | (Type.Int, Type.Int) ->
             printf "    sub rax, rdi\n"
+        | _ -> raise(Error_at("invalid operand type combination: " ^ (Ast.show_expr expr), expr.loc))
     in
     binop op l r
 | Mul (l, r) ->
@@ -173,3 +175,5 @@ match expr.exp.e with
         printf "    movzb rax, al\n"
     in
     binop op l r
+| _ ->
+    raise(Error_at("gen_expr invalid expr: " ^ (Ast.show_expr expr), expr.loc))

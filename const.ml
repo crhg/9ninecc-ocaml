@@ -12,8 +12,8 @@ let rec eval_int expr =
 
 and eval_pointer expr = match expr.exp.e with
 | Str (_, label) -> (label, 0)
-| Ident (_, entry_ref) when is_global_array_entry !entry_ref ->
-    (get_label_from_entry !entry_ref, 0)
+| Ident { entry = Some entry } when is_global_array_entry entry ->
+    (get_label_from_entry entry, 0)
 | Add (lhs, rhs) ->
     add_pointer lhs rhs
 | Sub (lhs, rhs) ->
@@ -47,5 +47,5 @@ and get_label_from_entry entry = match entry with
 
 and eval_lval expr = match expr.exp.e with
 | Str (_, label) -> (label, 0)
-| Ident (_, entry_ref) -> (get_label_from_entry !entry_ref, 0)
+| Ident { entry = Some entry_ref } -> (get_label_from_entry entry_ref, 0)
 | Deref e -> eval_pointer e

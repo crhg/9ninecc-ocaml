@@ -3,46 +3,35 @@ open Misc
 module Env = Map.Make(String)
 
 type entry = 
-| DummyEntry
-| LocalVar of Type.t * int
-| GlobalVar of Type.t * string
+| LocalVar of Type.t * int (* offset *)
+| GlobalVar of Type.t * string (* label *)
 [@@deriving show]
 
-let local_env = ref Env.empty
-let global_env = ref Env.empty
+let map = ref Env.empty
 
 let offset = ref 0
 
-let reset _ =
-    local_env := Env.empty;
-    offset := 0
+let with_new_local_frame action =
+    offset := 0;
+    action();
+    !offset
 
-exception DuplicatedLocal of Type.t * string
+let with_new_scope action = 
+    let saved_map = !map in
+    action();
+    map := saved_map
 
 let register_local_var ty name =
-    if Env.mem name !local_env then
-        raise(DuplicatedLocal(ty,name))
-    else
-        let size = Type.get_size ty in
-        let alignment = Type.get_alignment ty in
-        offset := round_up !offset alignment + size;
-        local_env := Env.add name (LocalVar (ty, !offset)) !local_env
-
-exception DuplicatedGlobal of Type.t * string
+    let size = Type.get_size ty in
+    let alignment = Type.get_alignment ty in
+    offset := round_up !offset alignment + size;
+    map := Env.add name (LocalVar (ty, !offset)) !map
 
 let register_global_var ty name =
-    if Env.mem name !global_env then
-        raise(DuplicatedGlobal(ty,name))
-    else
-        global_env := Env.add name (GlobalVar (ty, name)) !global_env
+    map := Env.add name (GlobalVar (ty, name)) !map
 
-let local_var_size _ = !offset
+let get_entry name = Env.find name !map
 
-let get_entry name =
-    try Env.find name !local_env with
-    | Not_found ->
-        Env.find name !global_env
-        
 let entry_type entry = match entry with
 | LocalVar (t, _) -> t
 | GlobalVar (t, _) -> t

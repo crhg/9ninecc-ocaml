@@ -50,7 +50,7 @@ and gen_array_init_by_list ty lhs size l =
 
 and make_ident name loc =
     Ast.({
-        exp = no_type @@ Ident (name, ref Env.DummyEntry);
+        exp = no_type @@ Ident { name = name; entry = None };
         loc = loc
     })
 

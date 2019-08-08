@@ -23,7 +23,8 @@ and gen_scalar_init lhs init = Ast.(match init.exp with
 
 and gen_assign lhs expr =
     let assign = make_assign lhs expr in
-    ignore(Gen_expr.gen_expr assign)
+    ignore(Gen_expr.gen_expr assign);
+    Stack.pop("rax");
 
 and gen_array_init ty lhs init = Ast.(match ty, init.exp with
     | Type.Array(Char, Some size), ExprInitializer ({ exp = { e = Str _ } } as s) ->
@@ -40,7 +41,8 @@ and gen_array_init_by_string_literal lhs s size =
             loc = lhs.loc
         }
     ) in
-    ignore(Gen_expr.gen_expr call_strncpy)
+    ignore(Gen_expr.gen_expr call_strncpy);
+    Stack.pop("rax");
 
 and gen_array_init_by_list ty lhs size l =
     l |> List.iteri @@ fun i init ->

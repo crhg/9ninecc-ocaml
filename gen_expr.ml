@@ -73,7 +73,8 @@ match expr.exp.e with
         (if n_param >= 5 then Stack.pop "r8");
         (if n_param >= 6 then Stack.pop "r9");
         printf "    mov al, 0\n";
-        printf "    call %s\n" func
+        printf "    call %s\n" func;
+        (if n_stack_param > 0 then Stack.add (n_stack_param * 8));
     );
     Stack.push "rax"
 | Addr e ->

@@ -40,6 +40,7 @@ and gen_decl decl = match decl.exp with
 | FunctionDecl (_, func, params, body) ->
     Env.with_new_scope @@ fun _ ->
     let size = Type_check.prepare_func params body in
+    fprintf stderr "size=%d\n" size;
 
     printf "    .text\n";
     printf "    .globl %s\n" func;
@@ -47,11 +48,11 @@ and gen_decl decl = match decl.exp with
     printf "%s:\n" func;
 
     (* call命令の実行時にrspを16バイト境界にするので、呼び出されたときは戻り番地が積まれた分ズレている *)
-    Stack.set(-8);
+    Stack.set (-8);
 
-    Stack.push("rbp");
+    Stack.push "rbp";
     printf "    mov rbp, rsp\n";
-    Stack.sub(size);
+    Stack.sub size;
 
     (* 文の中で式を実行した場合は必ず生成された値をpopする決まりとするので *)
     (* この時点でのスタック位置が式のコード生成開始時のスタック位置になる *)
@@ -89,9 +90,15 @@ and gen_decl decl = match decl.exp with
     printf "    ret\n"
 
 and gen_stmt stmt =
-let gen_expr expr =
-    Stack.with_save (fun _ -> Gen_expr.gen_expr expr)
-in
+try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with
+| Stack.Stack_changed ->
+    raise(Error_at("stack changed: " ^ (Ast.show_stmt stmt), stmt.loc))
+
+and gen_stmt' stmt =
+(* let gen_expr expr = *)
+(*     Stack.with_save (fun _ -> Gen_expr.gen_expr expr) *)
+(* in *)
+let gen_expr = Gen_expr.gen_expr in
 match stmt.exp with
 | Empty -> ()
 | Var (ty, d, None) -> ()
@@ -99,17 +106,17 @@ match stmt.exp with
     Init_local.gen ty d init
 | Expr expr ->
     gen_expr expr;
-    printf "    pop rax\n"
+    Stack.pop "rax";
 | Return expr ->
     gen_expr expr;
-    printf "    pop rax\n";
+    Stack.pop "rax";
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
     printf "    ret\n"
 | If (expr, then_stmt, None) ->
     let end_label = Unique_id.new_id ".Lend" in
     gen_expr expr;
-    printf "    pop rax\n";
+    Stack.pop "rax";
     printf "    cmp rax, 0\n";
     printf "    je %s\n" end_label;
     gen_stmt then_stmt;
@@ -118,7 +125,7 @@ match stmt.exp with
     let else_label = Unique_id.new_id ".Lelse" in
     let end_label = Unique_id.new_id ".Lend" in
     gen_expr expr;
-    printf "    pop rax\n";
+    Stack.pop "rax";
     printf "    cmp rax, 0\n";
     printf "    je %s\n" else_label;
     gen_stmt then_stmt;
@@ -131,7 +138,7 @@ match stmt.exp with
     let end_label = Unique_id.new_id ".Lend" in
     printf "%s:\n" begin_label;
     gen_expr expr;
-    printf "    pop rax\n";
+    Stack.pop "rax";
     printf "    cmp rax, 0\n";
     printf "    je %s\n" end_label;
     gen_stmt stmt;
@@ -142,11 +149,11 @@ match stmt.exp with
     let end_label = Unique_id.new_id ".Lend" in
     let gen_expr' expr =
         gen_expr expr;
-        printf "    pop rax\n"
+        Stack.pop "rax";
     in
     let gen_cond expr =
         gen_expr expr;
-        printf "    pop rax\n";
+        Stack.pop "rax";
         printf "    cmp rax, 0\n";
         printf "    je %s\n" end_label
     in

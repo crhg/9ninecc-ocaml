@@ -30,11 +30,17 @@ let with_adjust n action =
     let sp' = !sp - n in
     let m = sp' mod 16 in (* ocamlのmodは負の数-xと正の数yについて-x mod y = -(x mod y) *)
     let adjust = if m == 0 then 0 else 16 + m in
-    if adjust > 0 then begin sub adjust end;
+    (if adjust > 0 then sub adjust);
     action();
-    if adjust > 0 then begin add adjust end
+    (if adjust > 0 then add adjust)
 
 let with_save action =
     let saved = !sp in
     action();
     sp := saved
+
+exception Stack_changed
+let check_no_change action =
+    let saved = !sp in
+    action();
+    if saved <> !sp then raise Stack_changed

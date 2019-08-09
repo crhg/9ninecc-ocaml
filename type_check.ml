@@ -1,53 +1,146 @@
+(* 型チェック *)
+(* 以下の事を行う *)
+(* - 変数宣言をみて変数に型を付ける *)
+(*    - 配列のサイズが省略されていたら決定する *)
+(* - 式に型を付ける *)
 open Ast
 open Env
 open Misc
 
-(* ローカル変数にオフセットを割り当てる *)
-let rec prepare_func params stmt =
-    let register (ty, name) = register_local_var ty name in
-    Env.with_new_local_frame (fun _ ->
-        List.iter register params;
-        allocate_stmt stmt
+let rec check decl_list =
+    List.iter check_decl decl_list
+
+and check_decl decl = match decl.exp with
+| FunctionDecl ({ func_ts = ts; func_decl = decl; func_body={exp=Block stmt_list} } as fd ) ->
+    let ty, name = type_and_var ts decl in
+    (match ty with
+        | Type.Function (ret_ty, params) ->
+            fd.func_name <- Some name;
+            let params = params |> List.map (fun (pty, pname) ->
+                {
+                    param_ty = pty;
+                    param_name = pname;
+                    param_entry = None
+                }
+            ) in
+            fd.func_params <- Some params;
+            let size = prepare_func params stmt_list in
+            fd.func_frame_size <- Some size
+        | _ -> failwith "not function"
     )
 
-and allocate_stmt stmt = match stmt.exp with
-| Var (ty, d, None) ->
-    let ty, name = type_and_var ty d in
-    register_local_var ty name
-| Var (ty, d, Some init) ->
-    let ty, name = type_and_var ty d in
-    let ty = match ty , init.exp with
-        | Type.Array (t, None), ListInitializer l ->
-            Type.Array (t, Some(List.length l))
-        | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str (s, _) } }->
-            Type.Array (Type.Char, Some(String.length s + 1))
-        | Type.Array (_, Some _), ListInitializer _
-        | Type.Array (Type.Char, Some _), ExprInitializer { exp = { e = Str _ } }
-        | Type.Char, ExprInitializer _
-        | Type.Int, ExprInitializer _
-        | Type.Ptr _, ExprInitializer _
-        | Type.Char, ListInitializer [_]
-        | Type.Int, ListInitializer [_]
-        | Type.Ptr _, ListInitializer [_] ->
-            ty
-        | _ -> raise(Error_at("local var init: " ^ (Type.show ty), d.loc)) in
-    (* Printf.fprintf stderr "register_local_var %s %s\n" name (Type.show ty); *)
-    register_local_var ty name
+| GlobalVarDecl ({ gv_ts = ts; gv_decl = d; gv_init = None } as v) ->
+    let ty, name = type_and_var ts d in
+
+    (if not @@ Type.is_complete_type ty then raise(Error_at("incomplete type", decl.loc)));
+
+    register_global_var ty name;
+
+    let entry = get_entry name in
+    v.gv_entry <- Some entry
+
+| GlobalVarDecl ({ gv_ts = ts; gv_decl = d; gv_init = Some init } as v) ->
+    let ty, name = type_and_var ts d in
+
+    (* 最上位の配列サイズが未定なら初期化子から求める *)
+    let ty = match ty with
+        | Type.Array (t, None) ->
+            let size = determine_array_size t init in
+            Type.Array(t, Some size)
+        | _ -> ty in
+    (if not @@ Type.is_complete_type ty then raise(Error_at("incomplete type", decl.loc)));
+
+    register_global_var ty name;
+
+    let entry = get_entry name in
+    v.gv_entry <- Some entry;
+
+    check_init init
+| _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
+
+and check_init init = match init.exp with
+| ExprInitializer expr ->
+    ignore @@ check_expr expr
+| ListInitializer l ->
+    List.iter check_init l
+
+(* ローカル変数にオフセットを割り当てる *)
+and prepare_func params stmt_list =
+    Env.with_new_local_frame (fun _ ->
+    Env.with_new_scope (fun _ ->
+        let register param = match param with
+        | { param_ty = ty; param_name = name } as p ->
+            register_local_var ty name;
+            let entry = get_entry name in
+            p.param_entry <- Some entry in
+        List.iter register params;
+
+        List.iter check_stmt stmt_list
+    ))
+
+and determine_array_size element_ty init =
+    match element_ty, init.exp with
+    (* charの配列のときのみ 文字列リテラル or {文字列リテラル} でも初期化可能 *)
+    | Type.Char, ExprInitializer {exp = {e = Str(s,_)}} ->
+        String.length s + 1
+    | Type.Char, ListInitializer [{ exp = ExprInitializer {exp = {e = Str(s,_)}}}] ->
+        String.length s + 1
+    | _, ListInitializer l ->
+        List.length l
+    | _, _ -> raise(Misc.Error_at(
+        Printf.sprintf "connot determine array size: ty=%s, init=%s"
+            (Type.show element_ty)
+            (Ast.show_init init),
+        init.loc))
+
+and check_stmt stmt = match stmt.exp with
+| Var {var_ts = ts; var_decl = d; var_init = None} ->
+    let ty, name = type_and_var ts d in
+    register_local_var ty name;
+| Var ({var_ts = ts; var_decl = d; var_init = Some init} as v) ->
+    let ty, name = type_and_var ts d in
+
+    (* 最上位の配列サイズが未定なら初期化子から求める *)
+    let ty = match ty with
+        | Type.Array (t, None) ->
+            let size = determine_array_size t init in
+            Type.Array(t, Some size)
+        | _ -> ty in
+    (if not @@ Type.is_complete_type ty then raise(Error_at("incomplete type", stmt.loc)));
+    register_local_var ty name;
+
+    let entry = get_entry name in
+    let ident = {
+        exp = { 
+            e = Ident { name=name; entry=Some entry };
+            ty = Some ty
+        };
+        loc=d.loc
+    } in
+    let assign = Init_local.to_assign ty ident init in
+    List.iter check_expr assign;
+    v.var_init_assign <- Some assign
+| Expr expr ->
+    check_expr expr
+| Return expr ->
+    check_expr expr
 | If (expr, then_stmt, else_stmt_opt) ->
-    allocate_stmt then_stmt;
-    may allocate_stmt else_stmt_opt
+    check_expr expr;
+    check_stmt then_stmt;
+    may check_stmt else_stmt_opt
 | While (expr, stmt) ->
-    allocate_stmt stmt
+    check_expr expr;
+    check_stmt stmt
 | For (init, cond, next, stmt) ->
-    allocate_stmt stmt;
+    may check_expr init;
+    may check_expr cond;
+    may check_expr next;
+    check_stmt stmt;
 | Block stmt_list ->
-    List.iter allocate_stmt stmt_list
+    List.iter check_stmt stmt_list
 | _ -> ()
 
-(* 初期化子の式に型を付ける *)
-and prepare_init init = match init.exp with
-| ExprInitializer expr -> ignore (assign_type expr)
-| ListInitializer l -> List.iter prepare_init l
+and check_expr expr = ignore @@ assign_type expr
 
 (* 式に型をつける *)
 and assign_type_plane expr = 
@@ -75,7 +168,11 @@ and find_type expr = match expr.exp.e with
     entry_type entry
 | Assign (l, r) ->
     let lty = assign_type l in
-    let _ = assign_type r in
+    let rty = assign_type r in
+    (if not @@ is_scalar_type lty then raise(Misc.Error_at("cannot assign", expr.loc)));
+    
+    (* (if lty <> rty then raise(Misc.Error_at("assign type mismatch", expr.loc))); *)
+
     lty
 | Call (_, expr_list) ->
     let _ = List.map assign_type expr_list in
@@ -130,14 +227,32 @@ and find_type expr = match expr.exp.e with
     let _ = assign_type r in
     Type.Int
 
-and type_and_var t d = match d.exp with
+and is_scalar_type ty = match ty with
+| Char
+| Int
+| Ptr _ ->
+    true
+| _ ->
+    false
+
+and type_and_var ts d =
+let ty = type_of_type_spec ts in
+type_and_var' ty d
+
+and type_and_var' ty d =
+match d.exp with
 | DeclIdent var ->
-    (t, var)
+    (ty, var)
 | PointerOf d ->
-    type_and_var (Type.Ptr t) d
+    type_and_var' (Type.Ptr ty) d
 | Array (d, e) ->
     let n = Option.map Const.eval_int e in
-    type_and_var (Type.Array(t, n)) d 
+    type_and_var' (Type.Array(ty, n)) d 
 | Func (d, params) ->
-    let param_type_list = List.map (fun (t, _)->t) params in
-    type_and_var (Type.Function(t, param_type_list)) d
+    let tv = fun (ts, d) -> type_and_var ts d in
+    let params = List.map tv params in
+    type_and_var' (Type.Function(ty, params)) d
+
+and type_of_type_spec ts = match ts.exp with
+| Int -> Type.Int
+| Char -> Type.Char

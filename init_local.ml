@@ -1,60 +1,47 @@
-let rec gen ty d init =
-    let _, name = Type_check.type_and_var ty d in
-    let ty = Env.entry_type (Env.get_entry name) in
-    let ident = make_ident name d.loc in
-    gen_init ty ident init
+(* ローカル変数の初期化のために代入式のリストを作る *)
 
-and gen_init ty lhs init =
+let rec to_assign (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) =
     match ty with
     | Type.Char
     | Type.Int
     | Type.Ptr _ ->
-        gen_scalar_init lhs init
+        [to_assign_scalar lhs init]
     | Type.Array _ ->
-        gen_array_init ty lhs init
+        to_assign_array ty lhs init
     | _ -> raise (Misc.Error_at("cannot initialize", init.Ast.loc))
 
-and gen_scalar_init lhs init = Ast.(match init.exp with
+and to_assign_scalar (lhs:Ast.expr) (init:Ast.init) = Ast.(match init.exp with
     | ExprInitializer expr
     | ListInitializer [{exp=ExprInitializer expr}] ->
-        gen_assign lhs expr
+        make_assign lhs expr
     | _ -> raise(Misc.Error_at("invalid initializer", init.loc))
 )
 
-and gen_assign lhs expr =
-    let assign = make_assign lhs expr in
-    ignore(Gen_expr.gen_expr assign);
-    Stack.pop("rax");
-
-and gen_array_init ty lhs init = Ast.(match ty, init.exp with
+and to_assign_array (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) = Ast.(match ty, init.exp with
     | Type.Array(Char, Some size), ExprInitializer ({ exp = { e = Str _ } } as s) ->
-        gen_array_init_by_string_literal lhs s size
+        [make_call_strncpy lhs s size]
     | Type.Array(ty, Some size), ListInitializer l ->
-        gen_array_init_by_list ty lhs size l
+        to_assign_array_by_list ty lhs size l
     | _ -> raise(Misc.Error_at("gen_array_init: " ^ (Type.show ty), lhs.loc))
 )
 
-and gen_array_init_by_string_literal lhs s size =
-    let call_strncpy = Ast.( 
-        {
-            exp = no_type @@ Call ("strncpy", [lhs; s; make_num size lhs.loc]);
-            loc = lhs.loc
-        }
-    ) in
-    ignore(Gen_expr.gen_expr call_strncpy);
-    Stack.pop("rax");
-
-and gen_array_init_by_list ty lhs size l =
-    l |> List.iteri @@ fun i init ->
-        if i < size then
-            let array_at = make_array_at lhs i in
-            gen_init ty array_at init
-
-and make_ident name loc =
+and make_call_strncpy (lhs:Ast.expr) (s:Ast.expr) (size:int) =
     Ast.({
-        exp = no_type @@ Ident { name = name; entry = None };
-        loc = loc
+        exp = no_type @@ Call ("strncpy", [lhs; s; make_num size lhs.loc]);
+        loc = lhs.loc
     })
+
+and to_assign_array_by_list ty lhs size l =
+    let rec to_assign_array_by_list' i l = match l with
+    | []
+        -> []
+    | _ when i >= size
+        -> []
+    | x::rest ->
+        let lhs_at_i = make_array_at lhs i in
+        let assign = to_assign ty lhs_at_i x in
+        assign @ to_assign_array_by_list' (i+1) rest in
+    to_assign_array_by_list' 0 l
 
 and make_num n loc =
     Ast.({

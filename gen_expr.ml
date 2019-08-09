@@ -29,12 +29,12 @@ and binop op l r =
     op ();
     Stack.push "rax"
 
-
-and get_type expr = Option.get(expr.exp.ty)
-
+and get_type expr =
+    try Option.get(expr.exp.ty) with
+    | Option.No_value ->
+        raise(Error_at("get_type: type?: " ^ (Ast.show_expr expr), expr.loc))
 
 and gen_expr expr =
-let _ = Type_check.assign_type expr in
 match expr.exp.e with
 | Num n ->
     Stack.push n

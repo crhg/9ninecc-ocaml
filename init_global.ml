@@ -3,12 +3,12 @@ open Env
 open Misc
 open Printf
 
-let rec init_global ty name init =
+let rec gen ty label init =
     (* まずラベルまで出力する *)
     printf "    .data\n";
-    printf "    .globl %s\n" name;
+    printf "    .globl %s\n" label;
     printf "    .align %d\n" (Type.get_alignment ty);
-    printf "%s:\n" name;
+    printf "%s:\n" label;
 
     (* あとは型に応じてデータを出力するのみ *)
     init_data ty init

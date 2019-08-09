@@ -3,7 +3,7 @@ type t =
 | Char
 | Ptr of t
 | Array of t * int option
-| Function of t * t list (* 戻り値とパラメタ *)
+| Function of t * (t * string) list (* 戻り値とパラメタ *)
 [@@deriving show]
 
 let rec get_size ty = match ty with
@@ -18,3 +18,14 @@ and get_alignment ty = match ty with
 | Char -> 1
 | Ptr _ -> 8
 | Array (t, _) -> get_alignment t
+| _ -> failwith @@ "alignment?: " ^ show ty
+
+and is_complete_type ty = match ty with
+| Int
+| Char
+| Ptr _ ->
+    true
+| Array (t, Some _) ->
+    is_complete_type t
+| _ ->
+    false

@@ -1,1 +1,1 @@
-val gen : Type.t -> Ast.declarator -> Ast.init -> unit
+val to_assign : Type.t -> Ast.expr -> Ast.init -> Ast.expr list

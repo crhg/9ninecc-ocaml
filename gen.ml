@@ -12,35 +12,20 @@ let rec gen decl_list =
     List.iter gen_decl decl_list
 
 and gen_decl decl = match decl.exp with
-| GlobalVarDecl (ty, d, None) ->
-    let ty, name = Type_check.type_and_var ty d in
-    register_global_var ty name;
+| GlobalVarDecl { gv_entry = Some (GlobalVar (ty, label)); gv_init = None } ->
 
-    printf "    .globl %s\n" name;
+    printf "    .globl %s\n" label;
     printf "    .bss\n";
     printf "    .align %d\n" (Type.get_alignment ty);
-    printf "    .type %s, @object\n" name;
-    printf "    .size %s, %d\n" name (Type.get_size ty);
-    printf "%s:\n" name;
+    printf "    .type %s, @object\n" label;
+    printf "    .size %s, %d\n" label (Type.get_size ty);
+    printf "%s:\n" label;
     printf "    .zero %d\n" (Type.get_size ty)
 
-    | GlobalVarDecl (ty, decl, Some init) ->
-    let ty, name = Type_check.type_and_var ty decl in
-    let ty = match ty , init.exp with
-        | Type.Array (t, None), ListInitializer l ->
-            Type.Array (t, Some(List.length l))
-        | Type.Array (Type.Char, None), ExprInitializer { exp = { e = Str (s, _) } }->
-            Type.Array (Type.Char, Some(String.length s + 1))
-        | _ -> ty in
-    register_global_var ty name;
+| GlobalVarDecl { gv_entry = Some (GlobalVar (ty, label)); gv_init = Some init } ->
+    Init_global.gen ty label init
 
-    Type_check.prepare_init init;
-    Init.init_global ty name init
-
-| FunctionDecl (_, func, params, body) ->
-    Env.with_new_scope @@ fun _ ->
-    let size = Type_check.prepare_func params body in
-    (* fprintf stderr "size=%d\n" size; *)
+| FunctionDecl { func_name=Some func; func_params=Some params; func_body=body; func_frame_size=Some size } ->
 
     printf "    .text\n";
     printf "    .globl %s\n" func;
@@ -59,8 +44,8 @@ and gen_decl decl = match decl.exp with
     (* 文の中で式を実行した場合は必ず生成された値をpopする決まりとするので *)
     (* この時点でのスタック位置が式のコード生成開始時のスタック位置になる *)
 
-    let copy_param i (ty, name) =
-        Gen_expr.gen_lval_name name;
+    let copy_param i {param_ty = ty; param_name = name; param_entry = Some entry } =
+        Gen_expr.gen_lval_entry entry;
         Stack.pop "rax";
         Gen_misc.(match i with
         | 0 ->
@@ -90,6 +75,7 @@ and gen_decl decl = match decl.exp with
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
     printf "    ret\n"
+| _ -> failwith("gen_decl: "^(Ast.show_decl decl))
 
 and gen_stmt stmt =
 try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with
@@ -103,12 +89,16 @@ and gen_stmt' stmt =
 let gen_expr = Gen_expr.gen_expr in
 match stmt.exp with
 | Empty -> ()
-| Var (ty, d, None) -> ()
-| Var (ty, d, Some init) ->
-    Init_local.gen ty d init
+| Var { var_init_assign = assign_list } ->
+    assign_list |> (may @@
+        List.iter (fun assign ->
+            gen_expr assign;
+            Stack.pop "rax"
+        )
+    )
 | Expr expr ->
     gen_expr expr;
-    Stack.pop "rax";
+    Stack.pop "rax"
 | Return expr ->
     gen_expr expr;
     Stack.pop "rax";

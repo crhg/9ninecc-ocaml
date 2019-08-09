@@ -1,19 +1,36 @@
 type 't node = { exp : 't; loc : Lexing.position; }
+and param = {
+  param_ty : Type.t;
+  param_name : string;
+  mutable param_entry : Env.entry option;
+}
+and type_spec_exp = Int | Char
+and type_spec = type_spec_exp node
 and decl_exp =
-    FunctionDecl of Type.t * string * (Type.t * string) list * stmt
-  | GlobalVarDecl of Type.t * declarator * init option
+    FunctionDecl of { func_ts : type_spec; func_decl : declarator;
+      func_body : stmt; mutable func_ty : Type.t option;
+      mutable func_name : string option;
+      mutable func_params : param list option;
+      mutable func_frame_size : int option;
+    }
+  | GlobalVarDecl of { gv_ts : type_spec; gv_decl : declarator;
+      gv_init : init option; mutable gv_entry : Env.entry option;
+    }
 and decl = decl_exp node
 and declarator_exp =
     DeclIdent of string
   | PointerOf of declarator
   | Array of declarator * expr option
-  | Func of declarator * (Type.t * string) list
+  | Func of declarator * (type_spec * declarator) list
 and declarator = declarator_exp node
 and init_exp = ExprInitializer of expr | ListInitializer of init list
 and init = init_exp node
 and stmt_exp =
     Empty
-  | Var of Type.t * declarator * init option
+  | Var of { var_ts : type_spec; var_decl : declarator;
+      var_init : init option; mutable var_entry : Env.entry option;
+      mutable var_init_assign : expr list option;
+    }
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt option
@@ -25,7 +42,7 @@ and 't with_type = { e : 't; mutable ty : Type.t option; }
 and expr_e =
     Num of string
   | Str of string * string
-  | Ident of { name: string; mutable entry : Env.entry option }
+  | Ident of { name : string; mutable entry : Env.entry option; }
   | Add of expr * expr
   | Sub of expr * expr
   | Mul of expr * expr
@@ -48,6 +65,17 @@ val pp_node :
 val show_node :
   (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->
   't node -> Ppx_deriving_runtime.string
+val pp_param :
+  Ppx_deriving_runtime.Format.formatter -> param -> Ppx_deriving_runtime.unit
+val show_param : param -> Ppx_deriving_runtime.string
+val pp_type_spec_exp :
+  Ppx_deriving_runtime.Format.formatter ->
+  type_spec_exp -> Ppx_deriving_runtime.unit
+val show_type_spec_exp : type_spec_exp -> Ppx_deriving_runtime.string
+val pp_type_spec :
+  Ppx_deriving_runtime.Format.formatter ->
+  type_spec -> Ppx_deriving_runtime.unit
+val show_type_spec : type_spec -> Ppx_deriving_runtime.string
 val pp_decl_exp :
   Ppx_deriving_runtime.Format.formatter ->
   decl_exp -> Ppx_deriving_runtime.unit

@@ -36,19 +36,34 @@ translation_unit:
 
 decl:
 | t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
-    { exp = GlobalVarDecl (t, d, init); loc = d.loc }
+    { 
+        exp = GlobalVarDecl {
+            gv_ts = t;
+            gv_decl = d;
+            gv_init = init;
+            gv_entry = None
+        };
+        loc = d.loc
+    }
 }
 | t=type_spec d=declarator body=block {
-    match d.exp with
-    | Func (_, params) -> 
-        let (ty, name) = Type_check.type_and_var t d in
-        { exp = FunctionDecl (ty, name, params, body); loc = d.loc }
-    | _ -> raise(Error_at("body exists but not function", body.loc))
+    {
+        exp = FunctionDecl {
+            func_ts = t;
+            func_decl = d;
+            func_body = body;
+            func_ty = None;
+            func_name = None;
+            func_params = None;
+            func_frame_size = None
+        };
+        loc = d.loc
+    }
 }
 
 type_spec:
-| INT  { Type.Int }
-| CHAR { Type.Char }
+| token=INT  { ignore token; { exp = Ast.Int; loc = $startpos(token) } }
+| token=CHAR  { ignore token; { exp = Ast.Char; loc = $startpos(token) } }
 
 declarator:
 | d=direct_declarator { d }
@@ -63,12 +78,18 @@ direct_declarator:
         loc = d.loc
     }
 }
-| d=direct_declarator LPAR params=separated_list(COMMA, t=type_spec d=declarator { Type_check.type_and_var t d }) RPAR {
+| d=direct_declarator LPAR params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) }) RPAR {
     {
         exp = Func (d, params);
         loc = d.loc
     }
 }
+
+param:
+| t=type_spec d=declarator {
+    { param_ts = t; param_decl = d; param_name = None; param_entry = None }
+}
+
 
 init:
 | e=expr { { exp=ExprInitializer e; loc=e.loc } }
@@ -80,7 +101,7 @@ init:
 stmt:
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
 | t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
-    { exp = Var (t, d, init); loc = d.loc }
+    { exp = Var {var_ts=t; var_decl=d; var_init=init; var_entry=None; var_init_assign=None}; loc = d.loc }
 }
 | e=expr SEMI { { exp = Expr e; loc = e.loc } }
 | token=RETURN e=expr SEMI { ignore token; { exp = Return e; loc = $startpos(token) } }

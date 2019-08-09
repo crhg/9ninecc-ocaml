@@ -1,7 +1,5 @@
 open Ast
 open Misc
-open Printf
-open Type
 
 let rec eval_int expr =
     match expr.exp.e with

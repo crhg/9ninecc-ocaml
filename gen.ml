@@ -97,14 +97,18 @@ match stmt.exp with
         )
     )
 | Expr expr ->
+    printf "# expr start\n";
     gen_expr expr;
-    Stack.pop "rax"
+    Stack.pop "rax";
+    printf "# expr end\n"
 | Return expr ->
+    printf "# return start\n";
     gen_expr expr;
     Stack.pop "rax";
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
-    printf "    ret\n"
+    printf "    ret\n";
+    printf "# return end\n"
 | If (expr, then_stmt, None) ->
     let end_label = Unique_id.new_id ".Lend" in
     gen_expr expr;

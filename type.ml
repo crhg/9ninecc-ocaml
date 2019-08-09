@@ -43,3 +43,8 @@ and is_complete_type ty = match ty with
     is_complete_type t
 | _ ->
     false
+
+and get_field ty field_name = match ty with
+| Struct { exp = Some { fields = fields } } ->
+    List.find (fun { field_name = name } -> name = field_name) fields
+| _ -> failwith ("get_field ty? " ^ (show ty))

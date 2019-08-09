@@ -24,3 +24,4 @@ val show_st_un : st_un -> Ppx_deriving_runtime.string
 val get_size : t -> int
 val get_alignment : t -> int
 val is_complete_type : t -> bool
+val get_field : t -> string -> field

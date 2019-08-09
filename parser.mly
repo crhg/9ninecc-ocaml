@@ -9,6 +9,8 @@
 
 %token ASSIGN
 
+%token DOT ARROW
+
 %token SEMI COMMA
 
 %token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET
@@ -17,7 +19,7 @@
 
 %token SIZEOF
 
-%token INT CHAR
+%token INT CHAR STRUCT
 
 %token <string> NUM         // 整数トークン
 %token <string> STR         // 文字列リテラル
@@ -64,6 +66,16 @@ decl:
 type_spec:
 | token=INT  { ignore token; { exp = Ast.Int; loc = $startpos(token) } }
 | token=CHAR  { ignore token; { exp = Ast.Char; loc = $startpos(token) } }
+| token=STRUCT fields=su_body {
+    ignore token; 
+    { exp = Struct { su_tag = None; su_fields = Some fields }; loc = $startpos(token) }
+}
+
+su_body:
+| LBRACE l=su_field* RBRACE { l }
+
+su_field:
+| ts=type_spec d=declarator SEMI { (ts, d) }
 
 declarator:
 | d=direct_declarator { d }
@@ -178,5 +190,14 @@ term:
     ignore token;
     let pointer = { exp = no_type (Add (arr, offset)); loc = $startpos(token) } in
     { exp = no_type (Deref pointer); loc = $startpos(token) }
+}
+| term=term token=ARROW field=IDENT {
+    ignore token;
+    { exp = no_type (Arrow (term, field)); loc = $startpos(token) }
+}
+| term=term token=DOT field=IDENT {
+    ignore token;
+    let pointer = { exp = no_type (Addr term); loc = $startpos(token) } in
+    { exp = no_type (Arrow (pointer, field)); loc = $startpos(token) }
 }
 | LPAR e=expr RPAR { e }

@@ -19,6 +19,13 @@ and gen_lval expr = match expr.exp.e with
     gen_lval_entry entry
 | Deref e ->
     gen_expr e
+| Arrow (e, name) ->
+    let Some (Ptr ty) = e.exp.ty in
+    let field = Type.get_field ty name in
+    gen_expr e;
+    Stack.pop("rax");
+    printf "    add rax, %d\n" field.field_offset;
+    Stack.push("rax");
 | _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
 
 and binop op l r = 
@@ -84,6 +91,13 @@ match expr.exp.e with
     gen_expr e;
     Stack.pop "rax";
     Gen_misc.load ty "rax" "[rax]";
+    Stack.push "rax"
+| Arrow ({exp = { ty = Some (Ptr (e_ty))}} as e, name) ->
+    let field = Type.get_field e_ty name in
+    gen_expr e;
+    Stack.pop "rax";
+    printf "    add rax, %d\n" field.field_offset;
+    Gen_misc.load field.field_type "rax" "[rax]";
     Stack.push "rax"
 | Sizeof e ->
     printf "    mov rax, %d\n" (Type.get_size (get_type e));

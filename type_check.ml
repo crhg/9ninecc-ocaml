@@ -187,6 +187,17 @@ and find_type expr = match expr.exp.e with
         | Type.Ptr t -> t
         | _ -> raise (Error_at("deref of non pointer", expr.loc))
     end
+| Arrow (e, field_name) ->
+    let ty = assign_type e in
+    (match ty with
+        | Type.Ptr ((Type.Struct _) as st_ty) ->
+            let field = (
+                try Type.get_field st_ty field_name with
+                |Not_found -> raise(Error_at("-> field? " ^ (Type.show ty), expr.loc))
+            ) in
+            field.field_type
+        | _ -> raise(Error_at("-> type?" ^ (Type.show ty), expr.loc))
+    )
 | Sizeof e ->
     let _ = assign_type_plane e in
     Type.Int
@@ -258,3 +269,27 @@ match d.exp with
 and type_of_type_spec ts = match ts.exp with
 | Int -> Type.Int
 | Char -> Type.Char
+| Struct { su_tag = None; su_fields = Some fields } ->
+    let st_un = st_un_of_struct fields in
+    Type.(Struct { exp = Some st_un })
+
+and st_un_of_struct fields =
+    let size, alignment, fields = st_un_of_struct' 0 0 fields in
+    Type.{ 
+        fields = fields;
+        size = size;
+        alignment = alignment
+    }
+
+and st_un_of_struct' offset alignment fields = match fields with
+| [] -> (Misc.round_up offset alignment, alignment, [])
+| (ts, d)::rest ->
+    let ty, name = type_and_var ts d in
+    let size = Type.get_size ty in
+    let align = Type.get_alignment ty in
+    let this_offset = Misc.round_up offset align in
+    let new_alignment = max align alignment in
+    let next_offset = this_offset + size in
+    let field = Type.{ field_name = name; field_type = ty; field_offset = this_offset } in
+    let (total_size, max_alignment, rest_fields) = st_un_of_struct' next_offset new_alignment rest in
+    (total_size, max_alignment, field :: rest_fields)

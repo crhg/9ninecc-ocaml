@@ -681,55 +681,55 @@ int test95() {
 }
 // @end
 
-/* // @try_ret test96 8 */
-/* int test96() { */
-/*     struct { */
-/*         int x; */
-/*         int y; */
-/*     } a; */
-/*     return sizeof(a); */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test97 97 */
-/* int test97() { */
-/*     struct { */
-/*         int x; */
-/*         int y; */
-/*     } a; */
-/*     (&a)->x = 90; */
-/*     (&a)->y = 7; */
-/*     return (&a)->x + (&a)->y; */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test98 98 */
-/* int test98() { */
-/*     struct { */
-/*         int x; */
-/*         int y; */
-/*     } a; */
-/*     a.x = 90; */
-/*     a.y = 8; */
-/*     return a.x + a.y; */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test99 99 */
-/* int test99() { */
-/*     struct { */
-/*         int x; */
-/*         int y; */
-/*     } a[10]; */
-/*     int i; */
-/*     for (i = 0; i < sizeof(a) / sizeof(a[0]); i = i + 1) { */
-/*         a[i].x = i * 10; */
-/*         a[i].y = i; */
-/*     } */
-/*     return a[9].x + a[9].y; */
-/* } */
-/* // @end */
-/*  */
+// @try_ret test96 8
+int test96() {
+    struct {
+        int x;
+        int y;
+    } a;
+    return sizeof(a);
+}
+// @end
+
+// @try_ret test97 97
+int test97() {
+    struct {
+        int x;
+        int y;
+    } a;
+    (&a)->x = 90;
+    (&a)->y = 7;
+    return (&a)->x + (&a)->y;
+}
+// @end
+
+// @try_ret test98 98
+int test98() {
+    struct {
+        int x;
+        int y;
+    } a;
+    a.x = 90;
+    a.y = 8;
+    return a.x + a.y;
+}
+// @end
+
+// @try_ret test99 99
+int test99() {
+    struct {
+        int x;
+        int y;
+    } a[10];
+    int i;
+    for (i = 0; i < sizeof(a) / sizeof(a[0]); i = i + 1) {
+        a[i].x = i * 10;
+        a[i].y = i;
+    }
+    return a[9].x + a[9].y;
+}
+// @end
+
 /* // @try_out test100 "2,1,0," */
 /* int test100() { */
 /*     struct a { */

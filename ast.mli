@@ -60,6 +60,7 @@ and expr_e =
   | Deref of expr
   | Addr of expr
   | Sizeof of expr
+  | Arrow of expr * string
 and expr_exp = expr_e with_type
 and expr = expr_exp node
 val pp_node :

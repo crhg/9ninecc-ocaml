@@ -16,6 +16,9 @@ rule token = parse
 | '/' { SLASH }
 | '&' { AMP }
 
+| '.' { DOT }
+| "->" { ARROW }
+
 | "<"  { LT }
 | "<=" { LE }
 | ">"  { GT }
@@ -42,6 +45,7 @@ rule token = parse
 | "int"    { INT }
 | "char"   { CHAR }
 | "sizeof" { SIZEOF }
+| "struct" { STRUCT }
 
 | ['0'-'9']+ as num { NUM num }
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { IDENT name }

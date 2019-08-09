@@ -16,7 +16,7 @@ and check_decl decl = match decl.exp with
     (match ty with
         | Type.Function (ret_ty, params) ->
             fd.func_name <- Some name;
-            let params = params |> List.map (fun (pty, pname) ->
+            let params = params |> List.map (fun (pname, pty) ->
                 {
                     param_ty = pty;
                     param_name = pname;
@@ -249,7 +249,9 @@ match d.exp with
     let n = Option.map Const.eval_int e in
     type_and_var' (Type.Array(ty, n)) d 
 | Func (d, params) ->
-    let tv = fun (ts, d) -> type_and_var ts d in
+    let tv = fun (ts, d) ->
+        let ty, name = type_and_var ts d in
+        (name, ty) in
     let params = List.map tv params in
     type_and_var' (Type.Function(ty, params)) d
 

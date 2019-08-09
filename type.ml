@@ -3,7 +3,7 @@ type t =
 | Char
 | Ptr of t
 | Array of t * int option
-| Function of t * (t * string) list (* 戻り値とパラメタ *)
+| Function of t * (string * t) list (* 戻り値とパラメタ *)
 [@@deriving show]
 
 let rec get_size ty = match ty with

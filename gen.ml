@@ -40,7 +40,7 @@ and gen_decl decl = match decl.exp with
 | FunctionDecl (_, func, params, body) ->
     Env.with_new_scope @@ fun _ ->
     let size = Type_check.prepare_func params body in
-    fprintf stderr "size=%d\n" size;
+    (* fprintf stderr "size=%d\n" size; *)
 
     printf "    .text\n";
     printf "    .globl %s\n" func;
@@ -52,7 +52,9 @@ and gen_decl decl = match decl.exp with
 
     Stack.push "rbp";
     printf "    mov rbp, rsp\n";
-    Stack.sub size;
+
+    (* ローカル変数領域を確保, rspが8バイト境界になるように切り上げる *)
+    Stack.sub (Misc.round_up size 8);
 
     (* 文の中で式を実行した場合は必ず生成された値をpopする決まりとするので *)
     (* この時点でのスタック位置が式のコード生成開始時のスタック位置になる *)

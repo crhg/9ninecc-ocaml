@@ -9,9 +9,15 @@ and param = {
     mutable param_entry: Env.entry option
 }
 
+and st_un = {
+    su_tag: string option;
+    su_fields: (type_spec * declarator) list option
+}
+
 and type_spec_exp =
 | Int
 | Char
+| Struct of st_un
 and type_spec = type_spec_exp node
 
 and decl_exp =

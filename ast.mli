@@ -4,7 +4,11 @@ and param = {
   param_name : string;
   mutable param_entry : Env.entry option;
 }
-and type_spec_exp = Int | Char
+and st_un = {
+  su_tag : string option;
+  su_fields : (type_spec * declarator) list option;
+}
+and type_spec_exp = Int | Char | Struct of st_un
 and type_spec = type_spec_exp node
 and decl_exp =
     FunctionDecl of { func_ts : type_spec; func_decl : declarator;
@@ -68,6 +72,9 @@ val show_node :
 val pp_param :
   Ppx_deriving_runtime.Format.formatter -> param -> Ppx_deriving_runtime.unit
 val show_param : param -> Ppx_deriving_runtime.string
+val pp_st_un :
+  Ppx_deriving_runtime.Format.formatter -> st_un -> Ppx_deriving_runtime.unit
+val show_st_un : st_un -> Ppx_deriving_runtime.string
 val pp_type_spec_exp :
   Ppx_deriving_runtime.Format.formatter ->
   type_spec_exp -> Ppx_deriving_runtime.unit

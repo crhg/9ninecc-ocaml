@@ -8,3 +8,6 @@ val register_local_var : Type.t -> string -> unit
 val register_global_var : Type.t -> string -> unit
 val get_entry : string -> entry
 val entry_type : entry -> Type.t
+val register_tag : string -> Type.t -> unit
+val get_tag : string -> Type.t
+val get_tag_opt : string -> Type.t option

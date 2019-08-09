@@ -269,9 +269,24 @@ match d.exp with
 and type_of_type_spec ts = match ts.exp with
 | Int -> Type.Int
 | Char -> Type.Char
-| Struct { su_tag = None; su_fields = Some fields } ->
+| Struct { su_tag = tag; su_fields = Some fields } ->
     let st_un = st_un_of_struct fields in
-    Type.(Struct { exp = Some st_un })
+    let ty = Type.(Struct { exp = Some st_un }) in
+    (match tag with
+        | None -> ty
+        | Some tag ->
+            Env.register_tag tag ty;
+            ty
+    )
+| Struct { su_tag = Some tag; su_fields = None } ->
+    (match Env.get_tag_opt tag with
+        | Some ty -> ty
+        | None ->
+            let ty = Type.(Struct {exp = None}) in
+            Env.register_tag tag ty;
+            ty
+    )
+| Struct _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
 
 and st_un_of_struct fields =
     let size, alignment, fields = st_un_of_struct' 0 0 fields in

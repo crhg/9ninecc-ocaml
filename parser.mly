@@ -37,15 +37,13 @@ translation_unit:
 | l=decl* EOF { l }
 
 decl:
-| t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
+| t=type_spec decl_inits = separated_list(COMMA, decl_init) SEMI {
     { 
         exp = GlobalVarDecl {
             gv_ts = t;
-            gv_decl = d;
-            gv_init = init;
-            gv_entry = None
+            gv_decl_inits = decl_inits
         };
-        loc = d.loc
+        loc = t.loc
     }
 }
 | t=type_spec d=declarator body=block {
@@ -80,6 +78,11 @@ su_body:
 
 su_field:
 | ts=type_spec d=declarator SEMI { (ts, d) }
+
+decl_init:
+| decl=declarator init=option(ASSIGN i=init {i}) {
+    { di_decl = decl; di_init = init; di_entry = None }
+}
 
 declarator:
 | d=direct_declarator { d }

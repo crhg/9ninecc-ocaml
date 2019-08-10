@@ -6,7 +6,8 @@ type 't node = {
 and param = {
     param_ty: Type.t;
     param_name: string;
-    mutable param_entry: Env.entry option
+    mutable param_entry: Env.entry option;
+    param_loc: Lexing.position [@opaque]
 }
 
 and st_un = {
@@ -32,11 +33,15 @@ and decl_exp =
 }
 | GlobalVarDecl of {
     gv_ts: type_spec;
-    gv_decl: declarator;
-    gv_init: init option;
-    mutable gv_entry: Env.entry option
+    gv_decl_inits: decl_init list
 }
 and decl = decl_exp node
+
+and decl_init = {
+    di_decl: declarator;
+    di_init: init option;
+    mutable di_entry : Env.entry option
+}
 
 and declarator_exp =
 | DeclIdent of string

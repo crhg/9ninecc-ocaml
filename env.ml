@@ -40,8 +40,16 @@ let entry_type entry = match entry with
 | GlobalVar (t, _) -> t
 
 let register_tag name ty =
+    (* Printf.fprintf stderr "register_tag %s %s\n" name (Type.show_type ty); *)
     tag_map := Env.add name ty !tag_map
 
-let get_tag name = Env.find name !tag_map
+let get_tag name =
+    let r = Env.find name !tag_map in
+    (* Printf.fprintf stderr "get_tag %s -> %s\n" name (Type.show_type r); *)
+    r
 
-let get_tag_opt name = Env.find_opt name !tag_map
+let get_tag_opt name =
+    let r = Env.find_opt name !tag_map in
+    (* Printf.fprintf stderr "get_tag %s -> %s\n" name *)
+        (* (match r with | None -> "None" | Some(x) -> Printf.sprintf "Some(%s)" (Type.show_type x)); *)
+    r

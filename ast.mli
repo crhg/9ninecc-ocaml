@@ -3,6 +3,7 @@ and param = {
   param_ty : Type.t;
   param_name : string;
   mutable param_entry : Env.entry option;
+  param_loc : Lexing.position;
 }
 and st_un = {
   su_tag : string option;
@@ -17,10 +18,13 @@ and decl_exp =
       mutable func_params : param list option;
       mutable func_frame_size : int option;
     }
-  | GlobalVarDecl of { gv_ts : type_spec; gv_decl : declarator;
-      gv_init : init option; mutable gv_entry : Env.entry option;
-    }
+  | GlobalVarDecl of { gv_ts : type_spec; gv_decl_inits : decl_init list; }
 and decl = decl_exp node
+and decl_init = {
+  di_decl : declarator;
+  di_init : init option;
+  mutable di_entry : Env.entry option;
+}
 and declarator_exp =
     DeclIdent of string
   | PointerOf of declarator
@@ -91,6 +95,10 @@ val show_decl_exp : decl_exp -> Ppx_deriving_runtime.string
 val pp_decl :
   Ppx_deriving_runtime.Format.formatter -> decl -> Ppx_deriving_runtime.unit
 val show_decl : decl -> Ppx_deriving_runtime.string
+val pp_decl_init :
+  Ppx_deriving_runtime.Format.formatter ->
+  decl_init -> Ppx_deriving_runtime.unit
+val show_decl_init : decl_init -> Ppx_deriving_runtime.string
 val pp_declarator_exp :
   Ppx_deriving_runtime.Format.formatter ->
   declarator_exp -> Ppx_deriving_runtime.unit

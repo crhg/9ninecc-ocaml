@@ -45,9 +45,9 @@ let compile filename source =
         Type_check.check ast;
         Gen.gen ast
     with
-    | Failure s ->
-        error_at_lex_pos s;
-        exit (-1)
+    (* | Failure s -> *)
+    (*     error_at_lex_pos s; *)
+    (*     exit (-1) *)
     | Parser.Error ->
         error_at_lex_pos "Parser.Error";
         exit (-1)

@@ -21,8 +21,8 @@
 
 %token LONG INT SHORT CHAR STRUCT UNION
 
-%token <string> NUM         // 整数トークン
-%token <string> STR         // 文字列リテラル
+%token <string> NUM  // 整数トークン
+%token <string> STR  // 文字列リテラル
 %token <string> IDENT
 
 %token EOF

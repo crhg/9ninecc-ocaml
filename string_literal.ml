@@ -13,6 +13,6 @@ let gen _ =
     Queue.iter
         (fun (label, s) ->
             printf "%s:\n" label;
-            printf "    .string \"%s\"\n" s
+            printf "    .string \"%s\"\n" (String.escaped s)
         )
         queue

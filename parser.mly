@@ -183,7 +183,7 @@ mul:
 unary:
 | e=term { e }
 | PLUS e=term { e }
-| token=MINUS e=term {
+| token=MINUS e=unary {
     ignore token;
     {
         exp = no_type @@ Sub ({ exp = no_type (Num "0"); loc = $startpos(token) }, e);

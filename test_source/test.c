@@ -763,19 +763,19 @@ int test101() {
 }
 // @end
 
-/* // @try_ret test102 102 */
-/* int test102() { */
-/*     struct A { */
-/*         int x; */
-/*     }; */
-/*  */
-/*     struct A a; */
-/*     a.x = 102; */
-/*  */
-/*     return a.x; */
-/* } */
-/* // @end */
-/*  */
+// @try_ret test102 102
+int test102() {
+    struct A {
+        int x;
+    };
+
+    struct A a;
+    a.x = 102;
+
+    return a.x;
+}
+// @end
+
 /* // @trey_ret test103 103 */
 /* int test103() { */
 /*     union U103 { */

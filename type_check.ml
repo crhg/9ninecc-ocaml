@@ -93,31 +93,36 @@ and determine_array_size element_ty init =
         init.loc))
 
 and check_stmt stmt = match stmt.exp with
-| Var ({var_ts = ts; var_decl = d; var_init = init} as v) ->
-    let ty, name = type_and_var_ts ts d in
+| Var ({var_ts = ts; var_decl_inits = decl_inits} as v) ->
+    let ty = type_of_type_spec ts in
 
-    let ty = match ty, init with
-        | Type.Array (t, None), Some init ->
-            let size = determine_array_size t init in
-            Type.Array(t, Some size)
-        | _ -> ty in
+    decl_inits |> List.iter (fun decl_init -> match decl_init with
+    | { di_decl = d; di_init = init } ->
+        let ty, name = type_and_var_ty ty d in
 
-    check_complete ty d.loc;
+        let ty = match ty, init with
+            | Type.Array (t, None), Some init ->
+                let size = determine_array_size t init in
+                Type.Array(t, Some size)
+            | _ -> ty in
 
-    register_local_var ty name;
+        check_complete ty d.loc;
 
-    init |> Misc.may (fun init ->
-        let entry = get_entry name in
-        let ident = {
-            exp = { 
-                e = Ident { name=name; entry=Some entry };
-                ty = Some ty
-            };
-            loc=d.loc
-        } in
-        let assign = Init_local.to_assign ty ident init in
-        List.iter check_expr assign;
-        v.var_init_assign <- Some assign
+        register_local_var ty name;
+
+        init |> Misc.may (fun init ->
+            let entry = get_entry name in
+            let ident = {
+                exp = { 
+                    e = Ident { name=name; entry=Some entry };
+                    ty = Some ty
+                };
+                loc=d.loc
+            } in
+            let assign = Init_local.to_assign ty ident init in
+            List.iter check_expr assign;
+            decl_init.di_init_assign <- assign
+        )
     )
 
 | Expr expr ->

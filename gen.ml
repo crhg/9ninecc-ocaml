@@ -90,9 +90,9 @@ and gen_stmt' stmt =
 let gen_expr = Gen_expr.gen_expr in
 match stmt.exp with
 | Empty -> ()
-| Var { var_init_assign = assign_list } ->
-    assign_list |> (may @@
-        List.iter (fun assign ->
+| Var { var_decl_inits = decl_inits } ->
+    decl_inits |> List.iter (fun decl_init ->
+        decl_init.di_init_assign |> List.iter (fun assign ->
             gen_expr assign;
             Stack.pop "rax"
         )

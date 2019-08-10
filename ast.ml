@@ -40,7 +40,8 @@ and decl = decl_exp node
 and decl_init = {
     di_decl: declarator;
     di_init: init option;
-    mutable di_entry : Env.entry option
+    mutable di_entry : Env.entry option; (* グローバル変数用。ここからラベルと型を知る *)
+    mutable di_init_assign: expr list (* ローカル変数用。初期化を行う代入式のリスト。型が決まってから設定 *)
 }
 
 and declarator_exp =
@@ -59,10 +60,7 @@ and stmt_exp =
 | Empty
 | Var of  {
     var_ts: type_spec;
-    var_decl: declarator;
-    var_init: init option;
-    mutable var_entry: Env.entry option;
-    mutable var_init_assign: expr list option (* 初期化を行う代入式のリスト。型が決まってから設定 *)
+    var_decl_inits: decl_init list
 }
 | Expr of expr
 | Return of expr

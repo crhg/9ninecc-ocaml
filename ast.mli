@@ -24,6 +24,7 @@ and decl_init = {
   di_decl : declarator;
   di_init : init option;
   mutable di_entry : Env.entry option;
+  mutable di_init_assign : expr list;
 }
 and declarator_exp =
     DeclIdent of string
@@ -35,10 +36,7 @@ and init_exp = ExprInitializer of expr | ListInitializer of init list
 and init = init_exp node
 and stmt_exp =
     Empty
-  | Var of { var_ts : type_spec; var_decl : declarator;
-      var_init : init option; mutable var_entry : Env.entry option;
-      mutable var_init_assign : expr list option;
-    }
+  | Var of { var_ts : type_spec; var_decl_inits : decl_init list; }
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt option

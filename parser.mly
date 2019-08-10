@@ -81,7 +81,7 @@ su_field:
 
 decl_init:
 | decl=declarator init=option(ASSIGN i=init {i}) {
-    { di_decl = decl; di_init = init; di_entry = None }
+    { di_decl = decl; di_init = init; di_entry = None; di_init_assign = [] }
 }
 
 declarator:
@@ -119,8 +119,8 @@ init:
 
 stmt:
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
-| t=type_spec d=declarator init=option(ASSIGN i=init {i}) SEMI {
-    { exp = Var {var_ts=t; var_decl=d; var_init=init; var_entry=None; var_init_assign=None}; loc = d.loc }
+| t=type_spec decl_inits=decl_init* SEMI {
+    { exp = Var {var_ts=t; var_decl_inits=decl_inits }; loc = t.loc }
 }
 | e=expr SEMI { { exp = Expr e; loc = e.loc } }
 | token=RETURN e=expr SEMI { ignore token; { exp = Return e; loc = $startpos(token) } }

@@ -49,7 +49,7 @@ and check_decl decl = match decl.exp with
             let entry = get_entry name in
             di.di_entry <- Some entry;
 
-            Misc.may check_init init
+            Option.may check_init init
     )
 | _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
 
@@ -110,7 +110,7 @@ and check_stmt stmt = match stmt.exp with
 
         register_local_var ty name;
 
-        init |> Misc.may (fun init ->
+        init |> Option.may (fun init ->
             let entry = get_entry name in
             let ident = {
                 exp = { 
@@ -132,14 +132,14 @@ and check_stmt stmt = match stmt.exp with
 | If (expr, then_stmt, else_stmt_opt) ->
     check_expr expr;
     check_stmt then_stmt;
-    may check_stmt else_stmt_opt
+    Option.may check_stmt else_stmt_opt
 | While (expr, stmt) ->
     check_expr expr;
     check_stmt stmt
 | For (init, cond, next, stmt) ->
-    may check_expr init;
-    may check_expr cond;
-    may check_expr next;
+    Option.may check_expr init;
+    Option.may check_expr cond;
+    Option.may check_expr next;
     check_stmt stmt;
 | Block stmt_list ->
     List.iter check_stmt stmt_list

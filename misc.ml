@@ -1,7 +1,3 @@
-let may f x = match x with
-| Some x' -> f x'
-| None    -> ()
-
 (* nをmの倍数に切り捨てる *)
 let round_down n m = n - (n mod m)
 

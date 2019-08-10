@@ -13,3 +13,8 @@ let is_none opt = match opt with
 | Some _ -> false
 
 let is_some opt = not (is_none opt)
+
+let may f x = match x with
+| Some x' -> f x'
+| None    -> ()
+

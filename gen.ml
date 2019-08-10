@@ -153,11 +153,11 @@ match stmt.exp with
         printf "    cmp rax, 0\n";
         printf "    je %s\n" end_label
     in
-    may gen_expr' init;
+    Option.may gen_expr' init;
     printf "%s:\n" begin_label;
-    may gen_cond cond;
+    Option.may gen_cond cond;
     gen_stmt stmt;
-    may gen_expr' next;
+    Option.may gen_expr' next;
     printf "    jmp %s\n" begin_label;
     printf "%s:\n" end_label
 | Block stmt_list ->

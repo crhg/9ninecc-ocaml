@@ -218,3 +218,4 @@ term:
     { exp = no_type (Arrow (pointer, field)); loc = $startpos(token) }
 }
 | LPAR e=expr RPAR { e }
+| LPAR b=block RPAR { { exp = no_type (BlockExpr b); loc = b.loc } }

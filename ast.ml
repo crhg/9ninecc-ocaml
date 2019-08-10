@@ -96,6 +96,7 @@ and expr_e =
 | Addr of expr
 | Sizeof of expr
 | Arrow of expr * string
+| BlockExpr of stmt
 and expr_exp = expr_e with_type
 and expr = expr_exp node
 [@@deriving show]

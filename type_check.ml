@@ -184,6 +184,12 @@ and find_type expr = match expr.exp.e with
 | Call (_, expr_list) ->
     let _ = List.map assign_type expr_list in
     Type.Int
+| BlockExpr block ->
+    check_stmt block;
+
+    (* TODO: 本当はblockの最後に実行した式文の型になりそうだが *)
+    (*       真面目に考えると分岐だのループだので面倒なので当面int固定 *)
+    Type.Int
 | Addr e ->
     let ty = assign_type_plane e in
     Type.Ptr ty

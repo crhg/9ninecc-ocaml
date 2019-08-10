@@ -244,6 +244,9 @@ match expr.exp.e with
         (if n_stack_param > 0 then Stack.add (n_stack_param * 8));
     );
     Stack.push "rax"
+| BlockExpr block ->
+    gen_stmt block;
+    Stack.push "rax"
 | Addr e ->
     gen_lval e
 | Deref e ->

@@ -155,7 +155,9 @@ and assign_type_plane expr =
 
 (* 型の正規化 *)
 and normalize_type ty = match ty with
-    | Type.Char -> Type.Int (* 式中ではcharもintも同一視してintとみなす。 *)
+    | Type.Char
+    | Type.Short
+    | Type.Long -> Type.Int (* 式中ではcharもintも同一視してintとみなす。 *)
     | Type.Array (t, _) -> Type.Ptr t (* 配列型はポインタ型に読みかえる *)
     | _ -> ty
 
@@ -246,7 +248,9 @@ and find_type expr = match expr.exp.e with
 
 and is_scalar_type ty = match ty with
 | Char
+| Short
 | Int
+| Long
 | Ptr _ ->
     true
 | _ ->
@@ -273,7 +277,9 @@ match d.exp with
     type_and_var_ty (Type.Function(ty, params)) d
 
 and type_of_type_spec ts = match ts.exp with
+| Long -> Type.Long
 | Int -> Type.Int
+| Short -> Type.Short
 | Char -> Type.Char
 | Struct { su_tag = None; su_fields = Some fields } ->
     let body = body_of_struct fields in

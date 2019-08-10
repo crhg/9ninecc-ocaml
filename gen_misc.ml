@@ -5,7 +5,9 @@ exception Invalid_size
 
 let select_size ty = match ty with
 | Type.Ptr _ -> 64
+| Type.Long -> 64
 | Type.Int -> 32
+| Type.Short -> 16
 | Type.Char -> 8
 
 let select_reg ty reg = match (select_size ty, reg) with
@@ -19,6 +21,15 @@ let select_reg ty reg = match (select_size ty, reg) with
 | (32, "r8")  -> "r8d"
 | (32, "r9")  -> "r9d"
 | (32, "r10") -> "r10d"
+| (16, "rax") -> "ax"
+| (16, "rdi") -> "di"
+| (16, "rsi") -> "si"
+| (16, "rdx") -> "dx"
+| (16, "rcx") -> "cx"
+| (16, "rbx") -> "bx"
+| (16, "r8")  -> "r8w"
+| (16, "r9")  -> "r9w"
+| (16, "r10") -> "r10w"
 | (8, "rax") -> "al"
 | (8, "rdi") -> "dil"
 | (8, "rsi") -> "sil"
@@ -32,6 +43,8 @@ let select_reg ty reg = match (select_size ty, reg) with
 let load ty dst src = Printf.(match ty with
 | Type.Char ->
     printf "    movsx %s, BYTE PTR [%s]\n" dst src
+| Type.Short ->
+    printf "    movsx %s, WORD PTR [%s]\n" dst src
 | _ ->
     printf "    mov %s, %s\n" (select_reg ty dst) src
 )

@@ -16,7 +16,9 @@ and st_un = {
 }
 
 and type_spec_exp =
+| Long
 | Int
+| Short
 | Char
 | Struct of st_un
 | Union of st_un

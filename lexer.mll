@@ -42,7 +42,9 @@ rule token = parse
 | "else"   { ELSE }
 | "while"  { WHILE }
 | "for"    { FOR }
+| "long"   { LONG }
 | "int"    { INT }
+| "short"  { SHORT }
 | "char"   { CHAR }
 | "sizeof" { SIZEOF }
 | "struct" { STRUCT }

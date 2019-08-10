@@ -3,7 +3,9 @@ module SS = Set.Make(String)
 let shown = ref SS.empty
 
 type t =
+| Long
 | Int
+| Short
 | Char
 | Ptr of t
 | Array of t * int option
@@ -52,7 +54,9 @@ let show_type ty =
 exception Incomplete
 
 let rec get_size ty = match ty with
+| Long -> 8
 | Int -> 4
+| Short -> 2
 | Char -> 1
 | Ptr _ -> 8
 | Array (t, Some n) -> get_size t * n
@@ -60,7 +64,9 @@ let rec get_size ty = match ty with
 | _ -> raise Incomplete
 
 and get_alignment ty = match ty with
+| Long -> 8
 | Int -> 4
+| Short -> 2
 | Char -> 1
 | Ptr _ -> 8
 | Array (t, _) -> get_alignment t
@@ -68,7 +74,9 @@ and get_alignment ty = match ty with
 | _ -> raise Incomplete
 
 and is_complete_type ty = match ty with
+| Long
 | Int
+| Short
 | Char
 | Ptr _
 | Struct {body=Some _} ->

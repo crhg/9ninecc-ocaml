@@ -19,7 +19,7 @@
 
 %token SIZEOF
 
-%token INT CHAR STRUCT UNION
+%token LONG INT SHORT CHAR STRUCT UNION
 
 %token <string> NUM         // 整数トークン
 %token <string> STR         // 文字列リテラル
@@ -62,8 +62,10 @@ decl:
 }
 
 type_spec:
-| token=INT  { ignore token; { exp = Ast.Int; loc = $startpos(token) } }
-| token=CHAR  { ignore token; { exp = Ast.Char; loc = $startpos(token) } }
+| token=LONG  { ignore token; { exp = Ast.Long;  loc = $startpos(token) } }
+| token=INT   { ignore token; { exp = Ast.Int;   loc = $startpos(token) } }
+| token=SHORT { ignore token; { exp = Ast.Short; loc = $startpos(token) } }
+| token=CHAR  { ignore token; { exp = Ast.Char;  loc = $startpos(token) } }
 | token=STRUCT fields=su_body {
     ignore token; 
     { exp = Struct { su_tag = None; su_fields = Some fields }; loc = $startpos(token) }

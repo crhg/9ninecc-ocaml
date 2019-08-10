@@ -45,7 +45,9 @@ module SS :
   end
 val shown : SS.t ref
 type t =
-    Int
+    Long
+  | Int
+  | Short
   | Char
   | Ptr of t
   | Array of t * int option

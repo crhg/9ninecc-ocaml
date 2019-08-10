@@ -15,7 +15,9 @@ let rec gen ty label init =
 
 and init_data ty init = match ty with
     | Type.Char -> init_data_char init
+    | Type.Short -> init_data_short init
     | Type.Int -> init_data_int init
+    | Type.Long -> init_data_long init
     | Type.Ptr _ -> init_data_pointer init
     | Type.Array (ty, Some n) -> init_data_array ty n init
     | _ -> raise(Error_at("cannot initialize type: " ^ (Type.show ty), init.loc))
@@ -24,8 +26,10 @@ and init_data_scalar out init = match init.exp with
 | ExprInitializer expr -> out expr
 | ListInitializer (({exp=ExprInitializer _} as init)::_) -> init_data_scalar out init 
 
-and out_char expr = printf "    .byte %d\n" (Const.eval_int expr)
-and out_int  expr = printf "    .long %d\n" (Const.eval_int expr)
+and out_char  expr = printf "    .byte %d\n" (Const.eval_int expr)
+and out_short expr = printf "    .word %d\n" (Const.eval_int expr)
+and out_int   expr = printf "    .long %d\n" (Const.eval_int expr)
+and out_long  expr = printf "    .quad %d\n" (Const.eval_int expr)
 
 and out_pointer expr =
     let pointer = Const.eval_pointer expr in
@@ -36,7 +40,9 @@ and out_pointer expr =
         printf "    .quad %s%+d\n" label offset
 
 and init_data_char    init = init_data_scalar out_char    init
+and init_data_short   init = init_data_scalar out_short   init
 and init_data_int     init = init_data_scalar out_int     init
+and init_data_long    init = init_data_scalar out_long    init
 and init_data_pointer init = init_data_scalar out_pointer init
 
 and init_data_array ty n init = match init.exp with

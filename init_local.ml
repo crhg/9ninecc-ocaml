@@ -3,7 +3,9 @@
 let rec to_assign (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) =
     match ty with
     | Type.Char
+    | Type.Short
     | Type.Int
+    | Type.Long
     | Type.Ptr _ ->
         [to_assign_scalar lhs init]
     | Type.Array _ ->

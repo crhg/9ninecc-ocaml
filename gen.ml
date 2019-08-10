@@ -202,6 +202,10 @@ and get_type expr =
         raise(Error_at("get_type: type?: " ^ (Ast.show_expr expr), expr.loc))
 
 and gen_expr expr =
+    try gen_expr' expr with
+    | Misc.Error msg -> raise(Misc.Error_at(msg ^ ": " ^ (Ast.show_expr expr), expr.loc))
+
+and gen_expr' expr =
 match expr.exp.e with
 | Num n ->
     Stack.push n
@@ -257,11 +261,15 @@ match expr.exp.e with
     Stack.push "rax"
 | Arrow ({exp = { ty = Some (Ptr (e_ty))}} as e, name) ->
     let field = Type.get_field e_ty name in
-    gen_expr e;
-    Stack.pop "rax";
-    printf "    add rax, %d\n" field.field_offset;
-    Gen_misc.load field.field_type "rax" "[rax]";
-    Stack.push "rax"
+    (match field.field_type with
+        | Array _ -> gen_lval expr
+        | _ ->
+            gen_expr e;
+            Stack.pop "rax";
+            printf "    add rax, %d\n" field.field_offset;
+            Gen_misc.load field.field_type "rax" "[rax]";
+            Stack.push "rax"
+    )
 | Sizeof e ->
     printf "    mov rax, %d\n" (Type.get_size (get_type e));
     Stack.push "rax"

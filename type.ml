@@ -16,6 +16,14 @@ type t =
             shown := SS.add id !shown;
             fprintf fmt "Struct ";
             pp_aggregate fmt  aggregate ]
+| Union of aggregate 
+    [@printer fun fmt aggregate -> match aggregate with
+        | {id=id} when SS.mem id !shown ->
+            fprintf fmt "Union{id=%s;...}" id
+        | {id=id} ->
+            shown := SS.add id !shown;
+            fprintf fmt "Union ";
+            pp_aggregate fmt  aggregate ]
 
 and aggregate = {
     id: string; (* 識別用 *)

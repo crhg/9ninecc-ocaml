@@ -51,6 +51,7 @@ type t =
   | Array of t * int option
   | Function of t * (string * t) list
   | Struct of aggregate
+  | Union of aggregate
 and aggregate = {
   id : string;
   tag : string option;

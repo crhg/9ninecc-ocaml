@@ -19,6 +19,7 @@ and type_spec_exp =
 | Int
 | Char
 | Struct of st_un
+| Union of st_un
 and type_spec = type_spec_exp node
 
 and decl_exp =

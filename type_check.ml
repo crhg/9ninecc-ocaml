@@ -195,7 +195,8 @@ and find_type expr = match expr.exp.e with
 | Arrow (e, field_name) ->
     let ty = assign_type e in
     (match ty with
-        | Type.Ptr ((Type.Struct _) as st_ty) ->
+        | Type.Ptr ((Type.Struct _) as st_ty)
+        | Type.Ptr ((Type.Union _) as st_ty) ->
             let field = (
                 try Type.get_field st_ty field_name with
                 |Not_found -> raise(Error_at("-> field? " ^ (Type.show ty), expr.loc))
@@ -283,8 +284,8 @@ and type_of_type_spec ts = match ts.exp with
     }
 | Struct { su_tag = Some tag; su_fields = None } ->
     (match Env.get_tag_opt tag with
-        | Some ty -> ty
-        | None ->
+        | Some ((Type.Struct _) as ty) -> ty
+        | _ ->
             let ty = Type.Struct {
                 id = Unique_id.new_id "struct-";
                 tag = Some tag;
@@ -296,7 +297,12 @@ and type_of_type_spec ts = match ts.exp with
 | Struct { su_tag = Some tag; su_fields = Some fields } ->
     let body = body_of_struct fields in
     (match Env.get_tag_opt tag with
-        | None ->
+        | Some ((Type.Struct s) as ty) ->
+            (* Printf.fprintf stderr "ty before: %s\n" (Type.show_type ty); *)
+            s.body <- Some body;
+            (* Printf.fprintf stderr "ty after: %s\n" (Type.show_type ty); *)
+            ty
+        | _ ->
             let ty = Type.Struct {
                 id = Unique_id.new_id "struct-";
                 tag = Some tag;
@@ -304,13 +310,45 @@ and type_of_type_spec ts = match ts.exp with
             } in
             Env.register_tag tag ty;
             ty
-        | Some ((Type.Struct s) as ty) ->
+    )
+| Struct _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
+| Union { su_tag = None; su_fields = Some fields } ->
+    let body = body_of_union fields in
+    Type.Union {
+        id = Unique_id.new_id "union-";
+        tag = None;
+        body = Some body
+    }
+| Union { su_tag = Some tag; su_fields = None } ->
+    (match Env.get_tag_opt tag with
+        | Some ((Type.Union s) as ty) -> ty
+        | _ ->
+            let ty = Type.Union {
+                id = Unique_id.new_id "union-";
+                tag = Some tag;
+                body = None
+            } in
+            Env.register_tag tag ty;
+            ty
+    )
+| Union { su_tag = Some tag; su_fields = Some fields } ->
+    let body = body_of_union fields in
+    (match Env.get_tag_opt tag with
+        | Some ((Type.Union s) as ty) ->
             (* Printf.fprintf stderr "ty before: %s\n" (Type.show_type ty); *)
             s.body <- Some body;
             (* Printf.fprintf stderr "ty after: %s\n" (Type.show_type ty); *)
             ty
+        | _ ->
+            let ty = Type.Union {
+                id = Unique_id.new_id "union-";
+                tag = Some tag;
+                body =Some body
+            } in
+            Env.register_tag tag ty;
+            ty
     )
-| Struct _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
+| Union _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
 
 and body_of_struct fields =
     let size, alignment, fields = body_of_struct' 0 0 fields in
@@ -331,6 +369,26 @@ and body_of_struct' offset alignment fields = match fields with
     let next_offset = this_offset + size in
     let field = Type.{ field_name = name; field_type = ty; field_offset = this_offset } in
     let (total_size, max_alignment, rest_fields) = body_of_struct' next_offset new_alignment rest in
+    (total_size, max_alignment, field :: rest_fields)
+
+and body_of_union fields =
+    let size, alignment, fields = body_of_union' 0 0 fields in
+    Type.{ 
+        fields = fields;
+        size = size;
+        alignment = alignment
+    }
+
+and body_of_union' size alignment fields = match fields with
+| [] -> (Misc.round_up size alignment, alignment, [])
+| (ts, d)::rest ->
+    let ty, name = type_and_var_ts ts d in
+    let sz = Type.get_size ty in
+    let align = Type.get_alignment ty in
+    let new_size = max sz size in
+    let new_alignment = max align alignment in
+    let field = Type.{ field_name = name; field_type = ty; field_offset = 0 } in
+    let (total_size, max_alignment, rest_fields) = body_of_union' new_size new_alignment rest in
     (total_size, max_alignment, field :: rest_fields)
 
 and check_complete ty loc = 

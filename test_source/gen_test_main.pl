@@ -1,4 +1,30 @@
 #!/usr/bin/perl
+#
+sub string_escape {
+    my($s) = @_;
+
+    $s =~ s/\\/\\\\/g;
+    $s =~ s/"/\\"/g;
+    return $s;
+}
+
+sub gen_print_line {
+    my($line) = @_;
+    chomp $line;
+
+    printf "    printf(\"%%s\\n\", \"%s\");\n", string_escape $line;
+}
+
+sub gen_print_code {
+    my($line) = @_;
+
+    gen_print_line $line;
+    while ($line = <>) {
+        gen_print_line $line;
+
+        return if $line =~ m%^//\s+\@end%;
+    }
+}
 
 printf("#include \"try.h\"\n");
 printf("\n");
@@ -14,9 +40,13 @@ while (<>) {
 
 
     if ($try eq '@try_ret') {
+        gen_print_code $_;
+
         printf("extern int %s();\n", $func);
         printf("try_ret(%s, %s(), \"%s\");\n", $expected, $func, $func);
     } elsif ($try eq '@try_out') {
+        gen_print_code $_;
+
         unless ($expected =~ /".*"/) {
             $expected = '"'.$expected.'"';
         }
@@ -29,10 +59,10 @@ while (<>) {
         # printf("// skip %s\n", $_);
     }
 
+    printf("printf(\"\\n\");\n");
     printf("\n");
 }
 
 printf("printf(\"OK\\n\");\n");
 printf("exit(0);\n");
 printf("}\n");
-

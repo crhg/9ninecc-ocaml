@@ -9,6 +9,9 @@ type t =
 | Char
 | Ptr of t
 | Array of t * int option
+    [@printer fun fmt (ty, size) -> match size with
+        | None      -> fprintf fmt "Array(%s)[?]" (show ty)
+        | Some size -> fprintf fmt "Array(%s)[%d]" (show ty) size ]
 | Function of t * (string * t) list (* 戻り値とパラメタ *)
 | Struct of aggregate 
     [@printer fun fmt aggregate -> match aggregate with

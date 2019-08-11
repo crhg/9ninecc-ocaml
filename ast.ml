@@ -6,7 +6,11 @@ type 't node = {
 and param = {
     param_ty: Type.t;
     param_name: string;
-    mutable param_entry: Env.entry option;
+    mutable param_entry: Env.entry option
+    [@priter fun fmt entry -> match entry with
+    | None -> fpriintf fmt "?"
+    | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
+    ];
     param_loc: Lexing.position [@opaque]
 }
 
@@ -43,7 +47,11 @@ and decl = decl_exp node
 and decl_init = {
     di_decl: declarator;
     di_init: init option;
-    mutable di_entry : Env.entry option; (* グローバル変数用。ここからラベルと型を知る *)
+    mutable di_entry : Env.entry option (* グローバル変数用。ここからラベルと型を知る *)
+    [@priter fun fmt entry -> match entry with
+    | None -> fpriintf fmt "?"
+    | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
+    ];
     mutable di_init_assign: expr list (* ローカル変数用。初期化を行う代入式のリスト。型が決まってから設定 *)
 }
 
@@ -76,12 +84,23 @@ and stmt = stmt_exp node
 and 't with_type = {
     e: 't;
     mutable ty: Type.t option
+    [@printer fun fmt ty -> match ty with
+    | None -> fprintf fmt "?"
+    | Some ty -> fprintf fmt "%s" (Type.show_type ty)
+    ]
 }
 
 and expr_e =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
-| Ident of { name : string; mutable entry : Env.entry option }
+| Ident of { 
+    name : string;
+    mutable entry : Env.entry option
+    [@printer fun fmt entry -> match entry with
+    | None -> fprintf fmt "?"
+    | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
+    ]
+}
 | Add of expr * expr
 | Sub of expr * expr
 | Mul of expr * expr
@@ -99,7 +118,7 @@ and expr_e =
 | BlockExpr of stmt
 and expr_exp = expr_e with_type
 and expr = expr_exp node
-[@@deriving show]
+[@@deriving show {with_path = false}]
 
 let no_type e = { e = e; ty = None }
 

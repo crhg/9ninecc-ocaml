@@ -5,7 +5,7 @@ module Env = Map.Make(String)
 type entry = 
 | LocalVar of Type.t * int (* offset *)
 | GlobalVar of Type.t * string (* label *)
-[@@deriving show]
+[@@deriving show { with_path = false }]
 
 let map = ref Env.empty
 let tag_map = ref Env.empty

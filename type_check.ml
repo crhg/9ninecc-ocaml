@@ -139,7 +139,9 @@ and check_stmt stmt = match stmt.exp with
     Option.may check_expr next;
     check_stmt stmt;
 | Block stmt_list ->
-    List.iter check_stmt stmt_list
+    Env.with_new_scope (fun _ ->
+        List.iter check_stmt stmt_list
+    )
 | _ -> ()
 
 and check_expr expr =

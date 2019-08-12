@@ -897,3 +897,10 @@ int test114() {
     "\v"[0];
 }
 // @end
+
+// @try_ret test115 2
+int test115() {
+    int x=2; { int x=3; } x;
+}
+// @end
+

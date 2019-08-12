@@ -63,13 +63,13 @@ and binop =
   | Le
   | Eq
   | Ne
-and binop_e = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
+and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
 and ident_r = { name : string; mutable entry : Env.entry option; }
 and expr_e =
     Num of string
   | Str of string * string
   | Ident of ident_r
-  | Binop of binop_e
+  | Binop of binop_r
   | Assign of expr * expr
   | Call of string * expr list
   | Deref of expr
@@ -143,10 +143,10 @@ val show_with_type :
 val pp_binop :
   Ppx_deriving_runtime.Format.formatter -> binop -> Ppx_deriving_runtime.unit
 val show_binop : binop -> Ppx_deriving_runtime.string
-val pp_binop_e :
+val pp_binop_r :
   Ppx_deriving_runtime.Format.formatter ->
-  binop_e -> Ppx_deriving_runtime.unit
-val show_binop_e : binop_e -> Ppx_deriving_runtime.string
+  binop_r -> Ppx_deriving_runtime.unit
+val show_binop_r : binop_r -> Ppx_deriving_runtime.string
 val pp_ident_r :
   Ppx_deriving_runtime.Format.formatter ->
   ident_r -> Ppx_deriving_runtime.unit

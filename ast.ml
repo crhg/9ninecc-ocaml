@@ -109,10 +109,7 @@ and binop_e = {
     mutable rhs: expr
 }
 
-and expr_e =
-| Num of string
-| Str of string * string (* 文字列そのものとラベル *)
-| Ident of { 
+and ident_r = { 
     name : string;
     mutable entry : Env.entry option
     [@printer fun fmt entry -> match entry with
@@ -120,6 +117,11 @@ and expr_e =
     | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
     ]
 }
+
+and expr_e =
+| Num of string
+| Str of string * string (* 文字列そのものとラベル *)
+| Ident of ident_r
 | Binop of binop_e
 | Assign of expr * expr
 | Call of string * expr list

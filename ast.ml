@@ -118,6 +118,11 @@ and ident_r = {
     ]
 }
 
+and sizeof_r = {
+    sizeof_expr : expr;
+    mutable sizeof_size : int
+}
+
 and expr_e =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
@@ -127,7 +132,7 @@ and expr_e =
 | Call of string * expr list
 | Deref of expr
 | Addr of expr
-| Sizeof of expr
+| Sizeof of sizeof_r
 | Arrow of expr * string
 | BlockExpr of stmt
 and expr_exp = expr_e with_type
@@ -153,7 +158,7 @@ let rec show_expr_short expr = match expr.exp.e with
     Printf.sprintf "*%s" (show_expr_short e)
 | Addr e ->
     Printf.sprintf "&%s" (show_expr_short e)
-| Sizeof e ->
+| Sizeof {sizeof_expr = e} ->
     Printf.sprintf "(sizeof %s)" (show_expr_short e)
 | Arrow (e,f) ->
     Printf.sprintf "(-> %s %s)" (show_expr_short e) f

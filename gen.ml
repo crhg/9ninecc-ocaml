@@ -278,8 +278,8 @@ match expr.exp.e with
             Gen_misc.load field.field_type "rax" "[rax]";
             Stack.push "rax"
     )
-| Sizeof e ->
-    printf "    mov rax, %d\n" (Type.get_size (get_type e));
+| Sizeof {sizeof_size = size} ->
+    printf "    mov rax, %d\n" size;
     Stack.push "rax"
 | Binop { op=op; lhs=l; rhs=r } ->
     gen_binop op l r

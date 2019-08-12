@@ -216,8 +216,9 @@ and find_type expr = match expr.exp.e with
             field.field_type
         | _ -> raise(Error("-> type?" ^ (Type.show ty)))
     )
-| Sizeof e ->
-    let _ = assign_type_plane e in
+| Sizeof ({sizeof_expr = e} as r) ->
+    let ty = assign_type_plane e in
+    r.sizeof_size <- Type.get_size ty;
     Type.Int
 | Binop ({ op=op; lhs=l; rhs=r} as binop) ->
     let lty = assign_type l in

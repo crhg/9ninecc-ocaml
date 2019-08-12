@@ -65,6 +65,7 @@ and binop =
   | Ne
 and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
 and ident_r = { name : string; mutable entry : Env.entry option; }
+and sizeof_r = { sizeof_expr : expr; mutable sizeof_size : int; }
 and expr_e =
     Num of string
   | Str of string * string
@@ -74,7 +75,7 @@ and expr_e =
   | Call of string * expr list
   | Deref of expr
   | Addr of expr
-  | Sizeof of expr
+  | Sizeof of sizeof_r
   | Arrow of expr * string
   | BlockExpr of stmt
 and expr_exp = expr_e with_type
@@ -151,6 +152,10 @@ val pp_ident_r :
   Ppx_deriving_runtime.Format.formatter ->
   ident_r -> Ppx_deriving_runtime.unit
 val show_ident_r : ident_r -> Ppx_deriving_runtime.string
+val pp_sizeof_r :
+  Ppx_deriving_runtime.Format.formatter ->
+  sizeof_r -> Ppx_deriving_runtime.unit
+val show_sizeof_r : sizeof_r -> Ppx_deriving_runtime.string
 val pp_expr_e :
   Ppx_deriving_runtime.Format.formatter ->
   expr_e -> Ppx_deriving_runtime.unit

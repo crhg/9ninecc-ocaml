@@ -192,7 +192,7 @@ unary:
 }
 | token=AST e=unary { ignore token; { exp = no_type (Deref e); loc = $startpos(token) } }
 | token=AMP e=unary { ignore token; { exp = no_type (Addr e); loc = $startpos(token) } }
-| token=SIZEOF e=unary { ignore token; { exp = no_type (Sizeof e); loc = $startpos(token) } }
+| token=SIZEOF e=unary { ignore token; { exp = no_type (Sizeof{sizeof_expr=e; sizeof_size=0}); loc = $startpos(token) } }
 
 term:
 | n=NUM { { exp = no_type (Num n); loc = $startpos(n) } }

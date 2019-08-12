@@ -103,7 +103,7 @@ and binop =
 | Eq
 | Ne
 
-and binop_e = {
+and binop_r = {
     mutable op: binop;
     mutable lhs: expr;
     mutable rhs: expr
@@ -122,7 +122,7 @@ and expr_e =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
 | Ident of ident_r
-| Binop of binop_e
+| Binop of binop_r
 | Assign of expr * expr
 | Call of string * expr list
 | Deref of expr

@@ -50,7 +50,6 @@ and stmt_exp =
   | For of expr option * expr option * expr option * stmt
   | Block of stmt list
 and stmt = stmt_exp node
-and 't with_type = { e : 't; mutable with_type_ty : Type.t option; }
 and binop =
     Add
   | Sub
@@ -78,7 +77,7 @@ and arrow_r = {
   mutable arrow_field_type : Type.t option;
   mutable arrow_field_offset : int;
 }
-and expr_e =
+and expr_exp =
     Num of string
   | Str of string * string
   | Ident of ident_r
@@ -90,7 +89,6 @@ and expr_e =
   | Sizeof of sizeof_r
   | Arrow of arrow_r
   | BlockExpr of stmt
-and expr_exp = expr_e with_type
 and expr = expr_exp node
 val pp_node :
   (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->
@@ -146,13 +144,6 @@ val show_stmt_exp : stmt_exp -> Ppx_deriving_runtime.string
 val pp_stmt :
   Ppx_deriving_runtime.Format.formatter -> stmt -> Ppx_deriving_runtime.unit
 val show_stmt : stmt -> Ppx_deriving_runtime.string
-val pp_with_type :
-  (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->
-  Ppx_deriving_runtime.Format.formatter ->
-  't with_type -> Ppx_deriving_runtime.unit
-val show_with_type :
-  (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->
-  't with_type -> Ppx_deriving_runtime.string
 val pp_binop :
   Ppx_deriving_runtime.Format.formatter -> binop -> Ppx_deriving_runtime.unit
 val show_binop : binop -> Ppx_deriving_runtime.string
@@ -180,10 +171,6 @@ val pp_arrow_r :
   Ppx_deriving_runtime.Format.formatter ->
   arrow_r -> Ppx_deriving_runtime.unit
 val show_arrow_r : arrow_r -> Ppx_deriving_runtime.string
-val pp_expr_e :
-  Ppx_deriving_runtime.Format.formatter ->
-  expr_e -> Ppx_deriving_runtime.unit
-val show_expr_e : expr_e -> Ppx_deriving_runtime.string
 val pp_expr_exp :
   Ppx_deriving_runtime.Format.formatter ->
   expr_exp -> Ppx_deriving_runtime.unit
@@ -191,5 +178,4 @@ val show_expr_exp : expr_exp -> Ppx_deriving_runtime.string
 val pp_expr :
   Ppx_deriving_runtime.Format.formatter -> expr -> Ppx_deriving_runtime.unit
 val show_expr : expr -> Ppx_deriving_runtime.string
-val no_type : 'a -> 'a with_type
 val show_expr_short : expr -> string

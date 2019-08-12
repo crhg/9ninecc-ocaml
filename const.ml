@@ -2,13 +2,13 @@ open Ast
 open Misc
 
 let rec eval_int expr =
-    match expr.exp.e with
+    match expr.exp with
     | Num n -> int_of_string n
     | Binop{op=Add; lhs=lhs; rhs=rhs} -> eval_int lhs + eval_int rhs
     | Binop{op=Sub; lhs=lhs; rhs=rhs} -> eval_int lhs - eval_int rhs
     | _ -> raise(Error_at("not int or not implemented", expr.loc))
 
-and eval_pointer expr = match expr.exp.e with
+and eval_pointer expr = match expr.exp with
 | Str (_, label) -> (label, 0)
 | Ident { entry = Some entry } when is_global_array_entry entry ->
     (get_label_from_entry entry, 0)
@@ -38,7 +38,7 @@ and get_label_from_entry entry = match entry with
 | Env.GlobalVar (_, label) -> label
 | _ -> failwith ("not GlobalVar " ^ Env.show_entry entry)
 
-and eval_lval expr = match expr.exp.e with
+and eval_lval expr = match expr.exp with
 | Str (_, label) -> (label, 0)
 | Ident { entry = Some entry_ref } -> (get_label_from_entry entry_ref, 0)
 | Deref { deref_expr=e } -> eval_pointer e

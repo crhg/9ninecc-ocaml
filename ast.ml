@@ -81,15 +81,6 @@ and stmt_exp =
 | Block of stmt list
 and stmt = stmt_exp node
 
-and 't with_type = {
-    e: 't;
-    mutable with_type_ty: Type.t option
-    [@printer fun fmt ty -> match ty with
-    | None -> fprintf fmt "?"
-    | Some ty -> fprintf fmt "%s" (Type.show_type ty)
-    ]
-}
-
 and binop =
 | Add
 | Sub
@@ -141,7 +132,7 @@ and arrow_r = {
     mutable arrow_field_offset : int
 }
 
-and expr_e =
+and expr_exp =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
 | Ident of ident_r
@@ -153,13 +144,10 @@ and expr_e =
 | Sizeof of sizeof_r
 | Arrow of arrow_r
 | BlockExpr of stmt
-and expr_exp = expr_e with_type
 and expr = expr_exp node
 [@@deriving show {with_path = false}]
 
-let no_type e = { e = e; with_type_ty = None }
-
-let rec show_expr_short expr = match expr.exp.e with
+let rec show_expr_short expr = match expr.exp with
 | Num n ->
     n
 | Str (s, _) ->

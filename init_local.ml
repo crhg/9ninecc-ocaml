@@ -20,7 +20,7 @@ and to_assign_scalar (lhs:Ast.expr) (init:Ast.init) = Ast.(match init.exp with
 )
 
 and to_assign_array (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) = Ast.(match ty, init.exp with
-    | Type.Array(Char, Some size), ExprInitializer ({ exp = { e = Str _ } } as s) ->
+    | Type.Array(Char, Some size), ExprInitializer ({ exp = Str _ } as s) ->
         [make_call_strncpy lhs s size]
     | Type.Array(ty, Some size), ListInitializer l ->
         to_assign_array_by_list ty lhs size l
@@ -29,7 +29,7 @@ and to_assign_array (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) = Ast.(match ty, 
 
 and make_call_strncpy (lhs:Ast.expr) (s:Ast.expr) (size:int) =
     Ast.({
-        exp = no_type @@ Call ("strncpy", [lhs; s; make_num size lhs.loc]);
+        exp = Call ("strncpy", [lhs; s; make_num size lhs.loc]);
         loc = lhs.loc
     })
 
@@ -47,13 +47,13 @@ and to_assign_array_by_list ty lhs size l =
 
 and make_num n loc =
     Ast.({
-        exp = no_type @@ Num (string_of_int n);
+        exp = Num (string_of_int n);
         loc = loc
     })
 
 and make_assign lhs rhs =
     Ast.({
-        exp = no_type @@ Assign {assign_lhs=lhs; assign_rhs=rhs; assign_lhs_type=None};
+        exp = Assign {assign_lhs=lhs; assign_rhs=rhs; assign_lhs_type=None};
         loc = lhs.loc
     })
 
@@ -61,10 +61,10 @@ and make_array_at a i =
     let open Ast in
     let offset = make_num i a.loc in
     let ptr = {
-        exp = no_type @@ Binop{op=Add; lhs=a; rhs=offset};
+        exp = Binop{op=Add; lhs=a; rhs=offset};
         loc = a.loc
     } in
     {
-        exp = no_type @@ Deref {deref_expr=ptr; deref_type=None};
+        exp = Deref {deref_expr=ptr; deref_type=None};
         loc = a.loc
     }

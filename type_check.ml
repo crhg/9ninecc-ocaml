@@ -80,9 +80,9 @@ and prepare_func params stmt_list =
 and determine_array_size element_ty init =
     match element_ty, init.exp with
     (* charの配列のときのみ 文字列リテラル or {文字列リテラル} でも初期化可能 *)
-    | Type.Char, ExprInitializer {exp = {e = Str(s,_)}} ->
+    | Type.Char, ExprInitializer {exp = Str(s,_)} ->
         String.length s + 1
-    | Type.Char, ListInitializer [{ exp = ExprInitializer {exp = {e = Str(s,_)}}}] ->
+    | Type.Char, ListInitializer [{ exp = ExprInitializer {exp = Str(s,_)}}] ->
         String.length s + 1
     | _, ListInitializer l ->
         List.length l
@@ -113,11 +113,7 @@ and check_stmt stmt = match stmt.exp with
         init |> Option.may (fun init ->
             let entry = get_entry name in
             let ident = {
-                exp = { 
-                    e = Ident { name=name; entry=Some entry };
-                    (* ty = Some ty *)
-                    with_type_ty = None
-                };
+                exp = Ident { name=name; entry=Some entry };
                 loc=d.loc
             } in
             let assign = Init_local.to_assign ty ident init in
@@ -171,7 +167,7 @@ and assign_type' expr =
     (* expr.exp.ty <- Some ty; *)
     ty
 
-and find_type expr = match expr.exp.e with
+and find_type expr = match expr.exp with
 | Num _ -> Type.Int
 | Str _ -> Type.Ptr Type.Char
 | Ident ({ name = name } as ident)->

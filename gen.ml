@@ -183,7 +183,7 @@ and gen_lval_entry entry = match entry with
 
 and gen_lval_name name = gen_lval_entry (get_entry name)
 
-and gen_lval expr = match expr.exp.e with
+and gen_lval expr = match expr.exp with
 | Ident { entry = Some entry} ->
     gen_lval_entry entry
 | Deref { deref_expr = e } ->
@@ -200,7 +200,7 @@ and gen_expr expr =
     | Misc.Error msg -> raise(Misc.Error_at(msg ^ ": " ^ (Ast.show_expr expr), expr.loc))
 
 and gen_expr' expr =
-match expr.exp.e with
+match expr.exp with
 | Num n ->
     Stack.push n
 | Str (_, label) ->

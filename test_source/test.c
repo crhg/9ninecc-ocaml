@@ -934,3 +934,11 @@ int test119() {
 }
 // @end
 
+// @try_ret test120 4
+int test120() {
+    typedef int a;
+    struct a { int x; } x;
+    sizeof(x);
+}
+// @end
+

@@ -88,7 +88,7 @@ type_spec:
     ignore token; 
     { exp = Struct { su_tag = None; su_fields = Some fields }; loc = $startpos(token) }
 }
-| token=STRUCT tag=IDENT fields=option(su_body) {
+| token=STRUCT tag=tag fields=option(su_body) {
     ignore token; 
     { exp = Struct { su_tag = Some tag; su_fields = fields }; loc = $startpos(token) }
 }
@@ -96,13 +96,17 @@ type_spec:
     ignore token; 
     { exp = Union { su_tag = None; su_fields = Some fields }; loc = $startpos(token) }
 }
-| token=UNION tag=IDENT fields=option(su_body) {
+| token=UNION tag=tag fields=option(su_body) {
     ignore token; 
     { exp = Union { su_tag = Some tag; su_fields = fields }; loc = $startpos(token) }
 }
 | typedef_id=TYPEDEF_ID {
     { exp = Type typedef_id; loc = $startpos(typedef_id) }
 }
+
+tag:
+| id=IDENT { id }
+| tid=TYPEDEF_ID { tid }
 
 su_body:
 | LBRACE l=su_field* RBRACE { l }

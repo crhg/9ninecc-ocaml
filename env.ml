@@ -5,6 +5,7 @@ module Env = Map.Make(String)
 type entry = 
 | LocalVar of Type.t * int (* offset *)
 | GlobalVar of Type.t * string (* label *)
+| TypeDef of Type.t
 [@@deriving show { with_path = false }]
 
 let map = ref Env.empty
@@ -37,11 +38,15 @@ let register_local_var ty name =
 let register_global_var ty name =
     map := Env.add name (GlobalVar (ty, name)) !map
 
+let register_typedef ty name =
+    map := Env.add name (TypeDef ty) !map
+
 let get_entry name = Env.find name !map
 
 let entry_type entry = match entry with
 | LocalVar (t, _) -> t
 | GlobalVar (t, _) -> t
+| _ -> raise(Misc.Error("not variable: "^(show_entry entry)))
 
 let register_tag name ty =
     (* Printf.fprintf stderr "register_tag %s %s\n" name (Type.show_type ty); *)

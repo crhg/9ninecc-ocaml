@@ -68,6 +68,8 @@ and check_decl decl = match decl.exp with
                 Option.may check_init init
         )
     )
+| TypedefDecl (ts, name) ->
+    typedef ts name;
 | _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
 
 and check_init init = match init.exp with
@@ -415,6 +417,12 @@ and type_of_type_spec ts = match ts.exp with
         ty
     )
 | Union _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
+| Type id ->
+    (match Env.get_entry id with
+    | Env.TypeDef ty -> ty
+    | _ -> raise(Misc.Error("not typedef id: "^id))
+    )
+
 
 and body_of_struct fields =
     let size, alignment, fields = body_of_struct' 0 0 fields in
@@ -460,3 +468,7 @@ and body_of_union' size alignment fields = match fields with
 and check_complete ty loc = 
         if not @@ Type.is_complete_type ty then
             raise(Error_at("incomplete type: " ^ (Type.show ty), loc))
+
+and typedef ts name =
+    let ty = type_of_type_spec ts in
+    Env.register_typedef ty name

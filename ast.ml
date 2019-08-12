@@ -26,6 +26,7 @@ and type_spec_exp =
 | Char
 | Struct of st_un
 | Union of st_un
+| Type of string
 and type_spec = type_spec_exp node
 
 and decl_exp =
@@ -42,6 +43,7 @@ and decl_exp =
     gv_ts: type_spec;
     gv_decl_inits: decl_init list
 }
+| TypedefDecl of type_spec * string
 and decl = decl_exp node
 
 and decl_init = {
@@ -73,6 +75,7 @@ and stmt_exp =
     var_ts: type_spec;
     var_decl_inits: decl_init list
 }
+| Typedef of type_spec * string
 | Expr of expr
 | Return of expr
 | If of expr * stmt * stmt option

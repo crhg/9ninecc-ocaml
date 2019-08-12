@@ -19,11 +19,12 @@
 
 %token SIZEOF
 
-%token LONG INT SHORT CHAR STRUCT UNION
+%token LONG INT SHORT CHAR STRUCT UNION TYPEDEF
 
 %token <string> NUM  // 整数トークン
 %token <string> STR  // 文字列リテラル
 %token <string> IDENT
+%token <string> TYPEDEF_ID
 
 %token EOF
 
@@ -60,6 +61,17 @@ decl:
         loc = d.loc
     }
 }
+| typedef = typedef {
+    let (ts, id, loc) = typedef in
+    { exp = TypedefDecl (ts, id); loc = loc }
+}
+
+typedef:
+| token=TYPEDEF ts=type_spec id=IDENT SEMI {
+    ignore token;
+    Typedef_env.add id;
+    (ts, id, $startpos(token))
+}
 
 type_spec:
 | token=LONG  { ignore token; { exp = Ast.Long;  loc = $startpos(token) } }
@@ -81,6 +93,9 @@ type_spec:
 | token=UNION tag=IDENT fields=option(su_body) {
     ignore token; 
     { exp = Union { su_tag = Some tag; su_fields = fields }; loc = $startpos(token) }
+}
+| typedef_id=TYPEDEF_ID {
+    { exp = Type typedef_id; loc = $startpos(typedef_id) }
 }
 
 su_body:
@@ -131,6 +146,10 @@ stmt:
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
 | t=type_spec decl_inits=decl_init* SEMI {
     { exp = Var {var_ts=t; var_decl_inits=decl_inits }; loc = t.loc }
+}
+| typedef=typedef {
+    let (ts, id, loc) = typedef in
+    { exp = Typedef (ts, id); loc = loc }
 }
 | e=expr SEMI { { exp = Expr e; loc = e.loc } }
 | token=RETURN e=expr SEMI { ignore token; { exp = Return e; loc = $startpos(token) } }

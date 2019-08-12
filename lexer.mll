@@ -52,21 +52,25 @@ rule token = parse
 | ';' { SEMI }
 | ',' { COMMA }
 
-| "return" { RETURN }
-| "if"     { IF }
-| "else"   { ELSE }
-| "while"  { WHILE }
-| "for"    { FOR }
-| "long"   { LONG }
-| "int"    { INT }
-| "short"  { SHORT }
-| "char"   { CHAR }
-| "sizeof" { SIZEOF }
-| "struct" { STRUCT }
-| "union"  { UNION }
+| "return"  { RETURN }
+| "if"      { IF }
+| "else"    { ELSE }
+| "while"   { WHILE }
+| "for"     { FOR }
+| "long"    { LONG }
+| "int"     { INT }
+| "short"   { SHORT }
+| "char"    { CHAR }
+| "sizeof"  { SIZEOF }
+| "struct"  { STRUCT }
+| "union"   { UNION }
+| "typedef" { TYPEDEF }
 
 | ['0'-'9']+ as num { NUM num }
-| ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { IDENT name }
+| ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name {
+    if Typedef_env.mem name then TYPEDEF_ID name
+    else IDENT name
+}
 | '"' { STR (string_literal (B.create 100) lexbuf) }
 | eof { EOF }
 

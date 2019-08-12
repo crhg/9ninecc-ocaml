@@ -260,7 +260,12 @@ match expr.exp with
     gen_expr e;
     Stack.pop "rax";
     printf "    add rax, %d\n" offset;
-    Gen_misc.load ty "rax" "[rax]";
+    (match ty with
+    | Array _ ->
+        ()
+    | _ ->
+        Gen_misc.load ty "rax" "[rax]";
+    );
     Stack.push "rax"
 | Sizeof {sizeof_size = size} ->
     printf "    mov rax, %d\n" size;

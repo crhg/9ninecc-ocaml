@@ -151,7 +151,7 @@ let rec show_expr_short expr = match expr.exp with
 | Num n ->
     n
 | Str (s, _) ->
-    Printf.sprintf "\"%s\"" (String.escaped s)
+    Printf.sprintf "\"%s\"" (String_literal.escaped s)
 | Ident { name = name } ->
     name
 | Binop { op=op; lhs=l; rhs=r } ->

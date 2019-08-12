@@ -891,3 +891,9 @@ int test113() {
     sizeof("abc");
 }
 // @end
+
+// @try_ret test114 11
+int test114() {
+    "\v"[0];
+}
+// @end

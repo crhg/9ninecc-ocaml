@@ -103,6 +103,12 @@ and binop =
 | Eq
 | Ne
 
+and binop_e = {
+    mutable op: binop;
+    mutable lhs: expr;
+    mutable rhs: expr
+}
+
 and expr_e =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
@@ -114,11 +120,7 @@ and expr_e =
     | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
     ]
 }
-| Binop of {
-    mutable op: binop;
-    mutable lhs: expr;
-    mutable rhs: expr
-}
+| Binop of binop_e
 | Assign of expr * expr
 | Call of string * expr list
 | Deref of expr

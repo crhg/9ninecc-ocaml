@@ -885,3 +885,9 @@ int test112() {
    int x[2][3]; int *y=x; *(y+1)=1; *(*x+1);
 }
 // @end
+
+// @try_ret test113 4
+int test113() {
+    sizeof("abc");
+}
+// @end

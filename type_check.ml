@@ -164,7 +164,7 @@ and find_type_normalized' expr =
 
 and find_type expr = match expr.exp with
 | Num _ -> Type.Int
-| Str _ -> Type.Ptr Type.Char
+| Str (s,_) -> Type.Array(Type.Char, Some (String.length s + 1))
 | Ident ({ name = name } as ident)->
     let entry = get_entry name in
     ident.entry <- Some entry;

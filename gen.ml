@@ -248,9 +248,14 @@ match expr.exp with
     gen_lval e
 | Deref { deref_expr = e; deref_type = Some ty } ->
     gen_expr e;
-    Stack.pop "rax";
-    Gen_misc.load ty "rax" "[rax]";
-    Stack.push "rax"
+    (match ty with
+    | Array _ ->
+        ()
+    | _-> 
+        Stack.pop "rax";
+        Gen_misc.load ty "rax" "[rax]";
+        Stack.push "rax"
+    )
 | Arrow { arrow_expr = e; arrow_field_type = Some ty; arrow_field_offset = offset } ->
     gen_expr e;
     Stack.pop "rax";

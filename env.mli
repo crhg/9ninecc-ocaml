@@ -11,3 +11,4 @@ val entry_type : entry -> Type.t
 val register_tag : string -> Type.t -> unit
 val get_tag : string -> Type.t
 val get_tag_opt : string -> Type.t option
+val defined_tag_in_current_scope : string -> bool

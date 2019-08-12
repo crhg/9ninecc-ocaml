@@ -31,25 +31,42 @@ and check_decl decl = match decl.exp with
     )
 
 | GlobalVarDecl { gv_ts = ts; gv_decl_inits = decl_inits } ->
-    let ty = type_of_type_spec ts in
-    decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
-            let ty, name = type_and_var_ty ty d in
+    (match ts.exp, decl_inits with
+    | Struct {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
+        let ty = Type.Struct {
+            id = Unique_id.new_id "struct-";
+            tag = Some tag;
+            body = None
+        } in
+        Env.register_tag tag ty;
+    | Union {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
+        let ty = Type.Union {
+            id = Unique_id.new_id "union-";
+            tag = Some tag;
+            body = None
+        } in
+        Env.register_tag tag ty;
+    | _ ->
+        let ty = type_of_type_spec ts in
+        decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
+                let ty, name = type_and_var_ty ty d in
 
-            (* 最上位の配列サイズが未定で初期化子があれば求める *)
-            let ty = match ty, init with
-                | Type.Array (t, None), Some init ->
-                    let size = determine_array_size t init in
-                    Type.Array(t, Some size)
-                | _, _ -> ty in
+                (* 最上位の配列サイズが未定で初期化子があれば求める *)
+                let ty = match ty, init with
+                    | Type.Array (t, None), Some init ->
+                        let size = determine_array_size t init in
+                        Type.Array(t, Some size)
+                    | _, _ -> ty in
 
-            check_complete ty d.loc;
+                check_complete ty d.loc;
 
-            register_global_var ty name;
+                register_global_var ty name;
 
-            let entry = get_entry name in
-            di.di_entry <- Some entry;
+                let entry = get_entry name in
+                di.di_entry <- Some entry;
 
-            Option.may check_init init
+                Option.may check_init init
+        )
     )
 | _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
 
@@ -94,31 +111,48 @@ and determine_array_size element_ty init =
 
 and check_stmt stmt = match stmt.exp with
 | Var ({var_ts = ts; var_decl_inits = decl_inits} as v) ->
-    let ty = type_of_type_spec ts in
+    (match ts.exp, decl_inits with
+    | Struct {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
+        let ty = Type.Struct {
+            id = Unique_id.new_id "struct-";
+            tag = Some tag;
+            body = None
+        } in
+        Env.register_tag tag ty
+    | Union {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
+        let ty = Type.Union {
+            id = Unique_id.new_id "union-";
+            tag = Some tag;
+            body = None
+        } in
+        Env.register_tag tag ty
+    | _ ->
+        let ty = type_of_type_spec ts in
 
-    decl_inits |> List.iter (fun decl_init -> match decl_init with
-    | { di_decl = d; di_init = init } ->
-        let ty, name = type_and_var_ty ty d in
+        decl_inits |> List.iter (fun decl_init -> match decl_init with
+        | { di_decl = d; di_init = init } ->
+            let ty, name = type_and_var_ty ty d in
 
-        let ty = match ty, init with
-            | Type.Array (t, None), Some init ->
-                let size = determine_array_size t init in
-                Type.Array(t, Some size)
-            | _ -> ty in
+            let ty = match ty, init with
+                | Type.Array (t, None), Some init ->
+                    let size = determine_array_size t init in
+                    Type.Array(t, Some size)
+                | _ -> ty in
 
-        check_complete ty d.loc;
+            check_complete ty d.loc;
 
-        register_local_var ty name;
+            register_local_var ty name;
 
-        init |> Option.may (fun init ->
-            let entry = get_entry name in
-            let ident = {
-                exp = Ident { name=name; entry=Some entry };
+            init |> Option.may (fun init ->
+                let entry = get_entry name in
+                let ident = {
+                    exp = Ident { name=name; entry=Some entry };
                 loc=d.loc
-            } in
-            let assign = Init_local.to_assign ty ident init in
-            List.iter check_expr assign;
-            decl_init.di_init_assign <- assign
+                } in
+                let assign = Init_local.to_assign ty ident init in
+                List.iter check_expr assign;
+                decl_init.di_init_assign <- assign
+            )
         )
     )
 
@@ -168,6 +202,8 @@ and find_type expr = match expr.exp with
 | Num _ -> Type.Int
 | Str (s,_) -> Type.Array(Type.Char, Some (String.length s + 1))
 | Ident ({ name = name } as ident)->
+    let get_entry name = try get_entry name with
+    | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
     let entry = get_entry name in
     ident.entry <- Some entry;
     entry_type entry
@@ -222,6 +258,7 @@ and find_type expr = match expr.exp with
 | Sizeof ({sizeof_expr = e} as r) ->
     let ty = find_type e in
     r.sizeof_size <- Type.get_size ty;
+    (* Printf.fprintf stderr "sizeof %s\n" (Ast.show_expr expr); *)
     Type.Int
 | Binop ({ op=op; lhs=l; rhs=r} as binop) ->
     let lty = find_type_normalized l in
@@ -321,20 +358,22 @@ and type_of_type_spec ts = match ts.exp with
     )
 | Struct { su_tag = Some tag; su_fields = Some fields } ->
     let body = body_of_struct fields in
-    (match Env.get_tag_opt tag with
-        | Some ((Type.Struct s) as ty) ->
-            (* Printf.fprintf stderr "ty before: %s\n" (Type.show_type ty); *)
-            s.body <- Some body;
-            (* Printf.fprintf stderr "ty after: %s\n" (Type.show_type ty); *)
-            ty
-        | _ ->
-            let ty = Type.Struct {
-                id = Unique_id.new_id "struct-";
-                tag = Some tag;
-                body =Some body
-            } in
-            Env.register_tag tag ty;
-            ty
+    if Env.defined_tag_in_current_scope tag then
+        (match Env.get_tag_opt tag with
+            | Some ((Type.Struct ({body = None} as s)) as ty) ->
+                s.body <- Some body;
+                ty
+            | _ ->
+                raise(Misc.Error("redifinition"));
+        )
+    else (
+        let ty = Type.Struct {
+            id = Unique_id.new_id "struct-";
+            tag = Some tag;
+            body =Some body
+        } in
+        Env.register_tag tag ty;
+        ty
     )
 | Struct _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
 | Union { su_tag = None; su_fields = Some fields } ->
@@ -358,20 +397,22 @@ and type_of_type_spec ts = match ts.exp with
     )
 | Union { su_tag = Some tag; su_fields = Some fields } ->
     let body = body_of_union fields in
-    (match Env.get_tag_opt tag with
-        | Some ((Type.Union s) as ty) ->
-            (* Printf.fprintf stderr "ty before: %s\n" (Type.show_type ty); *)
-            s.body <- Some body;
-            (* Printf.fprintf stderr "ty after: %s\n" (Type.show_type ty); *)
-            ty
-        | _ ->
-            let ty = Type.Union {
-                id = Unique_id.new_id "union-";
-                tag = Some tag;
-                body =Some body
-            } in
-            Env.register_tag tag ty;
-            ty
+    if Env.defined_tag_in_current_scope tag then
+        (match Env.get_tag_opt tag with
+            | Some ((Type.Union ({body = None} as s)) as ty) ->
+                s.body <- Some body;
+                ty
+            | _ ->
+                raise(Misc.Error("redifinition"));
+        )
+    else (
+        let ty = Type.Union {
+            id = Unique_id.new_id "union-";
+            tag = Some tag;
+            body =Some body
+        } in
+        Env.register_tag tag ty;
+        ty
     )
 | Union _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
 

@@ -904,3 +904,9 @@ int test115() {
 }
 // @end
 
+// @try_ret test116 2
+int test116() {
+    struct t {char a[2];}; { struct t {char a[4];}; } struct t y; sizeof(y);
+}
+// @end
+

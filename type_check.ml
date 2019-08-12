@@ -157,7 +157,8 @@ and check_stmt stmt = match stmt.exp with
             )
         )
     )
-
+| Typedef (ts, name) ->
+    typedef ts name;
 | Expr expr ->
     check_expr expr
 | Return expr ->
@@ -418,11 +419,12 @@ and type_of_type_spec ts = match ts.exp with
     )
 | Union _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
 | Type id ->
-    (match Env.get_entry id with
+    let get_entry id = try Env.get_entry id with
+    | Not_found -> raise(Misc.Error("type not found: "^id)) in
+    (match get_entry id with
     | Env.TypeDef ty -> ty
     | _ -> raise(Misc.Error("not typedef id: "^id))
     )
-
 
 and body_of_struct fields =
     let size, alignment, fields = body_of_struct' 0 0 fields in

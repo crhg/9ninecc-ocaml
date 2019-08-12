@@ -911,9 +911,17 @@ int test116() {
 // @end
 
 // @try_ret test117 4
-typedef int INT;
+typedef int INT117;
 int test117() {
-    INT x;
+    INT117 x;
+    sizeof(x);
+}
+// @end
+
+// @try_ret test118 4
+int test118() {
+    typedef int INT118;;
+    INT118 x;
     sizeof(x);
 }
 // @end

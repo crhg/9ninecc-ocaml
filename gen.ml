@@ -98,7 +98,8 @@ and gen_stmt' stmt =
 (*     Stack.with_save (fun _ -> gen_expr expr) *)
 (* in *)
 match stmt.exp with
-| Empty -> ()
+| Empty
+| Typedef _ -> ()
 | Var { var_decl_inits = decl_inits } ->
     decl_inits |> List.iter (fun decl_init ->
         decl_init.di_init_assign |> List.iter (fun assign ->

@@ -209,7 +209,7 @@ and find_type expr = match expr.exp.e with
         | _ -> raise (Error("deref of non pointer"))
     end
 | Arrow ({arrow_expr = e; arrow_field = field_name} as r) ->
-    Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr);
+    (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)
     let ty = assign_type e in
     (match ty with
         | Type.Ptr ((Type.Struct _) as st_ty)
@@ -218,10 +218,10 @@ and find_type expr = match expr.exp.e with
                 try Type.get_field st_ty field_name with
                 |Not_found -> raise(Error("-> field? " ^ (Type.show ty)))
             ) in
-            Printf.fprintf stderr "field=%s\n" (Type.show_field field);
+            (* Printf.fprintf stderr "field=%s\n" (Type.show_field field); *)
             r.arrow_field_type <- Some field.field_type;
             r.arrow_field_offset <- field.field_offset;
-            Printf.fprintf stderr "type_check Arrow end!! %s\n" (Ast.show_expr expr);
+            (* Printf.fprintf stderr "type_check Arrow end!! %s\n" (Ast.show_expr expr); *)
             field.field_type
         | _ -> raise(Error("-> type?" ^ (Type.show ty)))
     )

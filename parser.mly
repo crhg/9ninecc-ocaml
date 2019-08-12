@@ -160,25 +160,25 @@ assign:
 
 equality:
 | e=relational { e }
-| l=equality token=EQ r=relational { ignore token; { exp = no_type (Eq (l, r)); loc = $startpos(token) } }
-| l=equality token=NE r=relational { ignore token; { exp = no_type (Ne (l, r)); loc = $startpos(token) } }
+| l=equality token=EQ r=relational { ignore token; { exp = no_type (Binop{op=Eq; lhs=l; rhs=r}); loc = $startpos(token) } }
+| l=equality token=NE r=relational { ignore token; { exp = no_type (Binop{op=Ne; lhs=l; rhs=r}); loc = $startpos(token) } }
 
 relational:
 | e=add { e }
-| l=relational token=LT r=add { ignore token; { exp = no_type (Lt (l, r)); loc = $startpos(token) } }
-| l=relational token=LE r=add { ignore token; { exp = no_type (Le (l, r)); loc = $startpos(token) } }
-| l=relational token=GT r=add { ignore token; { exp = no_type (Lt (r, l)); loc = $startpos(token) } }
-| l=relational token=GE r=add { ignore token; { exp = no_type (Le (r, l)); loc = $startpos(token) } }
+| l=relational token=LT r=add { ignore token; { exp = no_type (Binop{op=Lt; lhs=l; rhs=r}); loc = $startpos(token) } }
+| l=relational token=LE r=add { ignore token; { exp = no_type (Binop{op=Le; lhs=l; rhs=r}); loc = $startpos(token) } }
+| l=relational token=GT r=add { ignore token; { exp = no_type (Binop{op=Lt; lhs=r; rhs=l}); loc = $startpos(token) } }
+| l=relational token=GE r=add { ignore token; { exp = no_type (Binop{op=Le; lhs=r; rhs=l}); loc = $startpos(token) } }
 
 add:
 | e=mul { e }
-| e=add token=PLUS m=mul { ignore token; { exp = no_type (Add (e, m)); loc = $startpos(token) } }
-| e=add token=MINUS m=mul { ignore token; { exp = no_type (Sub (e, m)); loc = $startpos(token) } }
+| e=add token=PLUS m=mul { ignore token; { exp = no_type (Binop{op=Add; lhs=e; rhs=m}); loc = $startpos(token) } }
+| e=add token=MINUS m=mul { ignore token; { exp = no_type (Binop{op=Sub; lhs=e; rhs=m}); loc = $startpos(token) } }
 
 mul:
 | e=unary { e }
-| l=mul token=AST r=unary { ignore token; { exp = no_type (Mul (l, r)); loc = $startpos(token) } }
-| l=mul token=SLASH r=unary { ignore token; { exp = no_type (Div (l, r)); loc = $startpos(token) } }
+| l=mul token=AST r=unary { ignore token; { exp = no_type (Binop{op=Mul; lhs=l; rhs=r}); loc = $startpos(token) } }
+| l=mul token=SLASH r=unary { ignore token; { exp = no_type (Binop{op=Div; lhs=l; rhs=r}); loc = $startpos(token) } }
 
 unary:
 | e=term { e }
@@ -186,7 +186,7 @@ unary:
 | token=MINUS e=unary {
     ignore token;
     {
-        exp = no_type @@ Sub ({ exp = no_type (Num "0"); loc = $startpos(token) }, e);
+        exp = no_type @@ Binop{op=Sub; lhs={ exp = no_type (Num "0"); loc = $startpos(token) }; rhs=e};
         loc = $startpos(token)
     }
 }
@@ -205,7 +205,7 @@ term:
 }
 | arr=term token=LBRACKET offset=expr RBRACKET {
     ignore token;
-    let pointer = { exp = no_type (Add (arr, offset)); loc = $startpos(token) } in
+    let pointer = { exp = no_type (Binop{op=Add; lhs=arr; rhs=offset}); loc = $startpos(token) } in
     { exp = no_type (Deref pointer); loc = $startpos(token) }
 }
 | term=term token=ARROW field=IDENT {

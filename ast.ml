@@ -90,6 +90,19 @@ and 't with_type = {
     ]
 }
 
+and binop =
+| Add
+| Sub
+| PtrAdd of int (* ポインタ+整数 *)
+| PtrSub of int (* ポインタ-整数 *)
+| PtrDiff of int (* ポインタ-ポインタ *)
+| Mul
+| Div
+| Lt
+| Le
+| Eq
+| Ne
+
 and expr_e =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
@@ -101,14 +114,11 @@ and expr_e =
     | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
     ]
 }
-| Add of expr * expr
-| Sub of expr * expr
-| Mul of expr * expr
-| Div of expr * expr
-| Lt of expr * expr
-| Le of expr * expr
-| Eq of expr * expr
-| Ne of expr * expr
+| Binop of {
+    mutable op: binop;
+    mutable lhs: expr;
+    mutable rhs: expr
+}
 | Assign of expr * expr
 | Call of string * expr list
 | Deref of expr
@@ -122,3 +132,26 @@ and expr = expr_exp node
 
 let no_type e = { e = e; ty = None }
 
+let rec show_expr_short expr = match expr.exp.e with
+| Num n ->
+    n
+| Str (s, _) ->
+    Printf.sprintf "\"%s\"" (String.escaped s)
+| Ident { name = name } ->
+    name
+| Binop { op=op; lhs=l; rhs=r } ->
+    Printf.sprintf "(%s %s %s)" (show_binop op) (show_expr_short l) (show_expr_short r)
+| Assign (l, r) ->
+    Printf.sprintf "(= %s %s)" (show_expr_short l) (show_expr_short r)
+| Call (f, params) ->
+    Printf.sprintf "(%s %s)" f (String.concat " " (List.map show_expr_short params))
+| Deref e ->
+    Printf.sprintf "*%s" (show_expr_short e)
+| Addr e ->
+    Printf.sprintf "&%s" (show_expr_short e)
+| Sizeof e ->
+    Printf.sprintf "(sizeof %s)" (show_expr_short e)
+| Arrow (e,f) ->
+    Printf.sprintf "(-> %s %s)" (show_expr_short e) f
+| BlockExpr _ ->
+    "{...}"

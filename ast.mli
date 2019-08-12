@@ -51,18 +51,23 @@ and stmt_exp =
   | Block of stmt list
 and stmt = stmt_exp node
 and 't with_type = { e : 't; mutable ty : Type.t option; }
+and binop =
+    Add
+  | Sub
+  | PtrAdd of int
+  | PtrSub of int
+  | PtrDiff of int
+  | Mul
+  | Div
+  | Lt
+  | Le
+  | Eq
+  | Ne
 and expr_e =
     Num of string
   | Str of string * string
   | Ident of { name : string; mutable entry : Env.entry option; }
-  | Add of expr * expr
-  | Sub of expr * expr
-  | Mul of expr * expr
-  | Div of expr * expr
-  | Lt of expr * expr
-  | Le of expr * expr
-  | Eq of expr * expr
-  | Ne of expr * expr
+  | Binop of { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
   | Assign of expr * expr
   | Call of string * expr list
   | Deref of expr
@@ -133,6 +138,9 @@ val pp_with_type :
 val show_with_type :
   (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->
   't with_type -> Ppx_deriving_runtime.string
+val pp_binop :
+  Ppx_deriving_runtime.Format.formatter -> binop -> Ppx_deriving_runtime.unit
+val show_binop : binop -> Ppx_deriving_runtime.string
 val pp_expr_e :
   Ppx_deriving_runtime.Format.formatter ->
   expr_e -> Ppx_deriving_runtime.unit
@@ -145,3 +153,4 @@ val pp_expr :
   Ppx_deriving_runtime.Format.formatter -> expr -> Ppx_deriving_runtime.unit
 val show_expr : expr -> Ppx_deriving_runtime.string
 val no_type : 'a -> 'a with_type
+val show_expr_short : expr -> string

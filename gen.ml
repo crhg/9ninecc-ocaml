@@ -106,12 +106,12 @@ match stmt.exp with
         )
     )
 | Expr expr ->
-    printf "# expr start\n";
+    printf "# expr start %s\n" (Ast.show_expr_short expr);
     gen_expr expr;
     Stack.pop "rax";
     printf "# expr end\n"
 | Return expr ->
-    printf "# return start\n";
+    printf "# return start%s\n" (Ast.show_expr_short expr);
     gen_expr expr;
     Stack.pop "rax";
     printf "    mov rsp, rbp\n";
@@ -197,18 +197,17 @@ and gen_lval expr = match expr.exp.e with
     Stack.push("rax");
 | _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
 
-and binop op l r = 
-    gen_expr l;
-    gen_expr r;
-    Stack.pop "rdi";
-    Stack.pop "rax";
-    op ();
-    Stack.push "rax"
-
 and get_type expr =
     try Option.get(expr.exp.ty) with
     | Option.No_value ->
         raise(Error_at("get_type: type?: " ^ (Ast.show_expr expr), expr.loc))
+
+(* 式の値がポインタとしてそれが指すデータのサイズを取得する *)
+and get_pointerd_size expr =
+    let ty = get_type expr in
+    match ty with
+    | Ptr t -> Type.get_size t
+    | _ -> raise(Error_at(Printf.sprintf "expr is not pointer %s" (Type.show_type ty), expr.loc))
 
 and gen_expr expr =
     try gen_expr' expr with
@@ -282,93 +281,52 @@ match expr.exp.e with
 | Sizeof e ->
     printf "    mov rax, %d\n" (Type.get_size (get_type e));
     Stack.push "rax"
-| Add (l, r) ->
-    let add l r =
-        let op _ =
-            let lty = get_type l in
-            let rty = get_type r in
-            match (lty, rty) with
-            | (Type.Ptr ty, Type.Int) ->
-                let size = Type.get_size ty in
-                printf "    mov rbx, %d\n" size;
-                printf "    imul rdi, rbx\n";
-                printf "    add rax, rdi\n"
-            | (Type.Int, Type.Int) ->
-            printf "    add rax, rdi\n"
-            | _ -> raise(Error_at("invalid operand type combination: " ^ (Ast.show_expr expr), expr.loc))
-        in
-        binop op l r
-    in
-    begin
-        match get_type r with
-        | Type.Ptr _ -> add r l
-        | _          -> add l r
-    end
-| Sub (l, r) ->
-    let op _ =
-        let lty = get_type l in
-        let rty = get_type r in
-        match (lty, rty) with
-        | (Type.Ptr lty', Type.Ptr rty') ->
-            if lty' == rty' then
-                let size = Type.get_size lty' in
-                printf "    sub rax, rdi\n";
-                printf "    mov rdi, %d\n" size;
-                printf "    cqo\n";
-                printf "    idiv rdi\n"
-            else
-                raise(Error_at(
-                    "different pointer type: lhs=" ^ (Type.show lty) ^ ", rhs=" ^ (Type.show rty),
-                    expr.loc
-                ))
-        | (Type.Ptr ty, Type.Int) ->
-            let size = Type.get_size ty in
-            printf "    mov rbx, %d\n" size;
-            printf "    imul rdi, rbx\n";
-            printf "    sub rax, rdi\n"
-        | (Type.Int, Type.Int) ->
-            printf "    sub rax, rdi\n"
-        | _ -> raise(Error_at("invalid operand type combination: " ^ (Ast.show_expr expr), expr.loc))
-    in
-    binop op l r
-| Mul (l, r) ->
-    let op _ =
-        printf "    imul rax, rdi\n"
-    in
-    binop op l r
-| Div (l, r) ->
-    let op _ =
+| Binop { op=op; lhs=l; rhs=r } ->
+    gen_binop op l r
+
+and gen_binop op l r =
+    gen_expr l;
+    gen_expr r;
+    Stack.pop("rdi");
+    Stack.pop("rax");
+    (match op with
+    | Add ->
+        printf "    add rax, rdi\n";
+    | PtrAdd size ->
+        printf "    mov rbx, %d\n" size;
+        printf "    imul rdi, rbx\n";
+        printf "    add rax, rdi\n"
+    | Sub ->
+        printf "    sub rax, rdi\n"
+    | PtrSub size ->
+        printf "    mov rbx, %d\n" size;
+        printf "    imul rdi, rbx\n";
+        printf "    sub rax, rdi\n"
+    | PtrDiff size ->
+        printf "    sub rax, rdi\n";
+        printf "    mov rdi, %d\n" size;
         printf "    cqo\n";
         printf "    idiv rdi\n"
-    in
-    binop op l r
-| Eq (l, r) ->
-    let op _ =
+    | Mul ->
+        printf "    imul rax, rdi\n"
+    | Div ->
+        printf "    cqo\n";
+        printf "    idiv rdi\n"
+    | Eq ->
         printf "    cmp rax, rdi\n";
         printf "    sete al\n";
         printf "    movzb rax, al\n"
-    in
-    binop op l r
-| Ne (l, r) ->
-    let op _ =
+    | Ne ->
         printf "    cmp rax, rdi\n";
         printf "    setne al\n";
         printf "    movzb rax, al\n"
-    in
-    binop op l r
-| Lt (l, r) ->
-    let op _ =
+    | Lt ->
         printf "    cmp rax, rdi\n";
         printf "    setl al\n";
         printf "    movzb rax, al\n"
-    in
-    binop op l r
-| Le (l, r) ->
-    let op _ =
+    | Le ->
         printf "    cmp rax, rdi\n";
         printf "    setle al\n";
         printf "    movzb rax, al\n"
-    in
-    binop op l r
-| _ ->
-    raise(Error_at("gen_expr invalid expr: " ^ (Ast.show_expr expr), expr.loc))
+    );
+    Stack.push("rax");

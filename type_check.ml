@@ -162,6 +162,10 @@ and normalize_type ty = match ty with
     | _ -> ty
 
 and assign_type expr = 
+    try assign_type' expr with
+    | Misc.Error msg -> raise(Misc.Error_at(msg, expr.loc))
+
+and assign_type' expr = 
     let ty = normalize_type (find_type expr) in
     expr.exp.ty <- Some ty;
     ty
@@ -176,9 +180,9 @@ and find_type expr = match expr.exp.e with
 | Assign (l, r) ->
     let lty = assign_type l in
     let rty = assign_type r in
-    (if not @@ is_scalar_type lty then raise(Misc.Error_at("cannot assign", expr.loc)));
+    (if not @@ is_scalar_type lty then raise(Misc.Error("cannot assign")));
     
-    (* (if lty <> rty then raise(Misc.Error_at("assign type mismatch", expr.loc))); *)
+    (* (if lty <> rty then raise(Misc.Error("assign type mismatch"))); *)
 
     lty
 | Call (_, expr_list) ->
@@ -198,7 +202,7 @@ and find_type expr = match expr.exp.e with
     begin
         match ty with
         | Type.Ptr t -> t
-        | _ -> raise (Error_at("deref of non pointer", expr.loc))
+        | _ -> raise (Error("deref of non pointer"))
     end
 | Arrow (e, field_name) ->
     let ty = assign_type e in
@@ -207,50 +211,55 @@ and find_type expr = match expr.exp.e with
         | Type.Ptr ((Type.Union _) as st_ty) ->
             let field = (
                 try Type.get_field st_ty field_name with
-                |Not_found -> raise(Error_at("-> field? " ^ (Type.show ty), expr.loc))
+                |Not_found -> raise(Error("-> field? " ^ (Type.show ty)))
             ) in
             field.field_type
-        | _ -> raise(Error_at("-> type?" ^ (Type.show ty), expr.loc))
+        | _ -> raise(Error("-> type?" ^ (Type.show ty)))
     )
 | Sizeof e ->
     let _ = assign_type_plane e in
     Type.Int
-| Add (l, r) ->
+| Binop ({ op=op; lhs=l; rhs=r} as binop) ->
     let lty = assign_type l in
     let rty = assign_type r in
-    begin
-        match (lty, rty) with
+    (match op with
+    | Add ->
+        (match (lty, rty) with
         | (Type.Int, Type.Int) -> Type.Int
-        | (Type.Ptr _, Type.Int) -> lty
-        | (Type.Int, Type.Ptr _) -> rty
-        | _ -> raise (Error_at("cannot add", expr.loc))
-    end
-| Sub (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
-    begin
-        match (lty, rty) with
+        | (Type.Ptr t, Type.Int) ->
+            binop.op <- PtrAdd (Type.get_size t);
+            lty
+        | (Type.Int, Type.Ptr t) ->
+            binop.op <- PtrAdd (Type.get_size t);
+            binop.lhs <- r;
+            binop.rhs <- l;
+            rty
+        | _ -> raise (Misc.Error(Printf.sprintf "cannot add %s %s" (Type.show_type lty) (Type.show_type rty)))
+        )
+    | Sub ->
+        (match (lty, rty) with
+        | (Type.Int, Type.Int) ->
+            Type.Int
+        | (Type.Ptr t, Type.Ptr _) when lty = rty ->
+            binop.op <- PtrDiff (Type.get_size t);
+            Type.Int
+        | (Type.Ptr t, Type.Int) ->
+            binop.op <- PtrSub (Type.get_size t);
+            lty
+        | _ -> raise (Misc.Error(Printf.sprintf "cannot sub %s %s" (Type.show_type lty) (Type.show_type rty)))
+        )
+    | Mul
+    | Div ->
+        (match (lty, rty) with
         | (Type.Int, Type.Int) -> Type.Int
-        | (Type.Ptr _, Type.Ptr _) -> Type.Int
-        | (Type.Ptr _, Type.Int) -> lty
-        | _ -> raise (Error_at("cannot sub", expr.loc))
-    end
-| Mul (l, r)
-| Div (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
-    begin
-        match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
-        | _ -> raise (Error_at("cannot mul/div", expr.loc))
-    end
-| Eq (l, r)
-| Ne (l, r)
-| Lt (l, r)
-| Le (l, r) ->
-    let _ = assign_type l in
-    let _ = assign_type r in
-    Type.Int
+        | _ -> raise (Misc.Error(Printf.sprintf "cannot %s %s %s" (Ast.show_binop op) (Type.show_type lty) (Type.show_type rty)))
+        )
+    | Eq
+    | Ne
+    | Lt
+    | Le ->
+        Type.Int
+    )
 
 and is_scalar_type ty = match ty with
 | Char

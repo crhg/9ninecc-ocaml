@@ -873,3 +873,21 @@ int test105() {
 /*     return u109.x; */
 /* } */
 /* // @end */
+
+/* // @try_ret test110 5 */
+/* int test110() { */
+/*     int x=3; int y=5; *(&x+1); */
+/* } */
+/* // @end */
+
+// @try_ret test111 0
+int test111() {
+  ({ int x[2][3]; int *y=x; *y=0; **x; });
+}
+// @end
+
+// @try_ret test112 1
+int test112() {
+   int x[2][3]; int *y=x; *(y+1)=1; *(*x+1);
+}
+// @end

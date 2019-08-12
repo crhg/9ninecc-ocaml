@@ -21,6 +21,8 @@
 
 %token LONG INT SHORT CHAR STRUCT UNION TYPEDEF
 
+%token DUMMY // typedefで使うダミーのトークン
+
 %token <string> NUM  // 整数トークン
 %token <string> STR  // 文字列リテラル
 %token <string> IDENT
@@ -61,15 +63,20 @@ decl:
         loc = d.loc
     }
 }
-| token=TYPEDEF typedef = typedef {
-    let (ts, id) = typedef in
-    { exp = TypedefDecl (ts, id); loc = $startpos(token) }
+| typedef=typedef {
+    let (ts, id, loc) = typedef in
+    { exp = TypedefDecl (ts, id); loc = loc }
+}
+| token=DUMMY {
+    ignore token;
+    { exp = DummyDecl; loc = $startpos(token) }
 }
 
 typedef:
-| ts=type_spec id=IDENT SEMI {
+| token=TYPEDEF ts=type_spec id=IDENT SEMI {
+    ignore token;
     Typedef_env.add id;
-    (ts, id)
+    (ts, id, $startpos(token))
 }
 
 type_spec:
@@ -143,11 +150,11 @@ init:
 
 stmt:
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
-| token=TYPEDEF typedef=typedef {
-    ignore token;
-    let (ts, id) = typedef in
-    { exp = Typedef (ts, id); loc = $startpos(token) }
+| typedef=typedef {
+    let (ts, id, loc) = typedef in
+    { exp = Typedef (ts, id); loc = loc }
 }
+| token=DUMMY { ignore token; { exp = Empty; loc = $startpos(token) } }
 | t=type_spec decl_inits=decl_init* SEMI {
     { exp = Var {var_ts=t; var_decl_inits=decl_inits }; loc = t.loc }
 }

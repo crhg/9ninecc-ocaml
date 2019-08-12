@@ -41,7 +41,7 @@ let compile filename source =
     in
 
     try
-        let ast = Parser.translation_unit Lexer.token lexbuf in
+        let ast = Parser.translation_unit Typedef_lexer.token lexbuf in
         Type_check.check ast;
         Gen.gen ast
     with

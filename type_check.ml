@@ -70,6 +70,7 @@ and check_decl decl = match decl.exp with
     )
 | TypedefDecl (ts, name) ->
     typedef ts name;
+| DummyDecl -> ()
 | _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
 
 and check_init init = match init.exp with

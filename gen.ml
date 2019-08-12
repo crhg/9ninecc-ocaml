@@ -85,7 +85,9 @@ and gen_decl decl = match decl.exp with
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
     printf "    ret\n"
-| TypedefDecl _ -> ()
+| TypedefDecl _
+| DummyDecl ->
+    ()
 | _ -> failwith("gen_decl: "^(Ast.show_decl decl))
 
 and gen_stmt stmt =

@@ -27,6 +27,7 @@ and decl_exp =
     }
   | GlobalVarDecl of { gv_ts : type_spec; gv_decl_inits : decl_init list; }
   | TypedefDecl of type_spec * string
+  | DummyDecl
 and decl = decl_exp node
 and decl_init = {
   di_decl : declarator;

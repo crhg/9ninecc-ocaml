@@ -926,3 +926,11 @@ int test118() {
 }
 // @end
 
+// @try_ret test119 4
+int test119() {
+    typedef int INT;
+    INT x;
+    sizeof(x);
+}
+// @end
+

@@ -142,13 +142,10 @@ and check_stmt stmt = match stmt.exp with
     List.iter check_stmt stmt_list
 | _ -> ()
 
-and check_expr expr = ignore @@ assign_type expr
-
-(* 式に型をつける *)
-and assign_type_plane expr = 
-    let ty = find_type expr in
-    (* expr.exp.ty <- Some ty; *)
-    ty
+and check_expr expr =
+    (* Printf.fprintf stderr "check_expr start %s\n" (Ast.show_expr_short expr); *)
+    ignore @@ find_type expr
+    (* ;Printf.fprintf stderr "check_expr end %s\n" (Ast.show_expr expr); *)
 
 (* 型の正規化 *)
 and normalize_type ty = match ty with
@@ -158,14 +155,12 @@ and normalize_type ty = match ty with
     | Type.Array (t, _) -> Type.Ptr t (* 配列型はポインタ型に読みかえる *)
     | _ -> ty
 
-and assign_type expr = 
-    try assign_type' expr with
+and find_type_normalized expr = 
+    try find_type_normalized' expr with
     | Misc.Error msg -> raise(Misc.Error_at(msg, expr.loc))
 
-and assign_type' expr = 
-    let ty = normalize_type (find_type expr) in
-    (* expr.exp.ty <- Some ty; *)
-    ty
+and find_type_normalized' expr = 
+    normalize_type (find_type expr)
 
 and find_type expr = match expr.exp with
 | Num _ -> Type.Int
@@ -175,8 +170,9 @@ and find_type expr = match expr.exp with
     ident.entry <- Some entry;
     entry_type entry
 | Assign ({assign_lhs=lhs; assign_rhs=rhs} as r) ->
-    let lty = assign_type lhs in
-    let rty = assign_type rhs in
+    (* Printf.fprintf stderr "find_type assign %s\n" (Ast.show_expr_short expr); *)
+    let lty = find_type lhs in
+    let rty = find_type_normalized rhs in
     (if not @@ is_scalar_type lty then raise(Misc.Error("cannot assign")));
 
     (* (if lty <> rty then raise(Misc.Error("assign type mismatch"))); *)
@@ -184,7 +180,7 @@ and find_type expr = match expr.exp with
     r.assign_lhs_type <- Some lty;
     lty
 | Call (_, expr_list) ->
-    let _ = List.map assign_type expr_list in
+    List.iter check_expr expr_list;
     Type.Int
 | BlockExpr block ->
     check_stmt block;
@@ -193,20 +189,20 @@ and find_type expr = match expr.exp with
     (*       真面目に考えると分岐だのループだので面倒なので当面int固定 *)
     Type.Int
 | Addr e ->
-    let ty = assign_type_plane e in
+    let ty = find_type e in
     Type.Ptr ty
 | Deref ({deref_expr = e} as r)->
-    let ty = assign_type e in
+    let ty = find_type_normalized e in
     begin
         match ty with
         | Type.Ptr t ->
             r.deref_type <- Some t;
             t
-        | _ -> raise (Error("deref of non pointer"))
+        | _ -> raise(Error("not a pointer" ^ (Type.show_type ty)))
     end
 | Arrow ({arrow_expr = e; arrow_field = field_name} as r) ->
     (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)
-    let ty = assign_type e in
+    let ty = find_type_normalized e in
     (match ty with
         | Type.Ptr ((Type.Struct _) as st_ty)
         | Type.Ptr ((Type.Union _) as st_ty) ->
@@ -222,12 +218,12 @@ and find_type expr = match expr.exp with
         | _ -> raise(Error("-> type?" ^ (Type.show ty)))
     )
 | Sizeof ({sizeof_expr = e} as r) ->
-    let ty = assign_type_plane e in
+    let ty = find_type e in
     r.sizeof_size <- Type.get_size ty;
     Type.Int
 | Binop ({ op=op; lhs=l; rhs=r} as binop) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
+    let lty = find_type_normalized l in
+    let rty = find_type_normalized r in
     (match op with
     | Add ->
         (match (lty, rty) with

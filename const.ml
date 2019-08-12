@@ -41,4 +41,4 @@ and get_label_from_entry entry = match entry with
 and eval_lval expr = match expr.exp.e with
 | Str (_, label) -> (label, 0)
 | Ident { entry = Some entry_ref } -> (get_label_from_entry entry_ref, 0)
-| Deref e -> eval_pointer e
+| Deref { deref_expr=e } -> eval_pointer e

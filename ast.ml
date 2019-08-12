@@ -83,7 +83,7 @@ and stmt = stmt_exp node
 
 and 't with_type = {
     e: 't;
-    mutable ty: Type.t option
+    mutable with_type_ty: Type.t option
     [@printer fun fmt ty -> match ty with
     | None -> fprintf fmt "?"
     | Some ty -> fprintf fmt "%s" (Type.show_type ty)
@@ -118,9 +118,27 @@ and ident_r = {
     ]
 }
 
+and assign_r = {
+    assign_lhs : expr;
+    assign_rhs : expr;
+    mutable assign_lhs_type : Type.t option
+}
+
+and deref_r = {
+    deref_expr : expr;
+    mutable deref_type: Type.t option
+}
+
 and sizeof_r = {
     sizeof_expr : expr;
     mutable sizeof_size : int
+}
+
+and arrow_r = {
+    arrow_expr : expr;
+    arrow_field : string;
+    mutable arrow_field_type: Type.t option;
+    mutable arrow_field_offset : int
 }
 
 and expr_e =
@@ -128,18 +146,18 @@ and expr_e =
 | Str of string * string (* 文字列そのものとラベル *)
 | Ident of ident_r
 | Binop of binop_r
-| Assign of expr * expr
+| Assign of assign_r
 | Call of string * expr list
-| Deref of expr
+| Deref of deref_r
 | Addr of expr
 | Sizeof of sizeof_r
-| Arrow of expr * string
+| Arrow of arrow_r
 | BlockExpr of stmt
 and expr_exp = expr_e with_type
 and expr = expr_exp node
 [@@deriving show {with_path = false}]
 
-let no_type e = { e = e; ty = None }
+let no_type e = { e = e; with_type_ty = None }
 
 let rec show_expr_short expr = match expr.exp.e with
 | Num n ->
@@ -150,17 +168,17 @@ let rec show_expr_short expr = match expr.exp.e with
     name
 | Binop { op=op; lhs=l; rhs=r } ->
     Printf.sprintf "(%s %s %s)" (show_binop op) (show_expr_short l) (show_expr_short r)
-| Assign (l, r) ->
+| Assign { assign_lhs = l; assign_rhs = r } ->
     Printf.sprintf "(= %s %s)" (show_expr_short l) (show_expr_short r)
 | Call (f, params) ->
     Printf.sprintf "(%s %s)" f (String.concat " " (List.map show_expr_short params))
-| Deref e ->
+| Deref { deref_expr = e } ->
     Printf.sprintf "*%s" (show_expr_short e)
 | Addr e ->
     Printf.sprintf "&%s" (show_expr_short e)
 | Sizeof {sizeof_expr = e} ->
     Printf.sprintf "(sizeof %s)" (show_expr_short e)
-| Arrow (e,f) ->
+| Arrow { arrow_expr = e; arrow_field = f} ->
     Printf.sprintf "(-> %s %s)" (show_expr_short e) f
 | BlockExpr _ ->
     "{...}"

@@ -186,28 +186,14 @@ and gen_lval_name name = gen_lval_entry (get_entry name)
 and gen_lval expr = match expr.exp.e with
 | Ident { entry = Some entry} ->
     gen_lval_entry entry
-| Deref e ->
+| Deref { deref_expr = e } ->
     gen_expr e
-| Arrow (e, name) ->
-    let Some (Ptr ty) = e.exp.ty in
-    let field = Type.get_field ty name in
+| Arrow { arrow_expr = e; arrow_field_offset = offset } ->
     gen_expr e;
     Stack.pop("rax");
-    printf "    add rax, %d\n" field.field_offset;
+    printf "    add rax, %d\n" offset;
     Stack.push("rax");
 | _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
-
-and get_type expr =
-    try Option.get(expr.exp.ty) with
-    | Option.No_value ->
-        raise(Error_at("get_type: type?: " ^ (Ast.show_expr expr), expr.loc))
-
-(* 式の値がポインタとしてそれが指すデータのサイズを取得する *)
-and get_pointerd_size expr =
-    let ty = get_type expr in
-    match ty with
-    | Ptr t -> Type.get_size t
-    | _ -> raise(Error_at(Printf.sprintf "expr is not pointer %s" (Type.show_type ty), expr.loc))
 
 and gen_expr expr =
     try gen_expr' expr with
@@ -232,8 +218,7 @@ match expr.exp.e with
             Gen_misc.load ty "rax" "[rax]";
             Stack.push "rax"
     end
-| Assign (l, r) ->
-    let ty = get_type expr in
+| Assign {assign_lhs=l; assign_rhs=r; assign_lhs_type=Some ty} ->
     gen_lval l;
     gen_expr r;
     Stack.pop "rdi";
@@ -261,28 +246,23 @@ match expr.exp.e with
     Stack.push "rax"
 | Addr e ->
     gen_lval e
-| Deref e ->
-    let ty = get_type expr in
+| Deref { deref_expr = e; deref_type = Some ty } ->
     gen_expr e;
     Stack.pop "rax";
     Gen_misc.load ty "rax" "[rax]";
     Stack.push "rax"
-| Arrow ({exp = { ty = Some (Ptr (e_ty))}} as e, name) ->
-    let field = Type.get_field e_ty name in
-    (match field.field_type with
-        | Array _ -> gen_lval expr
-        | _ ->
-            gen_expr e;
-            Stack.pop "rax";
-            printf "    add rax, %d\n" field.field_offset;
-            Gen_misc.load field.field_type "rax" "[rax]";
-            Stack.push "rax"
-    )
+| Arrow { arrow_expr = e; arrow_field_type = Some ty; arrow_field_offset = offset } ->
+    gen_expr e;
+    Stack.pop "rax";
+    printf "    add rax, %d\n" offset;
+    Gen_misc.load ty "rax" "[rax]";
+    Stack.push "rax"
 | Sizeof {sizeof_size = size} ->
     printf "    mov rax, %d\n" size;
     Stack.push "rax"
 | Binop { op=op; lhs=l; rhs=r } ->
     gen_binop op l r
+| _ -> raise (Misc.Error "unexpected")
 
 and gen_binop op l r =
     gen_expr l;

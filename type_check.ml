@@ -115,7 +115,8 @@ and check_stmt stmt = match stmt.exp with
             let ident = {
                 exp = { 
                     e = Ident { name=name; entry=Some entry };
-                    ty = Some ty
+                    (* ty = Some ty *)
+                    with_type_ty = None
                 };
                 loc=d.loc
             } in
@@ -150,7 +151,7 @@ and check_expr expr = ignore @@ assign_type expr
 (* 式に型をつける *)
 and assign_type_plane expr = 
     let ty = find_type expr in
-    expr.exp.ty <- Some ty;
+    (* expr.exp.ty <- Some ty; *)
     ty
 
 (* 型の正規化 *)
@@ -167,7 +168,7 @@ and assign_type expr =
 
 and assign_type' expr = 
     let ty = normalize_type (find_type expr) in
-    expr.exp.ty <- Some ty;
+    (* expr.exp.ty <- Some ty; *)
     ty
 
 and find_type expr = match expr.exp.e with
@@ -177,13 +178,14 @@ and find_type expr = match expr.exp.e with
     let entry = get_entry name in
     ident.entry <- Some entry;
     entry_type entry
-| Assign (l, r) ->
-    let lty = assign_type l in
-    let rty = assign_type r in
+| Assign ({assign_lhs=lhs; assign_rhs=rhs} as r) ->
+    let lty = assign_type lhs in
+    let rty = assign_type rhs in
     (if not @@ is_scalar_type lty then raise(Misc.Error("cannot assign")));
-    
+
     (* (if lty <> rty then raise(Misc.Error("assign type mismatch"))); *)
 
+    r.assign_lhs_type <- Some lty;
     lty
 | Call (_, expr_list) ->
     let _ = List.map assign_type expr_list in
@@ -197,14 +199,17 @@ and find_type expr = match expr.exp.e with
 | Addr e ->
     let ty = assign_type_plane e in
     Type.Ptr ty
-| Deref e ->
+| Deref ({deref_expr = e} as r)->
     let ty = assign_type e in
     begin
         match ty with
-        | Type.Ptr t -> t
+        | Type.Ptr t ->
+            r.deref_type <- Some t;
+            t
         | _ -> raise (Error("deref of non pointer"))
     end
-| Arrow (e, field_name) ->
+| Arrow ({arrow_expr = e; arrow_field = field_name} as r) ->
+    Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr);
     let ty = assign_type e in
     (match ty with
         | Type.Ptr ((Type.Struct _) as st_ty)
@@ -213,6 +218,10 @@ and find_type expr = match expr.exp.e with
                 try Type.get_field st_ty field_name with
                 |Not_found -> raise(Error("-> field? " ^ (Type.show ty)))
             ) in
+            Printf.fprintf stderr "field=%s\n" (Type.show_field field);
+            r.arrow_field_type <- Some field.field_type;
+            r.arrow_field_offset <- field.field_offset;
+            Printf.fprintf stderr "type_check Arrow end!! %s\n" (Ast.show_expr expr);
             field.field_type
         | _ -> raise(Error("-> type?" ^ (Type.show ty)))
     )

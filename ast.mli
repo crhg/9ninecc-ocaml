@@ -50,7 +50,7 @@ and stmt_exp =
   | For of expr option * expr option * expr option * stmt
   | Block of stmt list
 and stmt = stmt_exp node
-and 't with_type = { e : 't; mutable ty : Type.t option; }
+and 't with_type = { e : 't; mutable with_type_ty : Type.t option; }
 and binop =
     Add
   | Sub
@@ -65,18 +65,30 @@ and binop =
   | Ne
 and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
 and ident_r = { name : string; mutable entry : Env.entry option; }
+and assign_r = {
+  assign_lhs : expr;
+  assign_rhs : expr;
+  mutable assign_lhs_type : Type.t option;
+}
+and deref_r = { deref_expr : expr; mutable deref_type : Type.t option; }
 and sizeof_r = { sizeof_expr : expr; mutable sizeof_size : int; }
+and arrow_r = {
+  arrow_expr : expr;
+  arrow_field : string;
+  mutable arrow_field_type : Type.t option;
+  mutable arrow_field_offset : int;
+}
 and expr_e =
     Num of string
   | Str of string * string
   | Ident of ident_r
   | Binop of binop_r
-  | Assign of expr * expr
+  | Assign of assign_r
   | Call of string * expr list
-  | Deref of expr
+  | Deref of deref_r
   | Addr of expr
   | Sizeof of sizeof_r
-  | Arrow of expr * string
+  | Arrow of arrow_r
   | BlockExpr of stmt
 and expr_exp = expr_e with_type
 and expr = expr_exp node
@@ -152,10 +164,22 @@ val pp_ident_r :
   Ppx_deriving_runtime.Format.formatter ->
   ident_r -> Ppx_deriving_runtime.unit
 val show_ident_r : ident_r -> Ppx_deriving_runtime.string
+val pp_assign_r :
+  Ppx_deriving_runtime.Format.formatter ->
+  assign_r -> Ppx_deriving_runtime.unit
+val show_assign_r : assign_r -> Ppx_deriving_runtime.string
+val pp_deref_r :
+  Ppx_deriving_runtime.Format.formatter ->
+  deref_r -> Ppx_deriving_runtime.unit
+val show_deref_r : deref_r -> Ppx_deriving_runtime.string
 val pp_sizeof_r :
   Ppx_deriving_runtime.Format.formatter ->
   sizeof_r -> Ppx_deriving_runtime.unit
 val show_sizeof_r : sizeof_r -> Ppx_deriving_runtime.string
+val pp_arrow_r :
+  Ppx_deriving_runtime.Format.formatter ->
+  arrow_r -> Ppx_deriving_runtime.unit
+val show_arrow_r : arrow_r -> Ppx_deriving_runtime.string
 val pp_expr_e :
   Ppx_deriving_runtime.Format.formatter ->
   expr_e -> Ppx_deriving_runtime.unit

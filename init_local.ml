@@ -53,7 +53,7 @@ and make_num n loc =
 
 and make_assign lhs rhs =
     Ast.({
-        exp = no_type @@ Assign (lhs, rhs);
+        exp = no_type @@ Assign {assign_lhs=lhs; assign_rhs=rhs; assign_lhs_type=None};
         loc = lhs.loc
     })
 
@@ -65,6 +65,6 @@ and make_array_at a i =
         loc = a.loc
     } in
     {
-        exp = no_type @@ Deref ptr;
+        exp = no_type @@ Deref {deref_expr=ptr; deref_type=None};
         loc = a.loc
     }

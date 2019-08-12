@@ -156,7 +156,7 @@ expr:
 
 assign:
 | e=equality { e }
-| l=assign token=ASSIGN r=equality { ignore token; { exp = no_type (Assign (l, r)); loc = $startpos(token) } }
+| l=assign token=ASSIGN r=equality { ignore token; { exp = no_type (Assign { assign_lhs = l; assign_rhs = r; assign_lhs_type = None}); loc = $startpos(token) } }
 
 equality:
 | e=relational { e }
@@ -190,7 +190,7 @@ unary:
         loc = $startpos(token)
     }
 }
-| token=AST e=unary { ignore token; { exp = no_type (Deref e); loc = $startpos(token) } }
+| token=AST e=unary { ignore token; { exp = no_type (Deref { deref_expr = e; deref_type = None }); loc = $startpos(token) } }
 | token=AMP e=unary { ignore token; { exp = no_type (Addr e); loc = $startpos(token) } }
 | token=SIZEOF e=unary { ignore token; { exp = no_type (Sizeof{sizeof_expr=e; sizeof_size=0}); loc = $startpos(token) } }
 
@@ -206,16 +206,16 @@ term:
 | arr=term token=LBRACKET offset=expr RBRACKET {
     ignore token;
     let pointer = { exp = no_type (Binop{op=Add; lhs=arr; rhs=offset}); loc = $startpos(token) } in
-    { exp = no_type (Deref pointer); loc = $startpos(token) }
+    { exp = no_type (Deref { deref_expr=pointer; deref_type = None }); loc = $startpos(token) }
 }
 | term=term token=ARROW field=IDENT {
     ignore token;
-    { exp = no_type (Arrow (term, field)); loc = $startpos(token) }
+    { exp = no_type (Arrow { arrow_expr = term; arrow_field = field; arrow_field_type = None; arrow_field_offset = 0 }); loc = $startpos(token) }
 }
 | term=term token=DOT field=IDENT {
     ignore token;
     let pointer = { exp = no_type (Addr term); loc = $startpos(token) } in
-    { exp = no_type (Arrow (pointer, field)); loc = $startpos(token) }
+    { exp = no_type (Arrow { arrow_expr = pointer; arrow_field = field; arrow_field_type = None; arrow_field_offset = 0 }); loc = $startpos(token) }
 }
 | LPAR e=expr RPAR { e }
 | LPAR b=block RPAR { { exp = no_type (BlockExpr b); loc = b.loc } }

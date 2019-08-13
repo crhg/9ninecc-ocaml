@@ -73,8 +73,9 @@ decl:
 }
 
 typedef:
-| token=TYPEDEF ts=type_spec id=IDENT SEMI {
+| token=TYPEDEF ts=type_spec var=var SEMI {
     ignore token;
+    let id, _ = var in
     Typedef_env.add id;
     (ts, id, $startpos(token))
 }
@@ -124,7 +125,10 @@ declarator:
 | token=AST d=declarator { ignore token; { exp = PointerOf d; loc = d.loc } }
 
 direct_declarator:
-| var=IDENT { { exp = DeclIdent var; loc = $startpos(var) } }
+| var=var { 
+    let var, loc = var in
+    { exp = DeclIdent var; loc = loc }
+}
 | LPAR d=declarator RPAR { d }
 | d=direct_declarator LBRACKET e=option(expr) RBRACKET {
     {
@@ -138,6 +142,10 @@ direct_declarator:
         loc = d.loc
     }
 }
+
+var:
+| id=IDENT { (id, $startpos(id)) }
+| tid=TYPEDEF_ID { (tid, $startpos(tid)) }
 
 param:
 | t=type_spec d=declarator {

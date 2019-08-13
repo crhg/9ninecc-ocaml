@@ -17,13 +17,6 @@ let get_line s pos =
                 else get_line' next (line_no+1) in
     get_line' 0 1
 
-(* 文字列sをn回繰り返した文字列 *)
-(* XXX: 富豪的!! *)
-let rec repeat n s =
-    if n == 0
-        then ""
-        else s ^ repeat (n-1) s
-
 let compile filename source =
     let source = source ^ "\n" in
     let lexbuf = Lexing.from_string source in
@@ -32,7 +25,7 @@ let compile filename source =
         let (line, line_no, pos_in_line) = get_line source pos in
         fprintf stderr "%s:%d:%d: %s\n" filename line_no pos_in_line s;
         fprintf stderr "%s\n" line;
-        fprintf stderr "%s^\n" (repeat pos_in_line " ")
+        fprintf stderr "%s^\n" (String.make pos_in_line ' ')
     in
 
     let error_at_lex_pos s =

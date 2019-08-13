@@ -950,3 +950,12 @@ int test121() {
 }
 // @end
 
+// @try_ret test122 4
+int test122() {
+    typedef int INT;
+    typedef INT INT2;
+    INT2 x;
+    sizeof(x);
+}
+// @end
+

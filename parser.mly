@@ -36,6 +36,16 @@
 
 %%
 
+ident:
+| DUMMY* ident=IDENT { (ident, $startpos(ident)) }
+
+typedef_id:
+| DUMMY* tid=TYPEDEF_ID { (tid, $startpos(tid)) }
+
+id:
+| DUMMY* id=IDENT
+| DUMMY* id=TYPEDEF_ID { (id, $startpos(id)) }
+
 translation_unit:
 | l=decl* EOF { l }
 
@@ -67,17 +77,13 @@ decl:
     let (ts, id, loc) = typedef in
     { exp = TypedefDecl (ts, id); loc = loc }
 }
-| token=DUMMY {
-    ignore token;
-    { exp = DummyDecl; loc = $startpos(token) }
-}
 
 typedef:
-| token=TYPEDEF ts=type_spec var=var SEMI {
+| token=TYPEDEF ts=type_spec var=id SEMI {
     ignore token;
-    let id, _ = var in
-    Typedef_env.add id;
-    (ts, id, $startpos(token))
+    let name, _ = var in
+    Typedef_env.add name;
+    (ts, name, $startpos(token))
 }
 
 type_spec:
@@ -89,25 +95,24 @@ type_spec:
     ignore token; 
     { exp = Struct { su_tag = None; su_fields = Some fields }; loc = $startpos(token) }
 }
-| token=STRUCT tag=tag fields=option(su_body) {
+| token=STRUCT tag=id fields=option(su_body) {
     ignore token; 
+    let tag, _ = tag in
     { exp = Struct { su_tag = Some tag; su_fields = fields }; loc = $startpos(token) }
 }
 | token=UNION fields=su_body {
     ignore token; 
     { exp = Union { su_tag = None; su_fields = Some fields }; loc = $startpos(token) }
 }
-| token=UNION tag=tag fields=option(su_body) {
+| token=UNION tag=id fields=option(su_body) {
     ignore token; 
+    let tag, _ = tag in
     { exp = Union { su_tag = Some tag; su_fields = fields }; loc = $startpos(token) }
 }
-| typedef_id=TYPEDEF_ID {
-    { exp = Type typedef_id; loc = $startpos(typedef_id) }
+| typedef_id=typedef_id {
+    let name, loc = typedef_id in
+    { exp = Type name; loc = loc }
 }
-
-tag:
-| id=IDENT { id }
-| tid=TYPEDEF_ID { tid }
 
 su_body:
 | LBRACE l=su_field* RBRACE { l }
@@ -125,9 +130,9 @@ declarator:
 | token=AST d=declarator { ignore token; { exp = PointerOf d; loc = d.loc } }
 
 direct_declarator:
-| var=var { 
-    let var, loc = var in
-    { exp = DeclIdent var; loc = loc }
+| id=id { 
+    let name, loc = id in
+    { exp = DeclIdent name; loc = loc }
 }
 | LPAR d=declarator RPAR { d }
 | d=direct_declarator LBRACKET e=option(expr) RBRACKET {
@@ -142,10 +147,6 @@ direct_declarator:
         loc = d.loc
     }
 }
-
-var:
-| id=IDENT { (id, $startpos(id)) }
-| tid=TYPEDEF_ID { (tid, $startpos(tid)) }
 
 param:
 | t=type_spec d=declarator {
@@ -166,7 +167,6 @@ stmt:
     let (ts, id, loc) = typedef in
     { exp = Typedef (ts, id); loc = loc }
 }
-| token=DUMMY { ignore token; { exp = Empty; loc = $startpos(token) } }
 | t=type_spec decl_inits=decl_init* SEMI {
     { exp = Var {var_ts=t; var_decl_inits=decl_inits }; loc = t.loc }
 }
@@ -237,21 +237,27 @@ term:
 | str=STR {
     { exp = Str (str, String_literal.add str); loc = $startpos(str) }
 }
-| id=IDENT { { exp = Ident { name = id; entry = None }; loc = $startpos(id) } }
-| func=IDENT LPAR l=separated_list(COMMA, expr) RPAR {
-    { exp = Call (func, l); loc = $startpos(func) }
+| id=ident { 
+    let name, loc = id in
+    { exp = Ident { name = name; entry = None }; loc = loc }
+}
+| func=ident LPAR l=separated_list(COMMA, expr) RPAR {
+    let func, loc = func in
+    { exp = Call (func, l); loc = loc } 
 }
 | arr=term token=LBRACKET offset=expr RBRACKET {
     ignore token;
     let pointer = { exp = Binop{op=Add; lhs=arr; rhs=offset}; loc = $startpos(token) } in
     { exp = Deref { deref_expr=pointer; deref_type = None }; loc = $startpos(token) }
 }
-| term=term token=ARROW field=IDENT {
+| term=term token=ARROW field=id {
     ignore token;
+    let field, _ = field in
     { exp = Arrow { arrow_expr = term; arrow_field = field; arrow_field_type = None; arrow_field_offset = 0 }; loc = $startpos(token) }
 }
-| term=term token=DOT field=IDENT {
+| term=term token=DOT field=id {
     ignore token;
+    let field, _ = field in
     let pointer = { exp = Addr term; loc = $startpos(token) } in
     { exp = Arrow { arrow_expr = pointer; arrow_field = field; arrow_field_type = None; arrow_field_offset = 0 }; loc = $startpos(token) }
 }

@@ -184,6 +184,8 @@ and gen_lval_entry entry = match entry with
 | GlobalVar (_, name) ->
     printf "    mov rax, OFFSET FLAT:%s\n" name;
     Stack.push "rax"
+| EnumConstant _ ->
+    raise(Misc.Error("enum constant is not lval"))
 
 and gen_lval_name name = gen_lval_entry (get_entry name)
 
@@ -211,17 +213,22 @@ match expr.exp with
     printf "    mov rax, OFFSET FLAT:%s\n" label;
     Stack.push "rax"
 | Ident { entry = Some entry } ->
-    let ty = entry_type entry in
-    begin
-        match ty with
-        | Array (_, _) -> 
-            gen_lval expr
-        | _ ->
-            gen_lval expr;
-            Stack.pop "rax";
-            Gen_misc.load ty "rax" "[rax]";
-            Stack.push "rax"
-    end
+    (match entry with
+    | EnumConstant n ->
+        Stack.push @@ string_of_int n
+    | _ -> 
+        let ty = entry_type entry in
+        begin
+            match ty with
+            | Array (_, _) -> 
+                gen_lval expr
+            | _ ->
+                gen_lval expr;
+                Stack.pop "rax";
+                Gen_misc.load ty "rax" "[rax]";
+                Stack.push "rax"
+        end
+    )
 | Assign {assign_lhs=l; assign_rhs=r; assign_lhs_type=Some ty} ->
     gen_lval l;
     gen_expr r;

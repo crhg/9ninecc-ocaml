@@ -65,6 +65,7 @@ rule token = parse
 | "sizeof"  { SIZEOF }
 | "struct"  { STRUCT }
 | "union"   { UNION }
+| "enum"    { ENUM }
 | "typedef" { TYPEDEF }
 
 | ['0'-'9']+ as num { NUM num }

@@ -9,6 +9,9 @@ and st_un = {
   su_tag : string option;
   su_fields : (type_spec * declarator) list option;
 }
+and enum = { enum_tag : string option; enum_list : enumarator list option; }
+and enumerator_exp = { en_name : string; en_expr : expr option; }
+and enumarator = enumerator_exp node
 and type_spec_exp =
     Long
   | Int
@@ -16,6 +19,7 @@ and type_spec_exp =
   | Char
   | Struct of st_un
   | Union of st_un
+  | Enum of enum
   | Type of string
 and type_spec = type_spec_exp node
 and decl_exp =
@@ -107,6 +111,17 @@ val show_param : param -> Ppx_deriving_runtime.string
 val pp_st_un :
   Ppx_deriving_runtime.Format.formatter -> st_un -> Ppx_deriving_runtime.unit
 val show_st_un : st_un -> Ppx_deriving_runtime.string
+val pp_enum :
+  Ppx_deriving_runtime.Format.formatter -> enum -> Ppx_deriving_runtime.unit
+val show_enum : enum -> Ppx_deriving_runtime.string
+val pp_enumerator_exp :
+  Ppx_deriving_runtime.Format.formatter ->
+  enumerator_exp -> Ppx_deriving_runtime.unit
+val show_enumerator_exp : enumerator_exp -> Ppx_deriving_runtime.string
+val pp_enumarator :
+  Ppx_deriving_runtime.Format.formatter ->
+  enumarator -> Ppx_deriving_runtime.unit
+val show_enumarator : enumarator -> Ppx_deriving_runtime.string
 val pp_type_spec_exp :
   Ppx_deriving_runtime.Format.formatter ->
   type_spec_exp -> Ppx_deriving_runtime.unit

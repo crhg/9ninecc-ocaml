@@ -19,6 +19,17 @@ and st_un = {
     su_fields: (type_spec * declarator) list option
 }
 
+and enum = {
+    enum_tag: string option;
+    enum_list: enumarator list option
+}
+
+and enumerator_exp = {
+    en_name: string;
+    en_expr: expr option
+}
+and enumarator = enumerator_exp node
+
 and type_spec_exp =
 | Long
 | Int
@@ -26,6 +37,7 @@ and type_spec_exp =
 | Char
 | Struct of st_un
 | Union of st_un
+| Enum of enum
 | Type of string
 and type_spec = type_spec_exp node
 

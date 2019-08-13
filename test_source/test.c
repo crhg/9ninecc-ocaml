@@ -982,3 +982,35 @@ int test124() {
     return sizeof a;
 }
 // @end
+
+// @try_ret test125 2
+int test125() {
+    enum { A, B, C } a;
+
+    a = C;
+
+    return a;
+}
+// @end
+
+// @try_ret test126 1
+int test126() {
+    enum e { A, B, C };
+    enum e a;
+
+    a = B;
+
+    return a;
+}
+// @end
+
+// @try_ret test127 12
+int test127() {
+    enum e { A=10, B, C };
+    enum e a;
+
+    a = C;
+
+    return a;
+}
+// @end

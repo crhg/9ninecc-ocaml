@@ -19,7 +19,7 @@
 
 %token SIZEOF
 
-%token LONG INT SHORT CHAR STRUCT UNION TYPEDEF
+%token LONG INT SHORT CHAR STRUCT UNION ENUM TYPEDEF
 
 %token DUMMY // typedefで使うダミーのトークン
 
@@ -120,6 +120,15 @@ type_spec:
     let tag, _ = tag in
     { exp = Union { su_tag = Some tag; su_fields = fields }; loc = $startpos(token) }
 }
+| token=ENUM enum_list=enum_list {
+    ignore token;
+    { exp = Enum { enum_tag = None; enum_list = Some enum_list }; loc = $startpos(token) }
+}
+| token=ENUM tag=id enum_list=option(enum_list) {
+    ignore token;
+    let tag, _ = tag in
+    { exp = Enum { enum_tag = Some tag; enum_list = enum_list }; loc = $startpos(token) }
+}
 | typedef_id=typedef_id {
     let name, loc = typedef_id in
     { exp = Type name; loc = loc }
@@ -130,6 +139,19 @@ su_body:
 
 su_field:
 | ts=type_spec d=declarator SEMI { (ts, d) }
+
+enum_list:
+| LBRACE l=separated_list(COMMA, enumarator) RBRACE { l } 
+
+enumarator:
+| id=id expr=option(ASSIGN e=expr{e}) {
+    let name, loc = id in
+    {
+        exp = { en_name = name; en_expr = expr };
+        loc = loc
+    }
+}
+
 
 decl_init:
 | decl=declarator init=option(ASSIGN i=init {i}) {

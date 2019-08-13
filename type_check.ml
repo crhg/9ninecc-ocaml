@@ -419,6 +419,32 @@ and type_of_type_spec ts = match ts.exp with
         ty
     )
 | Union _ -> failwith("invalid type_spec: " ^ (Ast.show_type_spec ts))
+
+| Enum { enum_tag = None; enum_list = Some enum_list } ->
+    declare_enum_list enum_list;
+    Type.Int
+| Enum { enum_tag = Some tag; enum_list = None } ->
+    if Env.defined_tag_in_current_scope tag then (
+        (match Env.get_tag_opt tag with
+            | Some Type.Int ->
+                Type.Int
+            | Some ty ->
+                raise(Misc.Error("tag mismatch: "^(Type.show_type ty)))
+            | _ ->
+                failwith "?"
+        )
+    ) else (
+        raise(Misc.Error("no such enum tag: "^tag))
+    )
+| Enum { enum_tag = Some tag; enum_list = Some enum_list } ->
+    if Env.defined_tag_in_current_scope tag then (
+        raise(Misc.Error("redefine tag"))
+    ) else (
+        Env.register_tag tag Type.Int;
+        declare_enum_list enum_list;
+        Type.Int
+    )
+
 | Type id ->
     let get_entry id = try Env.get_entry id with
     | Not_found -> raise(Misc.Error("type not found: "^id)) in
@@ -467,6 +493,17 @@ and body_of_union' size alignment fields = match fields with
     let field = Type.{ field_name = name; field_type = ty; field_offset = 0 } in
     let (total_size, max_alignment, rest_fields) = body_of_union' new_size new_alignment rest in
     (total_size, max_alignment, field :: rest_fields)
+
+and declare_enum_list l =
+    let rec declare_enum_list' n l = match l with
+    | [] -> ()
+    | {exp=e}::rest ->
+        let n = match e.en_expr with
+        | None -> n
+        | Some expr -> Const.eval_int expr in
+        Env.register_enum e.en_name n;
+        declare_enum_list' (n+1) rest in
+    declare_enum_list' 0 l
 
 and check_complete ty loc = 
         if not @@ Type.is_complete_type ty then

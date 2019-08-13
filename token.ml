@@ -1,45 +1,46 @@
 
 type token = 
-  | WHILE
-  | UNION
-  | TYPEDEF_ID of (string)
-  | TYPEDEF
-  | STRUCT
-  | STR of (string)
-  | SLASH
-  | SIZEOF
-  | SHORT
-  | SEMI
-  | RPAR
-  | RETURN
-  | RBRACKET
-  | RBRACE
-  | PLUS
-  | NUM of (string)
-  | NE
-  | MINUS
-  | LT
-  | LPAR
-  | LONG
-  | LE
-  | LBRACKET
-  | LBRACE
-  | INT
-  | IF
-  | IDENT of (string)
-  | GT
-  | GE
-  | FOR
-  | EQ
-  | EOF
-  | ELSE
-  | DUMMY
-  | DOT
-  | COMMA
-  | CHAR
-  | AST
-  | ASSIGN
-  | ARROW
   | AMP
+  | ARROW
+  | ASSIGN
+  | AST
+  | CHAR
+  | COMMA
+  | DOT
+  | DUMMY
+  | ELSE
+  | ENUM
+  | EOF
+  | EQ
+  | FOR
+  | GE
+  | GT
+  | IDENT of (string)
+  | IF
+  | INT
+  | LBRACE
+  | LBRACKET
+  | LE
+  | LONG
+  | LPAR
+  | LT
+  | MINUS
+  | NE
+  | NUM of (string)
+  | PLUS
+  | RBRACE
+  | RBRACKET
+  | RETURN
+  | RPAR
+  | SEMI
+  | SHORT
+  | SIZEOF
+  | SLASH
+  | STR of (string)
+  | STRUCT
+  | TYPEDEF
+  | TYPEDEF_ID of (string)
+  | UNION
+  | WHILE
   [@@deriving show {with_path = false}]
 

@@ -974,3 +974,11 @@ int test123() {
 // @end
 
 
+// @try_ret test124 80
+int test124() {
+    typedef int A[20];
+    A a;
+
+    return sizeof a;
+}
+// @end

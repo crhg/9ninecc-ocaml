@@ -85,16 +85,16 @@ decl:
     }
 }
 | typedef=typedef {
-    let (ts, id, loc) = typedef in
-    { exp = TypedefDecl (ts, id); loc = loc }
+    let (ts, decl, loc) = typedef in
+    { exp = TypedefDecl (ts, decl); loc = loc }
 }
 
 typedef:
-| token=TYPEDEF ts=type_spec var=id SEMI {
+| token=TYPEDEF ts=type_spec decl=declarator SEMI {
     ignore token;
-    let name, _ = var in
+    let _, name = Type_check.type_and_var_ty Type.Int decl in
     Typedef_env.add name;
-    (ts, name, $startpos(token))
+    (ts, decl, $startpos(token))
 }
 
 type_spec:
@@ -181,8 +181,8 @@ init:
 stmt:
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
 | typedef=typedef {
-    let (ts, id, loc) = typedef in
-    { exp = Typedef (ts, id); loc = loc }
+    let (ts, decl, loc) = typedef in
+    { exp = Typedef (ts, decl); loc = loc }
 }
 | t=type_spec decl_inits=decl_init* SEMI {
     { exp = Var {var_ts=t; var_decl_inits=decl_inits }; loc = t.loc }

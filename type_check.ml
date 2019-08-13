@@ -68,8 +68,8 @@ and check_decl decl = match decl.exp with
                 Option.may check_init init
         )
     )
-| TypedefDecl (ts, name) ->
-    typedef ts name;
+| TypedefDecl (ts, decl) ->
+    typedef ts decl;
 | DummyDecl -> ()
 | _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
 
@@ -158,8 +158,8 @@ and check_stmt stmt = match stmt.exp with
             )
         )
     )
-| Typedef (ts, name) ->
-    typedef ts name;
+| Typedef (ts, decl) ->
+    typedef ts decl;
 | Expr expr ->
     check_expr expr
 | Return expr ->
@@ -472,6 +472,6 @@ and check_complete ty loc =
         if not @@ Type.is_complete_type ty then
             raise(Error_at("incomplete type: " ^ (Type.show ty), loc))
 
-and typedef ts name =
-    let ty = type_of_type_spec ts in
+and typedef ts decl =
+    let ty, name = type_and_var_ts ts decl in
     Env.register_typedef ty name

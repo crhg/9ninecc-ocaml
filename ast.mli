@@ -26,7 +26,7 @@ and decl_exp =
       mutable func_frame_size : int option;
     }
   | GlobalVarDecl of { gv_ts : type_spec; gv_decl_inits : decl_init list; }
-  | TypedefDecl of type_spec * string
+  | TypedefDecl of type_spec * declarator
   | DummyDecl
 and decl = decl_exp node
 and decl_init = {
@@ -46,7 +46,7 @@ and init = init_exp node
 and stmt_exp =
     Empty
   | Var of { var_ts : type_spec; var_decl_inits : decl_init list; }
-  | Typedef of type_spec * string
+  | Typedef of type_spec * declarator
   | Expr of expr
   | Return of expr
   | If of expr * stmt * stmt option

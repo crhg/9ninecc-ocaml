@@ -35,7 +35,7 @@ and delay_id_wrapper get_token lexbuf =
         | _ -> token
         )
     | Some name ->
-        if !delay_count = 0 then (
+        if !delay_count = 1 then (
             delayed_name := None;
             make_token name
         ) else (

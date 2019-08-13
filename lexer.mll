@@ -1,5 +1,6 @@
 {
     open Parser
+    open Token
     module B = Buffer
     module L = Lexing
 

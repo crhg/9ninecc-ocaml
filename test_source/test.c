@@ -959,3 +959,18 @@ int test122() {
 }
 // @end
 
+// @try_ret test123 6
+int test123() {
+    typedef int INT;
+    int x = 1;
+    {
+        INT INT;
+        INT = 3;
+        x = x + INT;
+    }
+    INT y = x + 2;
+    return y;
+}
+// @end
+
+

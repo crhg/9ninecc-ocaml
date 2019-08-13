@@ -1,5 +1,5 @@
 (* lexerのラッパ *)
-open Parser
+open Token
 
 let show token = match token with
 | TYPEDEF -> "TYPEDEF"
@@ -14,7 +14,7 @@ let delay_count = ref 0
 
 let rec token lexbuf =
     let t = token' lexbuf in
-    Printf.fprintf stderr "token=%s\n" (show t);
+    (* Printf.fprintf stderr "token=%s\n" (Token.show_token t); *)
     t
 
 and token' lexbuf =

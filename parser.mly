@@ -37,29 +37,30 @@
 %%
 
 ident:
-| DUMMY* ident=IDENT { (ident, $startpos(ident)) }
+| DUMMY+ ident=IDENT { (ident, $startpos(ident)) }
 
 typedef_id:
-| DUMMY* tid=TYPEDEF_ID { (tid, $startpos(tid)) }
+| DUMMY+ tid=TYPEDEF_ID { (tid, $startpos(tid)) }
 
 id:
-| DUMMY* id=IDENT
-| DUMMY* id=TYPEDEF_ID { (id, $startpos(id)) }
+| DUMMY+ id=IDENT
+| DUMMY+ id=TYPEDEF_ID { (id, $startpos(id)) }
 
 translation_unit:
 | l=decl* EOF { l }
 
-decl:
-| t=type_spec decl_inits = separated_list(COMMA, decl_init) SEMI {
-    { 
-        exp = GlobalVarDecl {
-            gv_ts = t;
-            gv_decl_inits = decl_inits
-        };
-        loc = t.loc
-    }
+decl_type_spec:
+| ts = type_spec {
+    (* Printf.fprintf stderr "function_type_spec\n"; *)
+    Typedef_env.new_scope();
+    ts
 }
-| t=type_spec d=declarator body=block {
+
+decl:
+| t=decl_type_spec d=declarator body=block
+{
+    Typedef_env.overwrite_scope();
+
     {
         exp = FunctionDecl {
             func_ts = t;
@@ -71,6 +72,16 @@ decl:
             func_frame_size = None
         };
         loc = d.loc
+    }
+}
+| t=decl_type_spec decl_inits = separated_list(COMMA, decl_init) SEMI {
+    Typedef_env.restore_scope();
+    { 
+        exp = GlobalVarDecl {
+            gv_ts = t;
+            gv_decl_inits = decl_inits
+        };
+        loc = t.loc
     }
 }
 | typedef=typedef {
@@ -132,6 +143,12 @@ declarator:
 direct_declarator:
 | id=id { 
     let name, loc = id in
+
+    (* declaratorに出現したらとりあえずtypedef名でない方に倒す *)
+    (* typedef名だった場合はあとで登録される *)
+    (* 同一スコープの再定義禁止チェックは型チェックのときに行うのでここでは気にしない *)
+    Typedef_env.remove name;
+
     { exp = DeclIdent name; loc = loc }
 }
 | LPAR d=declarator RPAR { d }
@@ -187,7 +204,18 @@ stmt:
 | b=block { b }
 
 block:
-| token=LBRACE l=stmt* RBRACE { ignore token; { exp = Block l; loc = $startpos(token) } }
+| token=LBRACE 
+  midrule({
+      (* Printf.fprintf stderr "block new_scope\n"; *)
+      Typedef_env.new_scope()
+  })
+  l=stmt*
+  RBRACE
+{
+    ignore token;
+    Typedef_env.restore_scope();
+    { exp = Block l; loc = $startpos(token) }
+}
 
 expr:
 | e=assign { e }

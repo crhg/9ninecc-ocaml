@@ -2,6 +2,7 @@ RESULT=9ninecc
 
 ifdef 9NINECC_ENV
 OCAMLYACC=menhir
+YFLAGS=--external-tokens Token
 
 PACKS=ppx_deriving.show ppx_deriving.runtime
 

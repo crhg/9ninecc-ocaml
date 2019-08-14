@@ -64,12 +64,7 @@ and ident_r = { name : string; }
 and assign_r = { assign_lhs : expr; assign_rhs : expr; }
 and deref_r = { deref_expr : expr; mutable deref_type : Type.t option; }
 and sizeof_r = { sizeof_expr : expr; mutable sizeof_size : int; }
-and arrow_r = {
-  arrow_expr : expr;
-  arrow_field : string;
-  mutable arrow_field_type : Type.t option;
-  mutable arrow_field_offset : int;
-}
+and arrow_r = { arrow_expr : expr; arrow_field : string; }
 and expr_exp =
     Num of string
   | Str of string * string

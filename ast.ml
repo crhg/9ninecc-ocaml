@@ -136,8 +136,6 @@ and sizeof_r = {
 and arrow_r = {
     arrow_expr : expr;
     arrow_field : string;
-    mutable arrow_field_type: Type.t option;
-    mutable arrow_field_offset : int
 }
 
 and expr_exp =

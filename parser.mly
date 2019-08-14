@@ -318,13 +318,13 @@ term:
 | term=term token=ARROW field=id {
     ignore token;
     let field, _ = field in
-    { exp = Arrow { arrow_expr = term; arrow_field = field; arrow_field_type = None; arrow_field_offset = 0 }; loc = $startpos(token) }
+    { exp = Arrow { arrow_expr = term; arrow_field = field }; loc = $startpos(token) }
 }
 | term=term token=DOT field=id {
     ignore token;
     let field, _ = field in
     let pointer = { exp = Addr term; loc = $startpos(token) } in
-    { exp = Arrow { arrow_expr = pointer; arrow_field = field; arrow_field_type = None; arrow_field_offset = 0 }; loc = $startpos(token) }
+    { exp = Arrow { arrow_expr = pointer; arrow_field = field }; loc = $startpos(token) }
 }
 | LPAR e=expr RPAR { e }
 | LPAR b=block RPAR { { exp = BlockExpr b; loc = b.loc } }

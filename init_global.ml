@@ -13,42 +13,50 @@ let rec gen ty label init =
     (* あとは型に応じてデータを出力するのみ *)
     init_data ty init
 
-and init_data ty init = match ty with
-    | Type.Char -> init_data_char init
-    | Type.Short -> init_data_short init
-    | Type.Int -> init_data_int init
-    | Type.Long -> init_data_long init
-    | Type.Ptr _ -> init_data_pointer init
-    | Type.Array (ty, Some n) -> init_data_array ty n init
+and init_data ty init =
+    let open Type in
+    match ty with
+    | Char | Short | Int | Long ->
+        init_data_int ty init
+    | Ptr _ ->
+        init_data_pointer init
+    | Type.Array (ty, Some n) ->
+        init_data_array ty n init
     | _ -> raise(Error_at("cannot initialize type: " ^ (Type.show ty), init.loc))
 
-and init_data_scalar out init = match init.exp with
-| ExprInitializer expr -> out expr
-| ListInitializer (({exp=ExprInitializer _} as init)::_) -> init_data_scalar out init 
+and init_data_int ty init =
+    let open Type in
+    let value = match scalar_init_value init with
+        | (None, value) -> value
+        | _ -> raise(Misc.Error("not a number")) in
+    (match ty with
+    | Char  -> printf "    .byte %d\n" value
+    | Short -> printf "    .word %d\n" value
+    | Int   -> printf "    .long %d\n" value
+    | Long  -> printf "    .quad %d\n" value
+    | _ -> failwith "not integral: "
+    )
 
-and out_char  expr = printf "    .byte %d\n" (Const.eval_int expr)
-and out_short expr = printf "    .word %d\n" (Const.eval_int expr)
-and out_int   expr = printf "    .long %d\n" (Const.eval_int expr)
-and out_long  expr = printf "    .quad %d\n" (Const.eval_int expr)
-
-and out_pointer expr =
-    let pointer = Const.eval_pointer expr in
-    match pointer with
-    | (label, 0) ->
+and init_data_pointer init =
+    match scalar_init_value init with
+    | (None, n) -> 
+        printf "    .quad %d\n" n
+    | (Some label, 0) ->
         printf "    .quad %s\n" label
-    | (label, offset) ->
+    | (Some label, offset) ->
         printf "    .quad %s%+d\n" label offset
 
-and init_data_char    init = init_data_scalar out_char    init
-and init_data_short   init = init_data_scalar out_short   init
-and init_data_int     init = init_data_scalar out_int     init
-and init_data_long    init = init_data_scalar out_long    init
-and init_data_pointer init = init_data_scalar out_pointer init
+and scalar_init_value init = match init.exp with
+| ExprInitializer expr_s ->
+    Const.eval @@ Option.get expr_s.i_expr
+| ListInitializer (({exp=ExprInitializer _} as init)::_) ->
+    scalar_init_value init 
+| _ -> failwith("not scalar initializer")
 
 and init_data_array ty n init = match init.exp with
 | ListInitializer l ->
     init_data_by_list ty n l
-| ExprInitializer {exp=Str (s, _)} when ty == Type.Char -> 
+| ExprInitializer {expr={exp=Str (s, _)}} when ty == Type.Char -> 
     init_str n s
 | _ -> raise(Error_at("cannot initialize", init.loc))
 

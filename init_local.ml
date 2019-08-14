@@ -12,15 +12,15 @@ let rec to_assign (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) =
         to_assign_array ty lhs init
     | _ -> raise (Misc.Error_at("cannot initialize", init.Ast.loc))
 
-and to_assign_scalar (lhs:Ast.expr) (init:Ast.init) = Ast.(match init.exp with
+and to_assign_scalar lhs init = Ast.(match init.exp with
     | ExprInitializer expr
     | ListInitializer [{exp=ExprInitializer expr}] ->
-        make_assign lhs expr
+        make_assign lhs expr.expr
     | _ -> raise(Misc.Error_at("invalid initializer", init.loc))
 )
 
 and to_assign_array (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) = Ast.(match ty, init.exp with
-    | Type.Array(Char, Some size), ExprInitializer ({ exp = Str _ } as s) ->
+    | Type.Array(Char, Some size), ExprInitializer ({ expr = ({ exp = Str _ } as s)}) ->
         [make_call_strncpy lhs s size]
     | Type.Array(ty, Some size), ListInitializer l ->
         to_assign_array_by_list ty lhs size l

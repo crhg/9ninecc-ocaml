@@ -47,6 +47,7 @@ let compile filename source =
     | Error_at (message, loc) ->
         let pos = loc.pos_cnum in
         error_at pos message;
+        Printf.fprintf stderr "%s\n" @@ Printexc.get_backtrace();
         exit (-1)
 
 let compile_file filename =

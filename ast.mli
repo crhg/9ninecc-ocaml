@@ -10,7 +10,7 @@ and st_un = {
   su_fields : (type_spec * declarator) list option;
 }
 and enum = { enum_tag : string option; enum_list : enumarator list option; }
-and enumerator_exp = { en_name : string; en_expr : expr option; }
+and enumerator_exp = { en_name : string; en_expr : expr_s option; }
 and enumarator = enumerator_exp node
 and type_spec_exp =
     Long
@@ -37,7 +37,7 @@ and decl_init = {
   di_decl : declarator;
   di_init : init option;
   mutable di_entry : Env.entry option;
-  mutable di_init_assign : expr list;
+  mutable di_init_assign : i_expr list;
 }
 and declarator_exp =
     DeclIdent of string
@@ -45,17 +45,17 @@ and declarator_exp =
   | Array of declarator * expr option
   | Func of declarator * (type_spec * declarator) list
 and declarator = declarator_exp node
-and init_exp = ExprInitializer of expr | ListInitializer of init list
+and init_exp = ExprInitializer of expr_s | ListInitializer of init list
 and init = init_exp node
 and stmt_exp =
     Empty
   | Var of { var_ts : type_spec; var_decl_inits : decl_init list; }
   | Typedef of type_spec * declarator
-  | Expr of expr
-  | Return of expr
-  | If of expr * stmt * stmt option
-  | While of expr * stmt
-  | For of expr option * expr option * expr option * stmt
+  | Expr of expr_s
+  | Return of expr_s
+  | If of expr_s * stmt * stmt option
+  | While of expr_s * stmt
+  | For of expr_s option * expr_s option * expr_s option * stmt
   | Block of stmt list
 and stmt = stmt_exp node
 and binop =
@@ -70,6 +70,7 @@ and binop =
   | Le
   | Eq
   | Ne
+  | Store of Type.t
 and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
 and ident_r = { name : string; mutable entry : Env.entry option; }
 and assign_r = {
@@ -98,6 +99,15 @@ and expr_exp =
   | Arrow of arrow_r
   | BlockExpr of stmt
 and expr = expr_exp node
+and i_expr =
+    Const of int
+  | Label of string
+  | LVar of int
+  | Load of Type.t * i_expr
+  | ICall of string * i_expr list
+  | I_binop of binop * i_expr * i_expr
+  | I_block of stmt
+and expr_s = { expr : expr; mutable i_expr : i_expr option; }
 val pp_node :
   (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->
   Ppx_deriving_runtime.Format.formatter ->
@@ -197,4 +207,13 @@ val show_expr_exp : expr_exp -> Ppx_deriving_runtime.string
 val pp_expr :
   Ppx_deriving_runtime.Format.formatter -> expr -> Ppx_deriving_runtime.unit
 val show_expr : expr -> Ppx_deriving_runtime.string
+val pp_i_expr :
+  Ppx_deriving_runtime.Format.formatter ->
+  i_expr -> Ppx_deriving_runtime.unit
+val show_i_expr : i_expr -> Ppx_deriving_runtime.string
+val pp_expr_s :
+  Ppx_deriving_runtime.Format.formatter ->
+  expr_s -> Ppx_deriving_runtime.unit
+val show_expr_s : expr_s -> Ppx_deriving_runtime.string
 val show_expr_short : expr -> string
+val make_expr_s : expr -> expr_s

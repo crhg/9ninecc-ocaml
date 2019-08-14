@@ -1,2 +1,2 @@
-val eval_int : Ast.expr -> int
-val eval_pointer : Ast.expr -> string * int
+val eval_int : Ast.i_expr -> int
+val eval : Ast.i_expr -> string option * int

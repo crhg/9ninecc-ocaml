@@ -37,14 +37,14 @@
 %%
 
 ident:
-| DUMMY+ ident=IDENT { (ident, $startpos(ident)) }
+| DUMMY ident=IDENT { (ident, $startpos(ident)) }
 
 typedef_id:
-| DUMMY+ tid=TYPEDEF_ID { (tid, $startpos(tid)) }
+| DUMMY tid=TYPEDEF_ID { (tid, $startpos(tid)) }
 
 id:
-| DUMMY+ id=IDENT
-| DUMMY+ id=TYPEDEF_ID { (id, $startpos(id)) }
+| DUMMY id=IDENT
+| DUMMY id=TYPEDEF_ID { (id, $startpos(id)) }
 
 translation_unit:
 | l=decl* EOF { l }
@@ -141,11 +141,12 @@ su_field:
 | ts=type_spec d=declarator SEMI { (ts, d) }
 
 enum_list:
-| LBRACE l=separated_list(COMMA, enumarator) RBRACE { l } 
+| LBRACE l=separated_list(COMMA, enumarator) COMMA? RBRACE { l } 
 
 enumarator:
 | id=id expr=option(ASSIGN e=expr{e}) {
     let name, loc = id in
+    let expr = Option.map make_expr_s expr in
     {
         exp = { en_name = name; en_expr = expr };
         loc = loc
@@ -194,7 +195,10 @@ param:
 
 
 init:
-| e=expr { { exp=ExprInitializer e; loc=e.loc } }
+| e=expr {
+    let es = make_expr_s e in
+    { exp=ExprInitializer es; loc=e.loc }
+}
 | token=LBRACE l=separated_list(COMMA, init) RBRACE {
     ignore token;
     { exp=ListInitializer l; loc=$startpos(token) }
@@ -209,18 +213,29 @@ stmt:
 | t=type_spec decl_inits=decl_init* SEMI {
     { exp = Var {var_ts=t; var_decl_inits=decl_inits }; loc = t.loc }
 }
-| e=expr SEMI { { exp = Expr e; loc = e.loc } }
-| token=RETURN e=expr SEMI { ignore token; { exp = Return e; loc = $startpos(token) } }
+| e=expr SEMI {
+    let es = make_expr_s e in
+    { exp = Expr es; loc = e.loc }
+}
+| token=RETURN e=expr SEMI {
+    ignore token;
+    let e = make_expr_s e in
+    { exp = Return e; loc = $startpos(token) } }
 | token=IF LPAR e=expr RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
     ignore token;
+    let e = make_expr_s e in
     { exp = If (e, then_stmt, else_stmt); loc = $startpos(token) }
 }
 | token=WHILE LPAR e=expr RPAR s=stmt {
     ignore token;
+    let e = make_expr_s e in
     { exp = While (e, s); loc = $startpos(token) }
 }
 | token=FOR LPAR init=expr? SEMI cond=expr? SEMI next=expr? RPAR s=stmt {
     ignore token;
+    let init = Option.map make_expr_s init in
+    let cond = Option.map make_expr_s cond in
+    let next = Option.map make_expr_s next in
     { exp = For (init, cond, next, s); loc = $startpos(token) }
 }
 | b=block { b }

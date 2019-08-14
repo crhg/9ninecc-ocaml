@@ -75,7 +75,7 @@ and check_decl decl = match decl.exp with
 
 and check_init init = match init.exp with
 | ExprInitializer expr ->
-    ignore @@ check_expr expr
+    ignore @@ convert_and_store expr
 | ListInitializer l ->
     List.iter check_init l
 
@@ -100,9 +100,9 @@ and prepare_func params stmt_list =
 and determine_array_size element_ty init =
     match element_ty, init.exp with
     (* charの配列のときのみ 文字列リテラル or {文字列リテラル} でも初期化可能 *)
-    | Type.Char, ExprInitializer {exp = Str(s,_)} ->
+    | Type.Char, ExprInitializer {expr={exp = Str(s,_)}} ->
         String.length s + 1
-    | Type.Char, ListInitializer [{ exp = ExprInitializer {exp = Str(s,_)}}] ->
+    | Type.Char, ListInitializer [{ exp = ExprInitializer {expr={exp = Str(s,_)}}}] ->
         String.length s + 1
     | _, ListInitializer l ->
         List.length l
@@ -153,28 +153,27 @@ and check_stmt stmt = match stmt.exp with
                 loc=d.loc
                 } in
                 let assign = Init_local.to_assign ty ident init in
-                List.iter check_expr assign;
-                decl_init.di_init_assign <- assign
+                decl_init.di_init_assign <- List.map (Misc.compose snd convert) assign
             )
         )
     )
 | Typedef (ts, decl) ->
     typedef ts decl;
 | Expr expr ->
-    check_expr expr
+    convert_and_store expr
 | Return expr ->
-    check_expr expr
+    convert_and_store expr
 | If (expr, then_stmt, else_stmt_opt) ->
-    check_expr expr;
+    convert_and_store expr;
     check_stmt then_stmt;
     Option.may check_stmt else_stmt_opt
 | While (expr, stmt) ->
-    check_expr expr;
+    convert_and_store expr;
     check_stmt stmt
 | For (init, cond, next, stmt) ->
-    Option.may check_expr init;
-    Option.may check_expr cond;
-    Option.may check_expr next;
+    Option.may convert_and_store init;
+    Option.may convert_and_store cond;
+    Option.may convert_and_store next;
     check_stmt stmt;
 | Block stmt_list ->
     Env.with_new_scope (fun _ ->
@@ -182,10 +181,11 @@ and check_stmt stmt = match stmt.exp with
     )
 | _ -> ()
 
-and check_expr expr =
-    (* Printf.fprintf stderr "check_expr start %s\n" (Ast.show_expr_short expr); *)
-    ignore @@ find_type expr
-    (* ;Printf.fprintf stderr "check_expr end %s\n" (Ast.show_expr expr); *)
+and convert_and_store (expr_s:Ast.expr_s) =
+    (* Printf.fprintf stderr "convert_and_store start %s\n" (Ast.show_expr_short expr_s.expr); *)
+    let _, i_expr = convert expr_s.expr in
+    expr_s.i_expr <- Some i_expr
+    (* ;Printf.fprintf stderr "convert_and_store end %s\n" (Ast.show_i_expr i_expr); *)
 
 (* 型の正規化 *)
 and normalize_type ty = match ty with
@@ -195,126 +195,154 @@ and normalize_type ty = match ty with
     | Type.Array (t, _) -> Type.Ptr t (* 配列型はポインタ型に読みかえる *)
     | _ -> ty
 
-and find_type_normalized expr = 
-    try find_type_normalized' expr with
+and convert_normalized expr = 
+    try convert_normalized' expr with
     | Misc.Error msg -> raise(Misc.Error_at(msg, expr.loc))
 
-and find_type_normalized' expr = 
-    normalize_type (find_type expr)
+and convert_normalized' expr = 
+    let ty, expr = convert expr in
+    (normalize_type ty, expr)
 
-and find_type expr = match expr.exp with
-| Num _ -> Type.Int
-| Str (s,_) -> Type.Array(Type.Char, Some (String.length s + 1))
+and convert expr =
+    let (ty, i_expr) = convert' expr in
+    (* Printf.fprintf stderr "convert_expr:\n"; *)
+    (* Printf.fprintf stderr "    expr = %s\n"  (Ast.show_expr expr); *)
+    (* Printf.fprintf stderr "    ty = %s\n"  (Type.show_type ty); *)
+    (* Printf.fprintf stderr "    i_expr = %s\n"  (Ast.show_i_expr i_expr); *)
+    (ty, i_expr)
+
+and convert' expr = match expr.exp with
+| Num n -> (Type.Int, Const (int_of_string n))
+| Str (s,label) ->
+    (Type.Array(Type.Char, Some (String.length s + 1)), Label label)
 | Ident ({ name = name } as ident)->
     let get_entry name = try get_entry name with
     | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
-    let entry = get_entry name in
-    ident.entry <- Some entry;
-    entry_type entry
+    (match get_entry name with
+    | LocalVar ((Type.Array _) as t, offset) ->
+        (t, LVar offset)
+    | GlobalVar ((Type.Array _) as t, label) ->
+        (t, Label label)
+    | LocalVar _
+    | GlobalVar _ ->
+        let ty, pointer = convert_lval expr in
+        (* if not @@ simple_type ty then (raise(Misc.Error_at("cannot load "^(Type.show_type ty), expr.loc))); *)
+        (ty, Load(ty, pointer))
+    | EnumConstant (value) ->
+        (Type.Int, Const value)
+    | TypeDef _ ->
+        raise(Misc.Error_at("type name in expr" ^ name, expr.loc))
+    )
 | Assign ({assign_lhs=lhs; assign_rhs=rhs} as r) ->
-    (* Printf.fprintf stderr "find_type assign %s\n" (Ast.show_expr_short expr); *)
-    let lty = find_type lhs in
-    let rty = find_type_normalized rhs in
-    (if not @@ is_scalar_type lty then raise(Misc.Error("cannot assign")));
+    (* Printf.fprintf stderr "convert assign %s\n" (Ast.show_expr_short expr); *)
+    let lty, l = convert_lval lhs in
+    let rty, r = convert_normalized rhs in
 
-    (* (if lty <> rty then raise(Misc.Error("assign type mismatch"))); *)
+    (* TODO: 型チェック *)
 
-    r.assign_lhs_type <- Some lty;
-    lty
-| Call (_, expr_list) ->
-    List.iter check_expr expr_list;
-    Type.Int
+    if not @@ simple_type lty then (raise(Misc.Error_at("cannot assign "^(Type.show_type lty), expr.loc)));
+
+    (lty, I_binop(Store lty, l, r))
+| Call (label, expr_list) ->
+    (Type.Int, ICall(label, List.map (Misc.compose snd convert) expr_list))
 | BlockExpr block ->
     check_stmt block;
 
     (* TODO: 本当はblockの最後に実行した式文の型になりそうだが *)
     (*       真面目に考えると分岐だのループだので面倒なので当面int固定 *)
-    Type.Int
+    (Type.Int, I_block block)
 | Addr e ->
-    let ty = find_type e in
-    Type.Ptr ty
+    let ty, e = convert_lval e in
+    (Ptr ty, e)
 | Deref ({deref_expr = e} as r)->
-    let ty = find_type_normalized e in
-    begin
-        match ty with
-        | Type.Ptr t ->
-            r.deref_type <- Some t;
-            t
-        | _ -> raise(Error("not a pointer" ^ (Type.show_type ty)))
-    end
-| Arrow ({arrow_expr = e; arrow_field = field_name} as r) ->
-    (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)
-    let ty = find_type_normalized e in
+    let ty, e = convert_normalized e in
     (match ty with
-        | Type.Ptr ((Type.Struct _) as st_ty)
-        | Type.Ptr ((Type.Union _) as st_ty) ->
-            let field = (
-                try Type.get_field st_ty field_name with
-                |Not_found -> raise(Error("-> field? " ^ (Type.show ty)))
-            ) in
-            (* Printf.fprintf stderr "field=%s\n" (Type.show_field field); *)
-            r.arrow_field_type <- Some field.field_type;
-            r.arrow_field_offset <- field.field_offset;
-            (* Printf.fprintf stderr "type_check Arrow end!! %s\n" (Ast.show_expr expr); *)
-            field.field_type
-        | _ -> raise(Error("-> type?" ^ (Type.show ty)))
+    | Type.Ptr t ->
+        (* if not @@ simple_type t then (raise(Misc.Error_at("cannot deref "^(Type.show_type t)^" "^(Ast.show_expr expr), expr.loc))); *)
+        (match t with
+        | Array _ -> (t, e)
+        | _ -> (t, Load (t, e))
+        )
+    | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
     )
+| Arrow _ ->
+    (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)
+    let ty, lval = convert_lval expr in
+    (ty, Load (ty, lval))
 | Sizeof ({sizeof_expr = e} as r) ->
-    let ty = find_type e in
-    r.sizeof_size <- Type.get_size ty;
-    (* Printf.fprintf stderr "sizeof %s\n" (Ast.show_expr expr); *)
-    Type.Int
+    let ty, _ = convert e in
+    (Type.Int, Const (Type.get_size ty))
 | Binop ({ op=op; lhs=l; rhs=r} as binop) ->
-    let lty = find_type_normalized l in
-    let rty = find_type_normalized r in
+    let lty, l = convert_normalized l in
+    let rty, r = convert_normalized r in
     (match op with
     | Add ->
         (match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
+        | (Type.Int, Type.Int) ->
+            (Type.Int, I_binop(Add, l, r))
         | (Type.Ptr t, Type.Int) ->
-            binop.op <- PtrAdd (Type.get_size t);
-            lty
+            (lty, I_binop(Add, l, I_binop(Mul, r, (Const (Type.get_size t)))))
         | (Type.Int, Type.Ptr t) ->
-            binop.op <- PtrAdd (Type.get_size t);
-            binop.lhs <- r;
-            binop.rhs <- l;
-            rty
+            (rty, I_binop(Add, r, I_binop(Mul, l, (Const (Type.get_size t)))))
         | _ -> raise (Misc.Error(Printf.sprintf "cannot add %s %s" (Type.show_type lty) (Type.show_type rty)))
         )
     | Sub ->
         (match (lty, rty) with
         | (Type.Int, Type.Int) ->
-            Type.Int
+            (Type.Int, I_binop(Sub, l, r))
         | (Type.Ptr t, Type.Ptr _) when lty = rty ->
-            binop.op <- PtrDiff (Type.get_size t);
-            Type.Int
+            (Type.Int, I_binop(Div, I_binop(Sub, l, r), (Const (Type.get_size t))))
         | (Type.Ptr t, Type.Int) ->
-            binop.op <- PtrSub (Type.get_size t);
-            lty
+            (lty, I_binop(Sub, l, I_binop(Mul, r, (Const (Type.get_size t)))))
         | _ -> raise (Misc.Error(Printf.sprintf "cannot sub %s %s" (Type.show_type lty) (Type.show_type rty)))
         )
     | Mul
     | Div ->
         (match (lty, rty) with
-        | (Type.Int, Type.Int) -> Type.Int
-        | _ -> raise (Misc.Error(Printf.sprintf "cannot %s %s %s" (Ast.show_binop op) (Type.show_type lty) (Type.show_type rty)))
+        | (Type.Int, Type.Int) ->
+            (Type.Int, I_binop(op, l, r))
+        | _ ->
+            raise (Misc.Error(Printf.sprintf "cannot %s %s %s" (Ast.show_binop op) (Type.show_type lty) (Type.show_type rty)))
         )
     | Eq
     | Ne
     | Lt
     | Le ->
-        Type.Int
+        (Type.Int, I_binop(op, l, r))
     )
 
-and is_scalar_type ty = match ty with
-| Char
-| Short
-| Int
-| Long
-| Ptr _ ->
-    true
+and to_pointer ty =
+    let open Type in
+    match ty with
+    | Array(t,_) -> Ptr t
+    | _ -> Ptr ty
+
+(* lvalの変換, (式の型, 式のポインタを求める式) *)
+and convert_lval expr = match expr.exp with
+| Ident ({ name = name } as ident)->
+    let get_entry name = try get_entry name with
+    | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
+    (match get_entry name with
+    | LocalVar (ty, offset) ->
+        (ty, LVar offset)
+    | GlobalVar (ty, label) ->
+        (ty, Label label)
+    | _ ->
+        raise(Misc.Error_at("not lval", expr.loc))
+    )
+| Deref ({deref_expr = e} as r)->
+    let ty, e = convert_normalized e in
+    (match ty with
+    | Type.Ptr t ->
+        (t, e)
+    | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
+    )
+| Arrow { arrow_expr = e; arrow_field = f } ->
+    let Ptr ty, e = convert e in
+    let f = Type.get_field ty f in
+    (f.field_type, I_binop(Add, e, (Const f.field_offset)))
 | _ ->
-    false
+    raise(Misc.Error_at("not lval", expr.loc))
 
 and type_and_var_ts ts d =
 let ty = type_of_type_spec ts in
@@ -327,7 +355,7 @@ match d.exp with
 | PointerOf d ->
     type_and_var_ty (Type.Ptr ty) d
 | Array (d, e) ->
-    let n = Option.map Const.eval_int e in
+    let n = Option.map eval_expr e in
     type_and_var_ty (Type.Array(ty, n)) d 
 | Func (d, params) ->
     let tv = fun (ts, d) ->
@@ -500,7 +528,7 @@ and declare_enum_list l =
     | {exp=e}::rest ->
         let n = match e.en_expr with
         | None -> n
-        | Some expr -> Const.eval_int expr in
+        | Some expr -> eval_expr expr.expr in
         Env.register_enum e.en_name n;
         declare_enum_list' (n+1) rest in
     declare_enum_list' 0 l
@@ -512,3 +540,14 @@ and check_complete ty loc =
 and typedef ts decl =
     let ty, name = type_and_var_ts ts decl in
     Env.register_typedef ty name
+
+and eval_expr expr = Const.eval_int (snd (convert expr))
+
+and simple_type ty =
+    let open Type in
+    match ty with
+    | Char | Short | Int | Long | Ptr _ ->
+        true
+    | _ ->
+        false
+

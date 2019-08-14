@@ -579,12 +579,14 @@ int x83 = 42;
 int test83() {
     return x83;
 }
+// @end
 
 // @try_out test84 foo
 char *s84 = "foo";
 int test84() {
     try_printf("%s", s84);
 }
+// @end
 
 // @try_out test84_2 !
 char s84_2[10];
@@ -594,12 +596,14 @@ int test84_2() {
     s84_2[1] = 0;
     try_printf("%s", p84_2);
 }
+// @end
 
 // @try_out test85 oo
 char *s85 = "foo" + 1;
 int test85() {
     try_printf("%s", s85);
 }
+// @end
 
 // @try_ret test86 86
 int x86[3];
@@ -608,6 +612,7 @@ int test86() {
     x86[1] = 86;
     return *(p86 + 1);
 }
+// @end
 
 // @try_ret test87 87
 int x87[3];
@@ -616,6 +621,7 @@ int test87() {
     x87[1] = 87;
     return *p87;
 }
+// @end
 
 // @try_ret test88_0 2
 int a88_0[2] = {1,2};
@@ -1014,3 +1020,13 @@ int test127() {
     return a;
 }
 // @end
+
+/* // @try_ret test128 2 */
+/* int test128() { */
+/*     enum { A, B, C, } a; */
+/*  */
+/*     a = C; */
+/*  */
+/*     return a; */
+/* } */
+/* // @end */

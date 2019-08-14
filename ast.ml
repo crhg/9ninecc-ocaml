@@ -26,7 +26,7 @@ and enum = {
 
 and enumerator_exp = {
     en_name: string;
-    en_expr: expr option
+    en_expr: expr_s option
 }
 and enumarator = enumerator_exp node
 
@@ -67,7 +67,7 @@ and decl_init = {
     | None -> fpriintf fmt "?"
     | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
     ];
-    mutable di_init_assign: expr list (* ローカル変数用。初期化を行う代入式のリスト。型が決まってから設定 *)
+    mutable di_init_assign: i_expr list (* ローカル変数用。初期化を行う代入式のリスト。型が決まってから設定 *)
 }
 
 and declarator_exp =
@@ -78,7 +78,7 @@ and declarator_exp =
 and declarator = declarator_exp node
 
 and init_exp =
-| ExprInitializer of expr
+| ExprInitializer of expr_s
 | ListInitializer of init list
 and init = init_exp node
 
@@ -89,11 +89,11 @@ and stmt_exp =
     var_decl_inits: decl_init list
 }
 | Typedef of type_spec * declarator
-| Expr of expr
-| Return of expr
-| If of expr * stmt * stmt option
-| While of expr * stmt
-| For of expr option * expr option * expr option * stmt
+| Expr of expr_s
+| Return of expr_s
+| If of expr_s * stmt * stmt option
+| While of expr_s * stmt
+| For of expr_s option * expr_s option * expr_s option * stmt
 | Block of stmt list
 and stmt = stmt_exp node
 
@@ -109,6 +109,7 @@ and binop =
 | Le
 | Eq
 | Ne
+| Store of Type.t
 
 and binop_r = {
     mutable op: binop;
@@ -161,6 +162,20 @@ and expr_exp =
 | Arrow of arrow_r
 | BlockExpr of stmt
 and expr = expr_exp node
+
+(* 式の中間表現 *)
+and i_expr =
+| Const of int
+| Label of string (* ラベルのアドレス *)
+| LVar of int (* 指定されたオフセットの位置にあるローカル変数のアドレス *)
+| Load of Type.t * i_expr
+| ICall of string * i_expr list
+| I_binop of binop * i_expr * i_expr
+| I_block of stmt
+
+(* 文の中に置く式, 中間表現に変換した結果を格納できる *)
+and expr_s = { expr: expr; mutable i_expr: i_expr option }
+
 [@@deriving show {with_path = false}]
 
 let rec show_expr_short expr = match expr.exp with
@@ -186,3 +201,5 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "(-> %s %s)" (show_expr_short e) f
 | BlockExpr _ ->
     "{...}"
+
+let make_expr_s expr = { expr = expr; i_expr = None }

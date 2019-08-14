@@ -54,9 +54,9 @@ and gen_decl decl = match decl.exp with
     (* 文の中で式を実行した場合は必ず生成された値をpopする決まりとするので *)
     (* この時点でのスタック位置が式のコード生成開始時のスタック位置になる *)
 
-    let copy_param i {param_ty = ty; param_name = name; param_entry = Some entry } =
-        gen_lval_entry entry;
-        Stack.pop "rax";
+    let copy_param i {param_ty = ty; param_name = name; param_entry = Some (LocalVar (_, lvar_offset)) } =
+        printf "    mov rax, rbp\n";
+        printf "    sub rax, %d\n" lvar_offset;
         Gen_misc.(match i with
         | 0 ->
             store ty "[rax]"  "rdi"
@@ -71,9 +71,9 @@ and gen_decl decl = match decl.exp with
         | 5 ->
             store ty "[rax]"  "r9"
         | _ ->
-            let offset = (i - 6) * 8 + 16 in
+            let param_offset = (i - 6) * 8 + 16 in
             printf "    mov r10, rbp\n";
-            printf "    add r10, %d # %s\n" offset name;
+            printf "    add r10, %d # %s\n" param_offset name;
             printf "    mov r10, [r10]\n";
             store ty "[rax]" "r10"
         )
@@ -96,26 +96,26 @@ try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with
     raise(Error_at("stack changed: " ^ (Ast.show_stmt stmt), stmt.loc))
 
 and gen_stmt' stmt =
-(* let gen_expr expr = *)
-(*     Stack.with_save (fun _ -> gen_expr expr) *)
-(* in *)
+let gen_expr expr = gen_i_expr @@ Option.get expr.i_expr in
 match stmt.exp with
 | Empty
 | Typedef _ -> ()
 | Var { var_decl_inits = decl_inits } ->
     decl_inits |> List.iter (fun decl_init ->
         decl_init.di_init_assign |> List.iter (fun assign ->
-            gen_expr assign;
+            gen_i_expr assign;
             Stack.pop "rax"
         )
     )
 | Expr expr ->
-    printf "# expr start %s\n" (Ast.show_expr_short expr);
+    (* fprintf stderr "# expr start %s\n" (Ast.show_expr_short expr.expr); *)
+    printf "# expr start %s\n" (Ast.show_expr_short expr.expr);
     gen_expr expr;
     Stack.pop "rax";
+    (* fprintf stderr "# expr end\n"; *)
     printf "# expr end\n"
 | Return expr ->
-    printf "# return start%s\n" (Ast.show_expr_short expr);
+    printf "# return start%s\n" (Ast.show_expr_short expr.expr);
     gen_expr expr;
     Stack.pop "rax";
     printf "    mov rsp, rbp\n";
@@ -176,138 +176,60 @@ match stmt.exp with
 | Block stmt_list ->
     List.iter gen_stmt stmt_list
 
-and gen_lval_entry entry = match entry with
-| LocalVar (_, offset) ->
+and gen_i_expr i_expr =
+    try gen_i_expr' i_expr with
+    e ->
+        Printf.fprintf stderr "During gen_i_expr: %s\n" (Ast.show_i_expr i_expr);
+        raise e
+
+and gen_i_expr' i_expr = match i_expr with
+| Const n ->
+    Stack.push @@ string_of_int n
+| Label label ->
+    printf "    mov rax, OFFSET FLAT:%s\n" label;
+    Stack.push "rax"
+| LVar offset ->
     printf "    mov rax, rbp\n";
     printf "    sub rax, %d\n" offset;
     Stack.push "rax"
-| GlobalVar (_, name) ->
-    printf "    mov rax, OFFSET FLAT:%s\n" name;
-    Stack.push "rax"
-| EnumConstant _ ->
-    raise(Misc.Error("enum constant is not lval"))
-
-and gen_lval_name name = gen_lval_entry (get_entry name)
-
-and gen_lval expr = match expr.exp with
-| Ident { entry = Some entry} ->
-    gen_lval_entry entry
-| Deref { deref_expr = e } ->
-    gen_expr e
-| Arrow { arrow_expr = e; arrow_field_offset = offset } ->
-    gen_expr e;
-    Stack.pop("rax");
-    printf "    add rax, %d\n" offset;
-    Stack.push("rax");
-| _ -> raise (Error_at("not lval: " ^ show_expr expr, expr.loc))
-
-and gen_expr expr =
-    try gen_expr' expr with
-    | Misc.Error msg -> raise(Misc.Error_at(msg ^ ": " ^ (Ast.show_expr expr), expr.loc))
-
-and gen_expr' expr =
-match expr.exp with
-| Num n ->
-    Stack.push n
-| Str (_, label) ->
-    printf "    mov rax, OFFSET FLAT:%s\n" label;
-    Stack.push "rax"
-| Ident { entry = Some entry } ->
-    (match entry with
-    | EnumConstant n ->
-        Stack.push @@ string_of_int n
-    | _ -> 
-        let ty = entry_type entry in
-        begin
-            match ty with
-            | Array (_, _) -> 
-                gen_lval expr
-            | _ ->
-                gen_lval expr;
-                Stack.pop "rax";
-                Gen_misc.load ty "rax" "[rax]";
-                Stack.push "rax"
-        end
-    )
-| Assign {assign_lhs=l; assign_rhs=r; assign_lhs_type=Some ty} ->
-    gen_lval l;
-    gen_expr r;
-    Stack.pop "rdi";
+| Load (ty, e) ->
+    gen_i_expr e;
     Stack.pop "rax";
-    Gen_misc.store ty "[rax]" "rdi";
-    Stack.push "rdi"
-| Call (func, expr_list) ->
-    let n_param = List.length expr_list in
-    let n_stack_param = if n_param > 6 then n_param - 6 else 0 in
-    Stack.with_adjust (n_stack_param * 8) (fun _ ->
-        List.iter gen_expr (List.rev expr_list);
-        (if n_param >= 1 then Stack.pop "rdi");
-        (if n_param >= 2 then Stack.pop "rsi");
-        (if n_param >= 3 then Stack.pop "rdx");
-        (if n_param >= 4 then Stack.pop "rcx");
-        (if n_param >= 5 then Stack.pop "r8");
-        (if n_param >= 6 then Stack.pop "r9");
+    Gen_misc.load ty "rax" "[rax]";
+    Stack.push "rax"
+| ICall (func, i_expr_list) ->
+    let n = List.length i_expr_list in
+    let n_stack = if n > 6 then n - 6 else 0 in
+    let stack_param_size = n_stack * 8 in
+    Stack.with_adjust stack_param_size (fun _ ->
+        List.iter gen_i_expr (List.rev i_expr_list);
+        (if n >= 1 then Stack.pop "rdi");
+        (if n >= 2 then Stack.pop "rsi");
+        (if n >= 3 then Stack.pop "rdx");
+        (if n >= 4 then Stack.pop "rcx");
+        (if n >= 5 then Stack.pop "r8");
+        (if n >= 6 then Stack.pop "r9");
         printf "    mov al, 0\n";
         printf "    call %s\n" func;
-        (if n_stack_param > 0 then Stack.add (n_stack_param * 8));
+        if stack_param_size > 0 then Stack.add stack_param_size
     );
     Stack.push "rax"
-| BlockExpr block ->
+| I_block block ->
     gen_stmt block;
     Stack.push "rax"
-| Addr e ->
-    gen_lval e
-| Deref { deref_expr = e; deref_type = Some ty } ->
-    gen_expr e;
-    (match ty with
-    | Array _ ->
-        ()
-    | _-> 
-        Stack.pop "rax";
-        Gen_misc.load ty "rax" "[rax]";
-        Stack.push "rax"
-    )
-| Arrow { arrow_expr = e; arrow_field_type = Some ty; arrow_field_offset = offset } ->
-    gen_expr e;
+| I_binop (op, l, r) ->
+    gen_i_expr l;
+    gen_i_expr r;
+    Stack.pop "rdi";
     Stack.pop "rax";
-    printf "    add rax, %d\n" offset;
-    (match ty with
-    | Array _ ->
-        ()
-    | _ ->
-        Gen_misc.load ty "rax" "[rax]";
-    );
+    gen_op op;
     Stack.push "rax"
-| Sizeof {sizeof_size = size} ->
-    printf "    mov rax, %d\n" size;
-    Stack.push "rax"
-| Binop { op=op; lhs=l; rhs=r } ->
-    gen_binop op l r
-| _ -> raise (Misc.Error "unexpected")
 
-and gen_binop op l r =
-    gen_expr l;
-    gen_expr r;
-    Stack.pop("rdi");
-    Stack.pop("rax");
-    (match op with
+and gen_op op = match op with
     | Add ->
         printf "    add rax, rdi\n";
-    | PtrAdd size ->
-        printf "    mov rbx, %d\n" size;
-        printf "    imul rdi, rbx\n";
-        printf "    add rax, rdi\n"
     | Sub ->
         printf "    sub rax, rdi\n"
-    | PtrSub size ->
-        printf "    mov rbx, %d\n" size;
-        printf "    imul rdi, rbx\n";
-        printf "    sub rax, rdi\n"
-    | PtrDiff size ->
-        printf "    sub rax, rdi\n";
-        printf "    mov rdi, %d\n" size;
-        printf "    cqo\n";
-        printf "    idiv rdi\n"
     | Mul ->
         printf "    imul rax, rdi\n"
     | Div ->
@@ -329,5 +251,6 @@ and gen_binop op l r =
         printf "    cmp rax, rdi\n";
         printf "    setle al\n";
         printf "    movzb rax, al\n"
-    );
-    Stack.push("rax");
+    | Store ty ->
+        Gen_misc.store ty "[rax]" "rdi";
+        printf "    mov rax, rdi\n"

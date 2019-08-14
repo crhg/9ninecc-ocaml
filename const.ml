@@ -1,44 +1,24 @@
 open Ast
 open Misc
 
-let rec eval_int expr =
-    match expr.exp with
-    | Num n -> int_of_string n
-    | Binop{op=Add; lhs=lhs; rhs=rhs} -> eval_int lhs + eval_int rhs
-    | Binop{op=Sub; lhs=lhs; rhs=rhs} -> eval_int lhs - eval_int rhs
-    | _ -> raise(Error_at("not int or not implemented", expr.loc))
+exception Not_Constant of string
 
-and eval_pointer expr = match expr.exp with
-| Str (_, label) -> (label, 0)
-| Ident { entry = Some entry } when is_global_array_entry entry ->
-    (get_label_from_entry entry, 0)
-| Binop { op=PtrAdd size; lhs=lhs; rhs=rhs } ->
-    add_pointer lhs size rhs 
-| Binop { op=PtrSub size; lhs=lhs; rhs=rhs } ->
-    sub_pointer lhs size rhs
-| Addr e ->
-    eval_lval e
-| _ -> raise(Error_at("not pointer expression or not implemented: " ^ (show_expr expr), expr.loc))
+let rec eval_int i_expr = match eval i_expr with
+| None, n -> n
+| _ -> raise(Not_Constant("not int " ^(Ast.show_i_expr i_expr)))
 
-and add_pointer lhs size rhs =
-    let (label, x) = eval_pointer lhs in
-    let y = eval_int rhs in
-    (label, x + y * size)
+and eval i_expr = match i_expr with
+| Const n -> (None, n)
+| Label label -> (Some label, 0)
+| I_binop(op, l, r) ->
+    let l = eval l in
+    let r = eval r in
+    (match op, l, r with
+    | Add, (label, x), (None, y) -> (label, x + y)
+    | Add, (None, x), (label, y) -> (label, x + y)
+    | Sub, (label, x), (None, y) -> (label, x - y)
+    | Mul, (None, x), (None, y) -> (None, x * y)
+    | Div, (None, x), (None, y) -> (None, x / y)
+    | _ -> raise(Not_Constant(Ast.show_i_expr i_expr))
+    )
 
-and sub_pointer lhs size rhs =
-    let (label, x) = eval_pointer lhs in
-    let y = eval_int rhs in
-    (label, x - y * size)
-
-and is_global_array_entry entry = match entry with
-| Env.GlobalVar (Array _, _) -> true
-| _ -> false
-
-and get_label_from_entry entry = match entry with
-| Env.GlobalVar (_, label) -> label
-| _ -> failwith ("not GlobalVar " ^ Env.show_entry entry)
-
-and eval_lval expr = match expr.exp with
-| Str (_, label) -> (label, 0)
-| Ident { entry = Some entry_ref } -> (get_label_from_entry entry_ref, 0)
-| Deref { deref_expr=e } -> eval_pointer e

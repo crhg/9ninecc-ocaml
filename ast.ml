@@ -100,9 +100,6 @@ and stmt = stmt_exp node
 and binop =
 | Add
 | Sub
-| PtrAdd of int (* ポインタ+整数 *)
-| PtrSub of int (* ポインタ-整数 *)
-| PtrDiff of int (* ポインタ-ポインタ *)
 | Mul
 | Div
 | Lt

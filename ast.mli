@@ -58,19 +58,7 @@ and stmt_exp =
   | For of expr_s option * expr_s option * expr_s option * stmt
   | Block of stmt list
 and stmt = stmt_exp node
-and binop =
-    Add
-  | Sub
-  | PtrAdd of int
-  | PtrSub of int
-  | PtrDiff of int
-  | Mul
-  | Div
-  | Lt
-  | Le
-  | Eq
-  | Ne
-  | Store of Type.t
+and binop = Add | Sub | Mul | Div | Lt | Le | Eq | Ne | Store of Type.t
 and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
 and ident_r = { name : string; mutable entry : Env.entry option; }
 and assign_r = {

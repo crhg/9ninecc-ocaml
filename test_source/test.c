@@ -1021,12 +1021,12 @@ int test127() {
 }
 // @end
 
-/* // @try_ret test128 2 */
-/* int test128() { */
-/*     enum { A, B, C, } a; */
-/*  */
-/*     a = C; */
-/*  */
-/*     return a; */
-/* } */
-/* // @end */
+// @try_ret test128 2
+int test128() {
+    enum { A, B, C, } a;
+
+    a = C;
+
+    return a;
+}
+// @end

@@ -195,4 +195,6 @@ val pp_expr_s :
   expr_s -> Ppx_deriving_runtime.unit
 val show_expr_s : expr_s -> Ppx_deriving_runtime.string
 val show_expr_short : expr -> string
+val show_i_expr_short : i_expr -> string
+val show_binop_short : binop -> string
 val make_expr_s : expr -> expr_s

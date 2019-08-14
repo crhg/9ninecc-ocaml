@@ -30,6 +30,8 @@
 
 %token EOF
 
+%nonassoc IF
+
 %type <Ast.decl list> translation_unit
 
 %start translation_unit
@@ -140,8 +142,15 @@ su_body:
 su_field:
 | ts=type_spec d=declarator SEMI { (ts, d) }
 
+(* enum_list: *)
+(* | LBRACE l=separated_nonempty_list(COMMA, enumarator) COMMA? RBRACE { l }  *)
 enum_list:
-| LBRACE l=separated_list(COMMA, enumarator) COMMA? RBRACE { l } 
+| LBRACE e=enumarator l=enum_list_rest { e::l }
+
+enum_list_rest:
+| RBRACE { [] }
+| COMMA RBRACE { [] }
+| COMMA e=enumarator l=enum_list_rest { e::l }
 
 enumarator:
 | id=id expr=option(ASSIGN e=expr{e}) {
@@ -187,12 +196,6 @@ direct_declarator:
         loc = d.loc
     }
 }
-
-param:
-| t=type_spec d=declarator {
-    { param_ts = t; param_decl = d; param_name = None; param_entry = None }
-}
-
 
 init:
 | e=expr {

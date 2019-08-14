@@ -53,7 +53,7 @@ and make_num n loc =
 
 and make_assign lhs rhs =
     Ast.({
-        exp = Assign {assign_lhs=lhs; assign_rhs=rhs; assign_lhs_type=None};
+        exp = Assign {assign_lhs=lhs; assign_rhs=rhs};
         loc = lhs.loc
     })
 

@@ -120,8 +120,7 @@ and ident_r = {
 
 and assign_r = {
     assign_lhs : expr;
-    assign_rhs : expr;
-    mutable assign_lhs_type : Type.t option
+    assign_rhs : expr
 }
 
 and deref_r = {

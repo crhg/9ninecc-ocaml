@@ -259,7 +259,7 @@ expr:
 
 assign:
 | e=equality { e }
-| l=assign token=ASSIGN r=equality { ignore token; { exp = Assign { assign_lhs = l; assign_rhs = r; assign_lhs_type = None}; loc = $startpos(token) } }
+| l=assign token=ASSIGN r=equality { ignore token; { exp = Assign { assign_lhs = l; assign_rhs = r }; loc = $startpos(token) } }
 
 equality:
 | e=relational { e }

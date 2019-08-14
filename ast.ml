@@ -125,7 +125,6 @@ and assign_r = {
 
 and deref_r = {
     deref_expr : expr;
-    mutable deref_type: Type.t option
 }
 
 and sizeof_r = {

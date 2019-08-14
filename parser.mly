@@ -293,7 +293,7 @@ unary:
         loc = $startpos(token)
     }
 }
-| token=AST e=unary { ignore token; { exp = Deref { deref_expr = e; deref_type = None }; loc = $startpos(token) } }
+| token=AST e=unary { ignore token; { exp = Deref { deref_expr = e }; loc = $startpos(token) } }
 | token=AMP e=unary { ignore token; { exp = Addr e; loc = $startpos(token) } }
 | token=SIZEOF e=unary { ignore token; { exp = Sizeof{sizeof_expr=e; sizeof_size=0}; loc = $startpos(token) } }
 
@@ -313,7 +313,7 @@ term:
 | arr=term token=LBRACKET offset=expr RBRACKET {
     ignore token;
     let pointer = { exp = Binop{op=Add; lhs=arr; rhs=offset}; loc = $startpos(token) } in
-    { exp = Deref { deref_expr=pointer; deref_type = None }; loc = $startpos(token) }
+    { exp = Deref { deref_expr=pointer }; loc = $startpos(token) }
 }
 | term=term token=ARROW field=id {
     ignore token;

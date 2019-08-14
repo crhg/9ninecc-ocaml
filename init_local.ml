@@ -65,6 +65,6 @@ and make_array_at a i =
         loc = a.loc
     } in
     {
-        exp = Deref {deref_expr=ptr; deref_type=None};
+        exp = Deref {deref_expr=ptr};
         loc = a.loc
     }

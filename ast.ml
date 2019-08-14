@@ -116,11 +116,6 @@ and binop_r = {
 
 and ident_r = { 
     name : string;
-    mutable entry : Env.entry option
-    [@printer fun fmt entry -> match entry with
-    | None -> fprintf fmt "?"
-    | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
-    ]
 }
 
 and assign_r = {

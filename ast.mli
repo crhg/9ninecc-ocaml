@@ -60,7 +60,7 @@ and stmt_exp =
 and stmt = stmt_exp node
 and binop = Add | Sub | Mul | Div | Lt | Le | Eq | Ne | Store of Type.t
 and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
-and ident_r = { name : string; mutable entry : Env.entry option; }
+and ident_r = { name : string; }
 and assign_r = {
   assign_lhs : expr;
   assign_rhs : expr;

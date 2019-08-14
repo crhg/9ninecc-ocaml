@@ -304,7 +304,7 @@ term:
 }
 | id=ident { 
     let name, loc = id in
-    { exp = Ident { name = name; entry = None }; loc = loc }
+    { exp = Ident { name = name }; loc = loc }
 }
 | func=ident LPAR l=separated_list(COMMA, expr) RPAR {
     let func, loc = func in

@@ -149,7 +149,7 @@ and check_stmt stmt = match stmt.exp with
             init |> Option.may (fun init ->
                 let entry = get_entry name in
                 let ident = {
-                    exp = Ident { name=name; entry=Some entry };
+                    exp = Ident { name=name };
                 loc=d.loc
                 } in
                 let assign = Init_local.to_assign ty ident init in

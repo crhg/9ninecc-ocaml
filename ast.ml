@@ -109,9 +109,9 @@ and binop =
 | Store of Type.t
 
 and binop_r = {
-    mutable op: binop;
-    mutable lhs: expr;
-    mutable rhs: expr
+    op: binop;
+    lhs: expr;
+    rhs: expr
 }
 
 and ident_r = { 

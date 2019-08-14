@@ -59,7 +59,7 @@ and stmt_exp =
   | Block of stmt list
 and stmt = stmt_exp node
 and binop = Add | Sub | Mul | Div | Lt | Le | Eq | Ne | Store of Type.t
-and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
+and binop_r = { op : binop; lhs : expr; rhs : expr; }
 and ident_r = { name : string; }
 and assign_r = { assign_lhs : expr; assign_rhs : expr; }
 and deref_r = { deref_expr : expr; }

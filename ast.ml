@@ -129,7 +129,6 @@ and deref_r = {
 
 and sizeof_r = {
     sizeof_expr : expr;
-    mutable sizeof_size : int
 }
 
 and arrow_r = {

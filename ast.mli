@@ -63,7 +63,7 @@ and binop_r = { mutable op : binop; mutable lhs : expr; mutable rhs : expr; }
 and ident_r = { name : string; }
 and assign_r = { assign_lhs : expr; assign_rhs : expr; }
 and deref_r = { deref_expr : expr; }
-and sizeof_r = { sizeof_expr : expr; mutable sizeof_size : int; }
+and sizeof_r = { sizeof_expr : expr; }
 and arrow_r = { arrow_expr : expr; arrow_field : string; }
 and expr_exp =
     Num of string

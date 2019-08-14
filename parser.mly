@@ -295,7 +295,7 @@ unary:
 }
 | token=AST e=unary { ignore token; { exp = Deref { deref_expr = e }; loc = $startpos(token) } }
 | token=AMP e=unary { ignore token; { exp = Addr e; loc = $startpos(token) } }
-| token=SIZEOF e=unary { ignore token; { exp = Sizeof{sizeof_expr=e; sizeof_size=0}; loc = $startpos(token) } }
+| token=SIZEOF e=unary { ignore token; { exp = Sizeof{sizeof_expr=e}; loc = $startpos(token) } }
 
 term:
 | n=NUM { { exp = Num n; loc = $startpos(n) } }

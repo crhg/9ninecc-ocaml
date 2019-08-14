@@ -173,20 +173,41 @@ let rec show_expr_short expr = match expr.exp with
 | Ident { name = name } ->
     name
 | Binop { op=op; lhs=l; rhs=r } ->
-    Printf.sprintf "(%s %s %s)" (show_binop op) (show_expr_short l) (show_expr_short r)
+    Printf.sprintf "(%s)%s(%s)" (show_expr_short l) (show_binop_short op) (show_expr_short r)
 | Assign { assign_lhs = l; assign_rhs = r } ->
-    Printf.sprintf "(= %s %s)" (show_expr_short l) (show_expr_short r)
+    Printf.sprintf "(%s)=(%s)" (show_expr_short l) (show_expr_short r)
 | Call (f, params) ->
-    Printf.sprintf "(%s %s)" f (String.concat " " (List.map show_expr_short params))
+    Printf.sprintf "%s(%s)" f (String.concat ", " (List.map show_expr_short params))
 | Deref { deref_expr = e } ->
-    Printf.sprintf "*%s" (show_expr_short e)
+    Printf.sprintf "*(%s)" (show_expr_short e)
 | Addr e ->
-    Printf.sprintf "&%s" (show_expr_short e)
+    Printf.sprintf "&(%s)" (show_expr_short e)
 | Sizeof {sizeof_expr = e} ->
-    Printf.sprintf "(sizeof %s)" (show_expr_short e)
+    Printf.sprintf "sizeof(%s)" (show_expr_short e)
 | Arrow { arrow_expr = e; arrow_field = f} ->
-    Printf.sprintf "(-> %s %s)" (show_expr_short e) f
+    Printf.sprintf "(%s)->(%s)" (show_expr_short e) f
 | BlockExpr _ ->
     "{...}"
+
+and show_i_expr_short i_expr = match i_expr with
+| Const x -> Printf.sprintf "%d" x
+| Label label -> label
+| LVar offset -> Printf.sprintf "$%d" offset
+| Load (ty, e) -> Printf.sprintf "*[%s](%s)" (Type.show_type ty) (show_i_expr_short e)
+| ICall (f, params) -> Printf.sprintf "%s(%s)" f (String.concat ", " (List.map show_i_expr_short params))
+| I_binop (op, l, r) -> Printf.sprintf "(%s)%s(%s)" (show_i_expr_short l) (show_binop_short op) (show_i_expr_short r)
+| I_block _ -> "{...}"
+
+and show_binop_short op = match op with
+| Add -> "+"
+| Sub -> "-"
+| Mul -> "*"
+| Div -> "/"
+| Lt -> "<"
+| Le -> "<="
+| Eq -> "=="
+| Ne -> "!="
+| Store ty -> Printf.sprintf "<-[%s]" (Type.show_type ty)
+
 
 let make_expr_s expr = { expr = expr; i_expr = None }

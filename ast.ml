@@ -41,8 +41,8 @@ and type_spec_exp =
 | Type of string
 and type_spec = type_spec_exp node
 
-and decl_exp =
-| FunctionDecl of {
+and function_decl_r =
+{
     func_ts: type_spec;
     func_decl: declarator;
     func_body: stmt;
@@ -51,6 +51,9 @@ and decl_exp =
     mutable func_params: param list option;
     mutable func_frame_size: int option (* ローカル変数領域に必要なサイズ。type_check時に決まる *)
 }
+
+and decl_exp =
+| FunctionDecl of function_decl_r
 | GlobalVarDecl of {
     gv_ts: type_spec;
     gv_decl_inits: decl_init list

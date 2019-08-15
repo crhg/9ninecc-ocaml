@@ -22,13 +22,17 @@ and type_spec_exp =
   | Enum of enum
   | Type of string
 and type_spec = type_spec_exp node
+and function_decl_r = {
+  func_ts : type_spec;
+  func_decl : declarator;
+  func_body : stmt;
+  mutable func_ty : Type.t option;
+  mutable func_name : string option;
+  mutable func_params : param list option;
+  mutable func_frame_size : int option;
+}
 and decl_exp =
-    FunctionDecl of { func_ts : type_spec; func_decl : declarator;
-      func_body : stmt; mutable func_ty : Type.t option;
-      mutable func_name : string option;
-      mutable func_params : param list option;
-      mutable func_frame_size : int option;
-    }
+    FunctionDecl of function_decl_r
   | GlobalVarDecl of { gv_ts : type_spec; gv_decl_inits : decl_init list; }
   | TypedefDecl of type_spec * declarator
   | DummyDecl
@@ -119,6 +123,10 @@ val pp_type_spec :
   Ppx_deriving_runtime.Format.formatter ->
   type_spec -> Ppx_deriving_runtime.unit
 val show_type_spec : type_spec -> Ppx_deriving_runtime.string
+val pp_function_decl_r :
+  Ppx_deriving_runtime.Format.formatter ->
+  function_decl_r -> Ppx_deriving_runtime.unit
+val show_function_decl_r : function_decl_r -> Ppx_deriving_runtime.string
 val pp_decl_exp :
   Ppx_deriving_runtime.Format.formatter ->
   decl_exp -> Ppx_deriving_runtime.unit

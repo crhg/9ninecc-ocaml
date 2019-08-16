@@ -1,28 +1,33 @@
-type token = Pp_token.token
+let tokens = ref []
+let group_parts = ref []
 
-type entry = 
-| List of token list
-| Lexer of (Lexing.lexbuf -> token) * Lexing.lexbuf
+let rec token _ =
+    match !tokens, !group_parts with
+    | t::rest, _ -> 
+        tokens := rest;
+        t
+    | [], g::rest ->
+        do_group_part g;
+        group_parts := rest;
+        token()
+    | [], [] ->
+        Pp_ast.Eof
 
-let empty_buffer = []
+and do_group_part g =
+    let open Pp_ast in
+    match g with
+    | DefineObject (name, pp_tokens) ->
+        let open Pp_env in
+        add name @@ ObjectMacro pp_tokens
+    | NonDirective _ ->
+        ()
+    | Line line ->
+        tokens := line
 
-let push_buffer buf entry = entry::buf
+and push_group_part g =
+    group_parts := g :: Pp_ast.Line !tokens :: !group_parts;
+    tokens := []
 
-let rec token buf = match buf with
-| [] -> (Pp_token.EOF, [])
-| entry::rest ->
-    let (tk, next) = next_token entry in
-    if tk = Pp_token.EOF then
-        token rest
-    else 
-        (tk, next::rest)
-
-and next_token entry = match entry with
-| List tokens ->
-    let (tk, rest) = next_token_of_list tokens in
-    (tk, List rest)
-| Lexer (token, buf) -> (token buf, entry)
-
-and next_token_of_list tokens = match tokens with
-| [] -> (Pp_token.EOF, [])
-| t::rest -> (t, rest)
+and push_group_parts gs = 
+    group_parts := gs @ (Pp_ast.Line !tokens :: !group_parts);
+    tokens := []

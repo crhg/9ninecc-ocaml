@@ -1,22 +1,34 @@
-let rec preprocess ast =
+let preprocess ast =
     let buffer = Buffer.create 1000 in
-    let out = Printf.bprintf buffer in
+    let out s = Buffer.add_string buffer s in
 
-    let out_pp_token pp_token =
+    let rec process _ =
+        match Pp_token_buffer.token() with
+        | Pp_ast.Eof -> Buffer.contents buffer
+        | t -> process_token t; process()
+
+    and process_token pp_token =
         let open Pp_ast in
         match pp_token with
         | Wsp s
         | Punct s
-        | Id s
         | Str s
         | Num s ->
-            out "%s" s in
+            out s
+        | NewLine ->
+            out "\n"
+        | Id name ->
+            (match Pp_env.find_opt name with
+            | None -> out name
+            | Some entry -> expand entry
+            )
 
-    let group_part g = 
+    and expand entry =
         let open Pp_ast in
-        match g with
-            | Line pp_tokens -> List.iter out_pp_token pp_tokens
-            | _ -> () in
+        let open Pp_token_buffer in
+        match entry with
+        | ObjectMacro tokens ->
+            push_group_part @@ Line tokens in
 
-    List.iter group_part ast;
-    Buffer.contents buffer
+    Pp_token_buffer.push_group_parts ast;
+    process()

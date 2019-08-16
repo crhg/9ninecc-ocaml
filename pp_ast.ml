@@ -6,6 +6,8 @@ type pp_token =
 | Id of string
 | Str of string
 | Num of string
+| NewLine
+| Eof
 (* | Lpar *)
 (* | Rpar *)
 (* | Comma *)

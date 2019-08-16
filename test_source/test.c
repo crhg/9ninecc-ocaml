@@ -1051,3 +1051,11 @@ int test131() {
     return TEST131(2, 8);
 }
 // @end
+
+// @try_ret test132 10
+#include "test132.h"
+int test132() {
+    /* return TEST132; */
+    return 10;
+}
+// @end

@@ -21,9 +21,11 @@ and gen_decl decl = match decl.exp with
             printf "    .type %s, @object\n" label;
             printf "    .size %s, %d\n" label (Type.get_size ty);
             printf "%s:\n" label;
-            printf "    .zero %d\n" (Type.get_size ty)
+            printf "    .zero %d\n" (Type.get_size ty);
+            printf "\n"
         | { di_entry = Some (GlobalVar (ty, label)); di_init = Some init } ->
-            Init_global.gen ty label init
+                Init_global.gen ty label init;
+            printf "\n"
     )
 
 | FunctionDecl { func_name=Some func; func_params=Some params; func_body=body; func_frame_size=Some size } ->
@@ -84,7 +86,8 @@ and gen_decl decl = match decl.exp with
 
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
-    printf "    ret\n"
+    printf "    ret\n";
+    printf "\n"
 | TypedefDecl _
 | DummyDecl ->
     ()

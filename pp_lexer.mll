@@ -55,9 +55,8 @@ rule token = parse
 | ')' { other RPAR }
 | ',' { other COMMA }
 
-| "define" as name {
-    after_sharp DEFINE (ID name)
-}
+| "define" as name { after_sharp DEFINE (ID name) }
+| "include" as name { after_sharp INCLUDE (ID name) }
 
 | ['0'-'9']+ as num { other(NUM num) }
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { other(ID name) }

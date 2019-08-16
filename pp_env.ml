@@ -3,18 +3,19 @@ module Env = Map.Make(String)
 type entry = 
 | ObjectMacro of Pp_ast.pp_token list
 | FunctionMacro of string list * Pp_ast.pp_token list
-[@@deriving show { with_path = false }]
 
-let map = ref Env.empty
+and t = entry Env.t ref
 
-let mem name = Env.mem name !map
+let make _ = ref Env.empty
 
-let find name = Env.find name !map
-let find_opt name = Env.find_opt name !map
+let mem name env = Env.mem name !env
 
-let add name entry =
-    map := Env.add name entry !map
+let find name env = Env.find name !env
+let find_opt name env = Env.find_opt name !env
 
-let remove name =
-    map := Env.remove name !map
+let add name entry env =
+    env := Env.add name entry !env
+
+let remove name env =
+    env := Env.remove name !env
 

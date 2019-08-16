@@ -12,4 +12,5 @@ type token =
   | ID of (string)
   | EOF
   | DEFINE
+  | INCLUDE
   [@@deriving show {with_path=false}]

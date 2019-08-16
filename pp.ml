@@ -1,11 +1,24 @@
 module StringMap = Map.Make(String)
 
-let preprocess ast =
+let rec preprocess ast =
+    let env = Pp_env.make() in
+    preprocess_with_env ast env
+
+and preprocess_with_env ast env =
     let buffer = Buffer.create 1000 in
     let out s = Buffer.add_string buffer s in
 
+    let expand_tokens tokens env =
+        let open Pp_ast in
+        let ast = [Line tokens] in
+        preprocess_with_env ast env in
+
+    let token_buffer = Pp_token_buffer.make_empty env expand_tokens in
+
+    let token _ = Pp_token_buffer.token token_buffer in
+
     let rec process _ =
-        match Pp_token_buffer.token() with
+        match token() with
         | Pp_ast.Eof -> Buffer.contents buffer
         | t -> process_token t; process()
 
@@ -20,7 +33,7 @@ let preprocess ast =
         | NewLine ->
             out "\n"
         | Id name ->
-            (match Pp_env.find_opt name with
+            (match Pp_env.find_opt name env with
             | None -> out name
             | Some entry -> expand name entry
             )
@@ -30,15 +43,15 @@ let preprocess ast =
     and expand name entry =
         let open Pp_ast in
         let open Pp_token_buffer in
-        Pp_env.remove name;
+        Pp_env.remove name env;
         match entry with
         | ObjectMacro tokens ->
             let define = Pp_ast.DefineObject(name, tokens) in
-            push_group_parts [Line tokens; define]
+            push_group_parts [Line tokens; define] token_buffer
         | FunctionMacro (params, tokens) ->
             let expanded = expand_function params tokens in
             let define = Pp_ast.DefineFunction(name, params, tokens) in
-            push_group_parts [Line expanded; define]
+            push_group_parts [Line expanded; define] token_buffer
 
     and expand_function params tokens =
         let param_map = make_param_map params in
@@ -53,7 +66,7 @@ let preprocess ast =
     and make_param_map params =
         let open Pp_ast in
         check_token (Punct "(");
-        Pp_token_buffer.back_token (Punct ",");
+        Pp_token_buffer.back_token (Punct ",") token_buffer;
         make_param_map_rest params
 
     and make_param_map_rest params =
@@ -70,12 +83,12 @@ let preprocess ast =
 
     and get_param _ =
         let open Pp_ast in
-        let token = Pp_token_buffer.token() in
+        let token = Pp_token_buffer.token token_buffer in
         match token with
         | Eof -> failwith "unexpected eof"
         | Punct ")"
         | Punct "," ->
-            Pp_token_buffer.back_token token;
+            Pp_token_buffer.back_token token token_buffer;
             []
         | Punct "(" ->
             let paren_rest = get_paren_rest () in
@@ -86,7 +99,7 @@ let preprocess ast =
 
     and get_paren_rest _ =
         let open Pp_ast in
-        let token = Pp_token_buffer.token() in
+        let token = Pp_token_buffer.token token_buffer in
         match token with
         | Eof -> failwith "unexpected eof"
         | Punct ")" -> [token]
@@ -98,7 +111,7 @@ let preprocess ast =
             failwith ("not found: " ^ (Pp_ast.show_pp_token token))
 
     and skip_sp _ =
-        match Pp_token_buffer.token() with
+        match Pp_token_buffer.token token_buffer with
         | Eof -> failwith "unexpected eof"
         | Wsp _
         | NewLine ->
@@ -107,5 +120,5 @@ let preprocess ast =
 
     in
 
-    Pp_token_buffer.push_group_parts ast;
+    Pp_token_buffer.push_group_parts ast token_buffer;
     process()

@@ -3,7 +3,7 @@ RESULT=9ninecc
 ifdef 9NINECC_ENV
 OCAMLYACC=menhir
 
-PACKS=ppx_deriving.show ppx_deriving.runtime
+PACKS=ppx_deriving.show ppx_deriving.runtime str
 
 GENERATED_SRCS=lexer.ml parser.ml parser.mli pp_lexer.ml pp_parser.ml pp_parser.mli
 SRCS=$(sort $(GENERATED_SRCS) $(wildcard *.ml *.mli))

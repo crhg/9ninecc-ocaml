@@ -2,18 +2,23 @@ RESULT=9ninecc
 
 ifdef 9NINECC_ENV
 OCAMLYACC=menhir
-YFLAGS=--external-tokens Token
 
 PACKS=ppx_deriving.show ppx_deriving.runtime
 
-GENERATED_SRCS=lexer.ml parser.ml parser.mli
+GENERATED_SRCS=lexer.ml parser.ml parser.mli pp_lexer.ml pp_parser.ml pp_parser.mli
 SRCS=$(sort $(GENERATED_SRCS) $(wildcard *.ml *.mli))
 include .sorted_srcs
-SOURCES=$(filter-out parser.mli,$(subst parser.ml,parser.mly,$(subst lexer.ml,lexer.mll,$(SORTED_SRCS))))
+SOURCES=$(filter-out %parser.mli,$(patsubst %parser.ml,%parser.mly,$(patsubst %lexer.ml,%lexer.mll,$(SORTED_SRCS))))
 
 TRASH=.sorted_srcs
 
 default: debug-native-code
+
+parser.ml parser.mli: parser.mly
+	$(OCAMLYACC) $(YFLAGS) --external-tokens Token $<
+
+pp_parser.ml pp_parser.mli: pp_parser.mly
+	$(OCAMLYACC) $(YFLAGS) --external-tokens Pp_token $<
 
 .PHONY: test
 test: default

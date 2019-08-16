@@ -1030,3 +1030,10 @@ int test128() {
     return a;
 }
 // @end
+
+// @try_ret test129 10
+#define TEST129 10
+int test129() {
+    return TEST129;
+}
+// @end

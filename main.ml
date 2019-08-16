@@ -1,65 +1,36 @@
-open Printf
-open Lexer
-open Lexing
-open String
-open Misc
-
-
-(* 文字列sの位置posを含む行を取り出す *)
-(* 戻り値は (行の文字列(改行を含まない), 行番号(1-origin), 行の先頭からのposの位置(0-origin)) *)
-let get_line s pos =
-    let pos = min pos (length s) in
-    let s = s ^ "<<EOF>>\n" in (* 番兵を兼ねたEOFマーク *)
-    let rec get_line' cur line_no =
-        let next = 1 + index_from s cur '\n' in (* 次の行の頭 *)
-            if pos < next
-                then (sub s cur (next-cur-1), line_no, pos-cur)
-                else get_line' next (line_no+1) in
-    get_line' 0 1
+let preprocess filename source =
+    let token lexbuf =
+        let t = Pp_lexer.token lexbuf in
+        Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t);
+        t in
+    Compiler.process filename source Pp_parser.preprocessing_file token (fun ast ->
+        Pp.preprocess ast
+    )
 
 let compile filename source =
-    let source = source ^ "\n" in
-    let lexbuf = Lexing.from_string source in
-
-    let error_at pos s =
-        let (line, line_no, pos_in_line) = get_line source pos in
-        fprintf stderr "%s:%d:%d: %s\n" filename line_no pos_in_line s;
-        fprintf stderr "%s\n" line;
-        fprintf stderr "%s^\n" (String.make pos_in_line ' ')
-    in
-
-    let error_at_lex_pos s =
-        let pos = (Lexing.lexeme_start lexbuf) in
-        error_at pos s
-    in
-
-    try
-        let ast = Parser.translation_unit Typedef_lex.token lexbuf in
+    Compiler.process filename source Parser.translation_unit Typedef_lex.token (fun ast ->
         Type_check.check ast;
         Gen.gen ast
-    with
-    (* | Failure s -> *)
-    (*     error_at_lex_pos s; *)
-    (*     exit (-1) *)
-    | Parser.Error ->
-        error_at_lex_pos "Parser.Error";
-        exit (-1)
-    | Error_at (message, loc) ->
-        let pos = loc.pos_cnum in
-        error_at pos message;
-        Printf.fprintf stderr "%s\n" @@ Printexc.get_backtrace();
-        exit (-1)
+    )
+
+
+let preprocess_only = ref false
 
 let compile_file filename =
     let file = open_in filename in
     let source = really_input_string file (in_channel_length file) in
-    compile filename source
+    let preprocessed_source = preprocess filename source in
+    if !preprocess_only then
+        Printf.printf "%s" preprocessed_source
+    else 
+        compile filename preprocessed_source
 
 let verbose = ref false
 
 let filenames = ref []
 
 let spec = [
+    ("-E", Arg.Set preprocess_only, "Output preprocessed source");
     ("-v", Arg.Set verbose, "Turn on verbose message");
     ("-s", Arg.String (compile "-"), "Source string");
 ]

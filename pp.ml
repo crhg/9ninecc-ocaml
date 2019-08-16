@@ -20,15 +20,18 @@ let preprocess ast =
         | Id name ->
             (match Pp_env.find_opt name with
             | None -> out name
-            | Some entry -> expand entry
+            | Some entry -> expand name entry
             )
 
-    and expand entry =
+    and expand name entry =
         let open Pp_ast in
         let open Pp_token_buffer in
+        Pp_env.remove name;
         match entry with
         | ObjectMacro tokens ->
-            push_group_part @@ Line tokens in
+            let define = Pp_ast.DefineObject(name, tokens) in
+            push_group_parts [Line tokens; define]
+    in
 
     Pp_token_buffer.push_group_parts ast;
     process()

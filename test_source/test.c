@@ -1038,9 +1038,9 @@ int test129() {
 }
 // @end
 
-/* // @try_ret test130 10 */
-/* #define test130 test130 */
-/* int test130() { */
-/*     return 10; */
-/* } */
-/* // @end */
+// @try_ret test130 10
+#define test130 test130
+int test130() {
+    return 10;
+}
+// @end

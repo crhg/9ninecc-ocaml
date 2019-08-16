@@ -31,11 +31,12 @@ setup.log
 _opam/
 
 # ocamllex generated files
-lexer.ml
+*lexer.ml
 
 # menhir generated files
-parser.ml
-parser.mli
+*parser.ml
+*parser.mli
+*.conflicts
 
 #
 a.out

@@ -1,6 +1,19 @@
 module StringMap = Map.Make(String)
 
-let rec preprocess ast =
+let rec ast_of filename contents =
+    let lexbuf = Lexing.from_string contents in
+
+    lexbuf.lex_curr_p <- { lexbuf.lex_curr_p with pos_fname = filename };
+
+    (* デバッグ用 *)
+    let token lexbuf =
+        let t = Pp_lexer.token lexbuf in
+        Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t);
+        t in
+
+    Pp_parser.preprocessing_file token lexbuf
+
+and preprocess ast =
     let env = Pp_env.make() in
     preprocess_with_env ast env
 
@@ -13,7 +26,7 @@ and preprocess_with_env ast env =
         let ast = [Line tokens] in
         preprocess_with_env ast env in
 
-    let token_buffer = Pp_token_buffer.make_empty env expand_tokens in
+    let token_buffer = Pp_token_buffer.make_empty env expand_tokens ast_of in
 
     let token _ = Pp_token_buffer.token token_buffer in
 

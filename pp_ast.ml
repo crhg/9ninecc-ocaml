@@ -24,4 +24,6 @@ and group_part =
 | Line of pp_token list
 (* | DefineFunction of string list * bool * pp_token list (* true: 可変引数マクロ *) *)
 (* | Undef of string *)
-[@@deriving show]
+
+and ast = group_part list
+[@@deriving show {with_path = false}]

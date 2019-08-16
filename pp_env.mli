@@ -45,7 +45,10 @@ module Env :
 type entry =
     ObjectMacro of Pp_ast.pp_token list
   | FunctionMacro of string list * Pp_ast.pp_token list
-and t = entry Env.t ref
+val pp_entry :
+  Ppx_deriving_runtime.Format.formatter -> entry -> Ppx_deriving_runtime.unit
+val show_entry : entry -> Ppx_deriving_runtime.string
+type t = entry Env.t ref
 val make : 'a -> 'b Env.t ref
 val mem : Env.key -> 'a Env.t ref -> bool
 val find : Env.key -> 'a Env.t ref -> 'a

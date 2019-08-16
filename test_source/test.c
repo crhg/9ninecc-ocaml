@@ -1052,10 +1052,9 @@ int test131() {
 }
 // @end
 
-// @try_ret test132 10
+// @try_ret test132 32
 #include "test132.h"
 int test132() {
-    /* return TEST132; */
-    return 10;
+    return TEST132;
 }
 // @end

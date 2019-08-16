@@ -4,7 +4,7 @@
 
 %token DEFINE
 
-%token SHARP
+%token SHARP LPAR RPAR COMMA
 
 %token NL
 
@@ -27,9 +27,15 @@ preprocessing_file:
 
 group_part:
 | wsp* SHARP WSP* DEFINE WSP+ id=ID WSP+ l=pp_tokens NL { DefineObject(id, l) }
+| wsp* SHARP WSP* DEFINE WSP+ id=ID LPAR params=separated_list(COMMA, p=param {p}) RPAR WSP* l=pp_tokens NL {
+    DefineFunction(id, params, l)
+}
 | wsp* SHARP WSP* l=pp_tokens NL { NonDirective(l) }
 | wsps1=wsp* not_sharp=not_sharp wsps2=wsp* l=pp_tokens NL { Line(wsps1 @ [not_sharp] @ wsps2 @ l @ [NewLine]) }
 | wsps=wsp* NL { Line(wsps) } (* 空白だけの行 *)
+
+param:
+| WSP* id=ID WSP* { id }
 
 pp_tokens:
 | { [] }
@@ -49,6 +55,9 @@ not_sharp:
 | id=ID { Id id }
 | str=STR { Str str }
 | num=NUM { Num num }
+| LPAR { Punct "(" }
+| RPAR { Punct ")" }
+| COMMA { Punct "," }
 
 wsp:
 | wsp=WSP { Wsp wsp }

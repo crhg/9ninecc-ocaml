@@ -2,6 +2,7 @@ module Env = Map.Make(String)
 
 type entry = 
 | ObjectMacro of Pp_ast.pp_token list
+| FunctionMacro of string list * Pp_ast.pp_token list
 [@@deriving show { with_path = false }]
 
 let map = ref Env.empty

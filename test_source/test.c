@@ -1044,3 +1044,10 @@ int test130() {
     return 10;
 }
 // @end
+
+// @try_ret test131 10
+#define TEST131(x, y) ((x) + (y))
+int test131() {
+    return TEST131(2, 8);
+}
+// @end

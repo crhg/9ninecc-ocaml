@@ -51,6 +51,10 @@ rule token = parse
     SHARP
 }
 
+| '(' { other LPAR }
+| ')' { other RPAR }
+| ',' { other COMMA }
+
 | "define" as name {
     after_sharp DEFINE (ID name)
 }

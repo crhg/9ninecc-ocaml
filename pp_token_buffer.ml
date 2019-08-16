@@ -19,6 +19,9 @@ and do_group_part g =
     | DefineObject (name, pp_tokens) ->
         let open Pp_env in
         add name @@ ObjectMacro pp_tokens
+    | DefineFunction (name, params, pp_tokens) ->
+        let open Pp_env in
+        add name @@ FunctionMacro (params, pp_tokens)
     | NonDirective _ ->
         ()
     | Line line ->
@@ -31,3 +34,5 @@ and push_group_part g =
 and push_group_parts gs = 
     group_parts := gs @ (Pp_ast.Line !tokens :: !group_parts);
     tokens := []
+
+and back_token t = tokens := t :: !tokens

@@ -1,4 +1,6 @@
-type entry = ObjectMacro of Pp_ast.pp_token list
+type entry = 
+| ObjectMacro of Pp_ast.pp_token list
+| FunctionMacro of string list * Pp_ast.pp_token list
 val pp_entry :
   Ppx_deriving_runtime.Format.formatter -> entry -> Ppx_deriving_runtime.unit
 val show_entry : entry -> Ppx_deriving_runtime.string

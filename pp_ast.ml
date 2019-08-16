@@ -18,6 +18,7 @@ type pp_token =
 
 and group_part = 
 | DefineObject of string * pp_token list
+| DefineFunction of string * string list * pp_token list
 | NonDirective of pp_token list
 | Line of pp_token list
 (* | DefineFunction of string list * bool * pp_token list (* true: 可変引数マクロ *) *)

@@ -40,11 +40,10 @@ and do_group_part g buf =
     | Include pp_tokens ->
         let s = buf.expand_tokens pp_tokens buf.env in
         let filename, from_current = pickup_filename s in
-        let filename, in_chan = find_include_file filename from_current in
-        let contents = really_input_string in_chan (in_channel_length in_chan) in
-        Printf.fprintf stderr "include %s\n" filename;
+        let filename, contents = find_include_file filename from_current in
+        (* Printf.fprintf stderr "include %s\n" filename; *)
         let ast = buf.ast_of filename contents in
-        Printf.fprintf stderr "include ast=%s\n" (Pp_ast.show_ast ast);
+        (* Printf.fprintf stderr "include ast=%s\n" (Pp_ast.show_ast ast); *)
         push_group_parts ast buf
     | NonDirective _ ->
         ()
@@ -53,7 +52,7 @@ and do_group_part g buf =
 
 and find_include_file filename from_current =
     if filename.[0] = '/' then
-        (filename, open_in filename)
+        (filename, Source.read filename)
     else (
         let include_path = !Setting.include_path in
         let include_path = if from_current then "."::include_path else include_path in
@@ -65,7 +64,7 @@ and find_include_file_with_path filename include_path = match include_path with
 | [] -> failwith("not found: "^filename)
 | path::rest ->
     let f = path ^ "/" ^ filename in
-    (try (f, open_in f) with
+    (try (f, Source.read f) with
     | Sys_error _ -> 
         find_include_file_with_path filename rest
     )

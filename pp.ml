@@ -13,16 +13,10 @@ let rec ast_of filename contents =
 
     try Pp_parser.preprocessing_file token lexbuf with
     | e ->
-        Printf.fprintf stderr "lexbuf.lex_curr_p.pos_fname=%s\n" lexbuf.lex_curr_p.pos_fname;
-        Printf.fprintf stderr "lexbuf.lex_curr_p.pos_lnum=%d\n" lexbuf.lex_curr_p.pos_lnum;
-        Printf.fprintf stderr "lexbuf.lex_curr_p.pos_bol=%d\n" lexbuf.lex_curr_p.pos_bol;
-        Printf.fprintf stderr "lexbuf.lex_curr_p.pos_cnum=%d\n" lexbuf.lex_curr_p.pos_cnum;
-        let fname = lexbuf.lex_curr_p.pos_fname in
-        let lnum = lexbuf.lex_curr_p.pos_lnum in
-        let at = lexbuf.lex_curr_p.pos_cnum - lexbuf.lex_curr_p.pos_bol in
-        Printf.fprintf stderr "%s:%d:%d error\n" fname lnum at;
-        Printf.fprintf stderr "%s\n" @@ Source.line fname lnum;
-        Printf.fprintf stderr "%s\n" @@ Source.position_marker at;
+        let pos = lexbuf.lex_curr_p in
+        Printf.fprintf stderr "%s:error\n" @@ Source.show_pos pos;
+        Printf.fprintf stderr "%s\n" @@ Source.line_at pos;
+        Printf.fprintf stderr "%s\n" @@ Source.marker_of pos;
 
         raise e
 

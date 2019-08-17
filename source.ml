@@ -38,3 +38,21 @@ let line filename lno =
 
 let position_marker n =
     String.make n ' ' ^ "^"
+
+let show_pos pos =
+    let open Lexing in
+    let fname = pos.pos_fname in
+    let lnum = pos.pos_lnum in
+    let at = pos.pos_cnum - pos.pos_bol in
+    Printf.sprintf "%s:%d:%d" fname lnum at
+
+let line_at pos =
+    let open Lexing in
+    let fname = pos.pos_fname in
+    let lnum = pos.pos_lnum in
+    line fname lnum
+
+let marker_of pos = 
+    let open Lexing in
+    let at = pos.pos_cnum - pos.pos_bol in
+    position_marker at

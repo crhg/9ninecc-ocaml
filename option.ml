@@ -18,3 +18,11 @@ let may f x = match x with
 | Some x' -> f x'
 | None    -> ()
 
+let default x default_value = match x with
+| Some x -> x
+| None -> default_value
+
+let default_lazy x default_value = match x with
+| Some x -> x
+| None -> Lazy.force default_value
+

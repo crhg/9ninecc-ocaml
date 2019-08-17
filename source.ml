@@ -6,7 +6,10 @@ let contents_map = ref StringMap.empty
 
 (** ファイルを読み込んで保存する。ファイルの中身を文字列で返す
  *  ファイルが改行で終わっていないときは改行を補う *)
-let read ?(contents) filename =
+let rec read ?(contents) filename =
+    read_contents filename contents
+
+and read_contents filename contents =
     let get_contents filename =
         let chan = open_in filename in
         really_input_string chan (in_channel_length chan) in
@@ -33,3 +36,5 @@ let line filename lno =
         else find_line (lno - 1) (index_from s pos '\n' + 1) in
     find_line lno 0
 
+let position_marker n =
+    String.make n ' ' ^ "^"

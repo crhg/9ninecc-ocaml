@@ -13,26 +13,31 @@ let compile filename source =
         Gen.gen ast
     )
 
-
 let preprocess_only = ref false
 
-let compile_file filename =
-    let file = open_in filename in
-    let source = really_input_string file (in_channel_length file) in
-    let preprocessed_source = preprocess filename source in
+let compile_source filename source =
+    let pp_ast = Pp.ast_of filename source in
+    let preprocessed_source = Pp.preprocess pp_ast in
     if !preprocess_only then
         Printf.printf "%s" preprocessed_source
     else 
         compile filename preprocessed_source
 
-let verbose = ref false
+let compile_file filename =
+    let source = Source.read filename in
+    compile_source filename source
 
+let compile_command_line source =
+    let source = Source.read "-" ~contents:source in
+    compile_source "-" source
+
+let verbose = ref false
 let filenames = ref []
 
 let spec = [
     ("-E", Arg.Set preprocess_only, "Output preprocessed source");
     ("-v", Arg.Set verbose, "Turn on verbose message");
-    ("-s", Arg.String (compile "-"), "Source string");
+    ("-s", Arg.String (compile_command_line), "Source string");
 ]
 
 let () =

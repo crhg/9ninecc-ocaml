@@ -11,14 +11,16 @@ let rec ast_of filename contents =
         Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t);
         t in
 
-    try Pp_parser.preprocessing_file token lexbuf with
-    | e ->
-        let pos = lexbuf.lex_curr_p in
-        Printf.fprintf stderr "%s:error\n" @@ Source.show_pos pos;
-        Printf.fprintf stderr "%s\n" @@ Source.line_at pos;
-        Printf.fprintf stderr "%s\n" @@ Source.marker_of pos;
+    let ast = try Pp_parser.preprocessing_file token lexbuf with
+        | e ->
+            let pos = lexbuf.lex_curr_p in
+            Printf.fprintf stderr "%s:error\n" @@ Source.show_pos pos;
+            Printf.fprintf stderr "%s\n" @@ Source.line_at pos;
+            Printf.fprintf stderr "%s\n" @@ Source.marker_of pos;
 
-        raise e
+            raise e in
+    let line_marker = Pp_ast.(Line [LineMarker(1, filename, None)]) in
+    line_marker :: ast
 
 
 and preprocess ast =
@@ -60,6 +62,10 @@ and preprocess_with_env ast env =
             )
         | Eof ->
             failwith "Eof?"
+        | LineMarker (lno, filename, None) ->
+            out @@ Printf.sprintf "# %d \"%s\"\n" lno filename
+        | LineMarker (lno, filename, Some flag) ->
+            out @@ Printf.sprintf "# %d \"%s\" %d\n" lno filename flag
 
     and expand name entry =
         let open Pp_ast in

@@ -25,6 +25,14 @@ rule token = parse
 | nl     { L.new_line lexbuf; token lexbuf }
 | "//" { line_comment lexbuf }
 | "/*" { block_comment lexbuf }
+| '#' {
+    let open Lexing in
+    let pos = lexbuf.lex_start_p in
+    if pos.pos_cnum = pos.pos_bol then
+        sharp_line lexbuf
+    else
+        raise(Misc.Error_at("invalid '#'", pos))
+}
 
 | '+' { PLUS }
 | '-' { MINUS }
@@ -115,6 +123,10 @@ and block_comment = parse
 | "*/" { token lexbuf }
 | '\n' { L.new_line lexbuf; block_comment lexbuf }
 | _    { block_comment lexbuf }
+
+and sharp_line = parse
+| '\n' { L.new_line lexbuf; token lexbuf }
+| _    { sharp_line lexbuf }
 
 {
 }

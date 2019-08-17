@@ -30,10 +30,15 @@ group_part:
 | wsp* SHARP WSP* DEFINE WSP+ id=ID LPAR params=separated_list(COMMA, p=param {p}) RPAR WSP* l=pp_tokens NL {
     DefineFunction(id, params, l)
 }
-| wsp* SHARP WSP* INCLUDE WSP* l=pp_tokens NL { Include l }
+| wsp* token=SHARP WSP* INCLUDE WSP* l=pp_tokens NL {
+    ignore token;
+    Include { pp_tokens = l; loc = $startpos(token)}
+}
 | wsp* SHARP WSP* l=pp_tokens NL { NonDirective(l) }
-| wsps1=wsp* not_sharp=not_sharp wsps2=wsp* l=pp_tokens NL { Line(wsps1 @ [not_sharp] @ wsps2 @ l @ [NewLine]) }
-| wsps=wsp* NL { Line(wsps) } (* 空白だけの行 *)
+| wsps1=wsp* not_sharp=not_sharp wsps2=wsp* l=pp_tokens NL {
+    Line(wsps1 @ [not_sharp] @ wsps2 @ l @ [NewLine])
+}
+| wsps=wsp* token=NL { Line(wsps) } (* 空白だけの行 *)
 
 param:
 | WSP* id=ID WSP* { id }

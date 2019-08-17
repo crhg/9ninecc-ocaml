@@ -15,15 +15,21 @@ type pp_token =
 (* | Ifdef of string * pp_token list * pp_token list *)
 (* | Ifndef of string * pp_token list * pp_token list *)
 (* | Include of string * bool (* true: <>, false: "" *) *)
+| LineMarker of int * string * int option (* linemarker表示用 *)
 
 and group_part = 
 | DefineObject of string * pp_token list
 | DefineFunction of string * string list * pp_token list
-| Include of pp_token list (* ファイル名がマクロで定義されている場合もあるのでastの段階ではpp_token列 *)
+| Include of include_r (* ファイル名がマクロで定義されている場合もあるのでastの段階ではpp_token列 *)
 | NonDirective of pp_token list
 | Line of pp_token list
 (* | DefineFunction of string list * bool * pp_token list (* true: 可変引数マクロ *) *)
 (* | Undef of string *)
+
+and include_r = {
+    pp_tokens: pp_token list;
+    loc: Lexing.position [@opaque]
+}
 
 and ast = group_part list
 [@@deriving show {with_path = false}]

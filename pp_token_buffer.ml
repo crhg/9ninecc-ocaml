@@ -37,14 +37,19 @@ and do_group_part g buf =
     | DefineFunction (name, params, pp_tokens) ->
         let open Pp_env in
         add name (FunctionMacro (params, pp_tokens)) buf.env
-    | Include pp_tokens ->
+    | Include { pp_tokens = pp_tokens; loc = loc } ->
+
         let s = buf.expand_tokens pp_tokens buf.env in
         let filename, from_current = pickup_filename s in
         let filename, contents = find_include_file filename from_current in
+
         (* Printf.fprintf stderr "include %s\n" filename; *)
         let ast = buf.ast_of filename contents in
         (* Printf.fprintf stderr "include ast=%s\n" (Pp_ast.show_ast ast); *)
-        push_group_parts ast buf
+
+        push_group_part (Line [LineMarker(loc.pos_lnum + 1, loc.pos_fname, Some 2)]) buf;
+        push_group_parts ast buf;
+        push_group_part (Line [LineMarker(1, filename, Some 1)]) buf
     | NonDirective _ ->
         ()
     | Line line ->

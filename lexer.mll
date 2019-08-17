@@ -26,12 +26,12 @@ rule token = parse
 | "//" { line_comment lexbuf }
 | "/*" { block_comment lexbuf }
 | '#' {
+    Printf.fprintf stderr "sharp line\n";
     let open Lexing in
     let pos = lexbuf.lex_start_p in
-    if pos.pos_cnum = pos.pos_bol then
-        sharp_line lexbuf
-    else
-        raise(Misc.Error_at("invalid '#'", pos))
+    (if pos.pos_cnum <> pos.pos_bol then
+        Printf.fprintf stderr "cnum<>bol?: cnum=%d bol=%d\n" pos.pos_cnum pos.pos_bol);
+    sharp_line (B.create 50) lexbuf
 }
 
 | '+' { PLUS }
@@ -124,9 +124,29 @@ and block_comment = parse
 | '\n' { L.new_line lexbuf; block_comment lexbuf }
 | _    { block_comment lexbuf }
 
-and sharp_line = parse
-| '\n' { L.new_line lexbuf; token lexbuf }
-| _    { sharp_line lexbuf }
+and sharp_line buf = parse
+| '\n' {
+    let line = B.contents buf in
+    let open Str in
+    let open L in
+    (if string_match (regexp (" \\([0-9]+\\) \"\\(.*\\)\"")) line 0 then (
+        let lnum = int_of_string @@ matched_group 1 line in
+        let fname = matched_group 2 line in
+        let cur = lexbuf.lex_curr_p in
+        let cur = { cur with pos_fname = fname; pos_lnum = lnum } in
+        Printf.fprintf stderr "linemarker %d %s\n" lnum fname;
+        lexbuf.lex_curr_p <- cur
+    ) else (
+        Printf.fprintf stderr "? #%s\n" line;
+        L.new_line lexbuf
+    ));
+
+    token lexbuf
+}
+| _ { 
+    B.add_string buf (get lexbuf);
+    sharp_line buf lexbuf
+}
 
 {
 }

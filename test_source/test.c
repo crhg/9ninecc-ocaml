@@ -1114,3 +1114,15 @@ int test137() {
     return TEST137;
 }
 // @end
+
+// @try_ret test138 1
+#define TEST138_1
+#ifdef TEST138_1
+#define TEST138 1
+#else
+#define TEST138 0
+#endif
+int test138() {
+    return TEST138;
+}
+// @end

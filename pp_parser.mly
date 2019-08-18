@@ -33,7 +33,9 @@ group_part:
 | p=define_function { p }
 | p=include_file { p }
 | p=non_directive { p }
-| p=if_part { If p }
+(* | p=if_part { If p } *)
+| p=ifdef_part { If p }
+(* | p=ifndef_part { If p } *)
 | p=line { p }
 
 group_parts:
@@ -42,6 +44,18 @@ group_parts:
 
 if_part:
 | p=if_line l=group_parts rest=elif_part {
+    let cond = { cond_expr = p; cond_groups = l } in
+    cond :: rest 
+}
+
+ifdef_part:
+| p=ifdef_line l=group_parts rest=elif_part {
+    let cond = { cond_expr = p; cond_groups = l } in
+    cond :: rest 
+}
+
+ifndef_part:
+| p=ifndef_line l=group_parts rest=elif_part {
     let cond = { cond_expr = p; cond_groups = l } in
     cond :: rest 
 }
@@ -66,6 +80,12 @@ endif_part:
 if_line:
 | SHARP_IF l=pp_tokens NL { l }
 
+ifdef_line:
+| SHARP_IFDEF id=ID NL { [Punct "("; Id "defined"; Id id; Punct ")"] }
+
+ifndef_line:
+| SHARP_IFNDEF id=ID NL { [Punct "("; Num "0"; Punct "=="; Id "defined"; Id id; Punct ")"] }
+
 elif_line:
 | SHARP_ELIF l=pp_tokens NL { l }
 
@@ -77,6 +97,7 @@ endif_line:
 
 define_object:
 | SHARP_DEFINE id=ID WSP+ l=pp_tokens NL { DefineObject(id, l) }
+| SHARP_DEFINE id=ID WSP* NL { DefineObject(id, []) }
 
 define_function:
 | SHARP_DEFINE id=ID LPAR params=separated_list(COMMA, p=param {p}) RPAR WSP* l=pp_tokens NL {

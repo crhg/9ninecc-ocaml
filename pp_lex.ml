@@ -54,6 +54,12 @@ and normalize_line get_token lexbuf =
             | IF ->
                 state := AfterKeyword;
                 SHARP_IF
+            | IFDEF ->
+                state := AfterKeyword;
+                SHARP_IFDEF
+            | IFNDEF ->
+                state := AfterKeyword;
+                SHARP_IFNDEF
             | ELIF ->
                 state := AfterKeyword;
                 SHARP_ELIF

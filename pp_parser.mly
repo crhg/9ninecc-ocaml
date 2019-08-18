@@ -33,9 +33,9 @@ group_part:
 | p=define_function { p }
 | p=include_file { p }
 | p=non_directive { p }
-(* | p=if_part { If p } *)
+| p=if_part { If p }
 | p=ifdef_part { If p }
-(* | p=ifndef_part { If p } *)
+| p=ifndef_part { If p }
 | p=line { p }
 
 group_parts:

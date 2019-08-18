@@ -1068,3 +1068,14 @@ int test133() {
     return TEST133;
 }
 // @end
+
+// @try_ret test134 0
+#if 0
+#define TEST134 1
+#else
+#define TEST134 0
+#endif
+int test134() {
+    return TEST134;
+}
+// @end

@@ -33,8 +33,10 @@
 %nonassoc IF
 
 %type <Ast.decl list> translation_unit
+%type <Ast.expr> expr_eof
 
 %start translation_unit
+%start expr_eof
 
 %%
 
@@ -256,6 +258,9 @@ block:
     Typedef_env.restore_scope();
     { exp = Block l; loc = $startpos(token) }
 }
+
+expr_eof:
+| e=expr EOF { e }
 
 expr:
 | e=assign { e }

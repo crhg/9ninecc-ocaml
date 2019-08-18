@@ -36,7 +36,7 @@ and preprocess_with_env ast env =
         let ast = [Line tokens] in
         preprocess_with_env ast env in
 
-    let token_buffer = Pp_token_buffer.make_empty env expand_tokens ast_of in
+    let token_buffer = Pp_token_buffer_data.make_empty env expand_tokens ast_of in
 
     let token _ = Pp_token_buffer.token token_buffer in
 

@@ -19,6 +19,10 @@ and eval i_expr = match i_expr with
     | Sub, (label, x), (None, y) -> (label, x - y)
     | Mul, (None, x), (None, y) -> (None, x * y)
     | Div, (None, x), (None, y) -> (None, x / y)
+    | Lt, (None, x), (None, y) -> (None, if x < y then 1 else 0)
+    | Le, (None, x), (None, y) -> (None, if x <= y then 1 else 0)
+    | Eq, (None, x), (None, y) -> (None, if x = y then 1 else 0)
+    | Ne, (None, x), (None, y) -> (None, if x <> y then 1 else 0)
     | _ -> raise(Not_Constant(Ast.show_i_expr i_expr))
     )
 

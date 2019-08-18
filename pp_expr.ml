@@ -1,7 +1,10 @@
 let rec eval expr buf =
     let open Pp_token_buffer_data in
+    Printf.fprintf stderr "eva expr=%s\n" (Pp_ast.show_pp_token_list expr);
     let expr = remove_white_space expr in
+    Printf.fprintf stderr "eva remove ws expr=%s\n" (Pp_ast.show_pp_token_list expr);
     let expr = eval_defined expr buf.env in
+    Printf.fprintf stderr "eva eval_defined expr=%s\n" (Pp_ast.show_pp_token_list expr);
     let expr = buf.expand_tokens expr buf.env in
     Printf.fprintf stderr "eval expr=%s\n" expr;
     let ast = ast_of expr in
@@ -23,7 +26,8 @@ and eval_defined expr env =
     let open Pp_ast in
     match expr with
     | [] -> []
-    | Id "define" :: Id id :: rest ->
+    | Id "defined" :: Id id :: rest
+    | Id "defined" :: Punct "(" :: Id id :: Punct ")" :: rest ->
         (if Pp_env.mem id env then Num "1" else Num "0") :: eval_defined rest env
     | token :: rest ->
         token :: eval_defined rest env

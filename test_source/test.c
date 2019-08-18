@@ -1079,3 +1079,38 @@ int test134() {
     return TEST134;
 }
 // @end
+
+// @try_ret test135 1
+#define TEST135_1 10
+#if TEST135_1 > 5
+#define TEST135 1
+#else
+#define TEST135 0
+#endif
+int test135() {
+    return TEST135;
+}
+// @end
+
+// @try_ret test136 1
+#define TEST136_1 10
+#if defined TEST136_1
+#define TEST136 1
+#else
+#define TEST136 0
+#endif
+int test136() {
+    return TEST136;
+}
+// @end
+
+// @try_ret test137 1
+#if 0 == defined (TEST137_1)
+#define TEST137 1
+#else
+#define TEST137 0
+#endif
+int test137() {
+    return TEST137;
+}
+// @end

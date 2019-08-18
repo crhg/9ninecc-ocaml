@@ -14,6 +14,8 @@ type pp_token =
 (* | Comma *)
 | LineMarker of int * string * int option (* linemarker表示用 *)
 
+and pp_token_list = pp_token list
+
 and group_part = 
 | If of cond_r list
 | DefineObject of string * pp_token list

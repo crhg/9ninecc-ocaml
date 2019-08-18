@@ -7,7 +7,7 @@ let rec ast_of filename contents =
 
     (* デバッグ用 *)
     let token lexbuf =
-        let t = Pp_lexer.token lexbuf in
+        let t = Pp_lex.token lexbuf in
         Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t);
         t in
 
@@ -55,6 +55,8 @@ and preprocess_with_env ast env =
             out s
         | NewLine ->
             out "\n"
+        | NewLines n ->
+            out @@ String.make n '\n'
         | Id name ->
             (match Pp_env.find_opt name env with
             | None -> out name

@@ -2,11 +2,14 @@
     open Pp_ast
 %}
 
-%token DEFINE INCLUDE
+%token SHARP
+%token SHARP_DEFINE SHARP_INCLUDE
+%token SHARP_IF SHARP_IFDEF SHARP_IFNDEF SHARP_ELIF SHARP_ELSE SHARP_ENDIF
+%token <Pp_token.token> SHARP_NON_DIRECTIVE
 
-%token SHARP LPAR RPAR COMMA
+%token LPAR RPAR COMMA
 
-%token NL
+%token LINE NL
 
 %token <string> ID
 %token <string> NUM
@@ -26,19 +29,74 @@ preprocessing_file:
 | l=list(group_part) EOF { l }
 
 group_part:
-| wsp* SHARP WSP* DEFINE WSP+ id=ID WSP+ l=pp_tokens NL { DefineObject(id, l) }
-| wsp* SHARP WSP* DEFINE WSP+ id=ID LPAR params=separated_list(COMMA, p=param {p}) RPAR WSP* l=pp_tokens NL {
+| p=define_object { p }
+| p=define_function { p }
+| p=include_file { p }
+| p=non_directive { p }
+| p=if_part { If p }
+| p=line { p }
+
+group_parts:
+| { [] }
+| p=group_part l=group_parts { Printf.fprintf stderr "group_parts\n"; p::l }
+
+if_part:
+| p=if_line l=group_parts rest=elif_part {
+    let cond = { cond_expr = p; cond_groups = l } in
+    cond :: rest 
+}
+
+elif_part:
+| p=else_part { p }
+| p=elif_line l=group_parts rest=elif_part {
+    let cond = { cond_expr = p; cond_groups = l } in
+    cond :: rest
+}
+
+else_part:
+| p=endif_part { p }
+| p=else_line l=group_parts rest=endif_part {
+    let cond = { cond_expr = p; cond_groups = l } in
+    cond :: rest
+}
+
+endif_part:
+| endif_line { [] }
+
+if_line:
+| SHARP_IF l=pp_tokens NL { l }
+
+elif_line:
+| SHARP_ELIF l=pp_tokens NL { l }
+
+else_line:
+| SHARP_ELSE NL { [Num "1"] }
+
+endif_line:
+| SHARP_ENDIF NL { Printf.fprintf stderr "endif_line\n" }
+
+define_object:
+| SHARP_DEFINE id=ID WSP+ l=pp_tokens NL { DefineObject(id, l) }
+
+define_function:
+| SHARP_DEFINE id=ID LPAR params=separated_list(COMMA, p=param {p}) RPAR WSP* l=pp_tokens NL {
     DefineFunction(id, params, l)
 }
-| wsp* token=SHARP WSP* INCLUDE WSP* l=pp_tokens NL {
+
+include_file:
+| token=SHARP_INCLUDE WSP* l=pp_tokens NL {
     ignore token;
     Include { pp_tokens = l; loc = $startpos(token)}
 }
-| wsp* SHARP WSP* l=pp_tokens NL { NonDirective(l) }
-| wsps1=wsp* not_sharp=not_sharp wsps2=wsp* l=pp_tokens NL {
-    Line(wsps1 @ [not_sharp] @ wsps2 @ l @ [NewLine])
+
+non_directive:
+| SHARP_NON_DIRECTIVE l=pp_tokens NL { NonDirective(l) }
+
+line:
+| LINE wsps=wsp* l=pp_tokens NL {
+    Line(wsps @ l @ [NewLine])
 }
-| wsps=wsp* token=NL { Line(wsps) } (* 空白だけの行 *)
+| LINE wsps=wsp* NL { Line(wsps @ [NewLine]) } (* 空白だけの行 *)
 
 param:
 | WSP* id=ID WSP* { id }

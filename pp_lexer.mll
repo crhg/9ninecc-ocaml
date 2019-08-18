@@ -1,5 +1,5 @@
 {
-    open Pp_parser
+    (* open Pp_parser *)
     open Pp_token
     module B = Buffer
     module L = Lexing
@@ -57,6 +57,11 @@ rule token = parse
 
 | "define" as name { after_sharp DEFINE (ID name) }
 | "include" as name { after_sharp INCLUDE (ID name) }
+| "if" as name { after_sharp IF (ID name) }
+| "ifdef" as name { after_sharp IFDEF (ID name) }
+| "ifndef" as name { after_sharp IFNDEF (ID name) }
+| "else" as name { after_sharp ELSE (ID name) }
+| "endif" as name { after_sharp ENDIF (ID name) }
 
 | ['0'-'9']+ as num { other(NUM num) }
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { other(ID name) }

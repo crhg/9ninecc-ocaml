@@ -7,17 +7,15 @@ type pp_token =
 | Str of string
 | Num of string
 | NewLine
+| NewLines of int
 | Eof
 (* | Lpar *)
 (* | Rpar *)
 (* | Comma *)
-(* | If of expr * pp_token list * pp_token list *)
-(* | Ifdef of string * pp_token list * pp_token list *)
-(* | Ifndef of string * pp_token list * pp_token list *)
-(* | Include of string * bool (* true: <>, false: "" *) *)
 | LineMarker of int * string * int option (* linemarker表示用 *)
 
 and group_part = 
+| If of cond_r list
 | DefineObject of string * pp_token list
 | DefineFunction of string * string list * pp_token list
 | Include of include_r (* ファイル名がマクロで定義されている場合もあるのでastの段階ではpp_token列 *)
@@ -29,6 +27,11 @@ and group_part =
 and include_r = {
     pp_tokens: pp_token list;
     loc: Lexing.position [@opaque]
+}
+
+and cond_r = {
+    cond_expr: pp_token list;
+    cond_groups: group_part list
 }
 
 and ast = group_part list

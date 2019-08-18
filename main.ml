@@ -1,6 +1,6 @@
 let preprocess filename source =
     let token lexbuf =
-        let t = Pp_lexer.token lexbuf in
+        let t = Pp_lex.token lexbuf in
         Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t);
         t in
     Compiler.process filename source Pp_parser.preprocessing_file token (fun ast ->

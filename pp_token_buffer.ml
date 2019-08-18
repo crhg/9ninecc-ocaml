@@ -1,3 +1,5 @@
+(* token buffer といいながら各種 # xx の処理もほぼここでやっている *)
+
 type t = {
     mutable tokens: Pp_ast.pp_token list;
     mutable group_parts : Pp_ast.group_part list;
@@ -31,6 +33,8 @@ let rec token buf =
 and do_group_part g buf =
     let open Pp_ast in
     match g with
+    | If conds ->
+        do_if conds buf
     | DefineObject (name, pp_tokens) ->
         let open Pp_env in
         add name (ObjectMacro pp_tokens) buf.env
@@ -54,6 +58,35 @@ and do_group_part g buf =
         ()
     | Line line ->
         buf.tokens <- line
+
+and do_if conds buf = 
+    let open Pp_ast in
+    match conds with
+    | [] -> push_group_part (Line [NewLine]) buf
+    | {cond_expr = expr; cond_groups = gs} :: rest ->
+        if Pp_expr.eval expr buf.env then (
+            let rest_lines = line_count_of_conds rest in
+            push_group_part (Line [NewLines rest_lines]) buf;
+            push_group_parts gs buf;
+            push_group_part (Line [NewLine]) buf
+        ) else (
+            do_if rest buf;
+            let n = 1 + line_count_of_groups gs in
+            push_group_part (Line [NewLines n]) buf
+        )
+
+and line_count_of_groups gs =
+    Misc.sum @@ List.map line_count_of_group gs
+
+and line_count_of_group g = match g with
+| Pp_ast.If conds -> line_count_of_conds conds
+| _ -> 1
+
+and line_count_of_conds conds =
+    let line_count_of_cond cond = line_count_of_groups cond.Pp_ast.cond_groups in
+    1 (* #endifの分 *)
+    + List.length conds (* #if, #elif, #elseの分 *)
+    + Misc.sum (List.map line_count_of_cond conds) (* その他の行 *)
 
 and find_include_file filename from_current =
     if filename.[0] = '/' then

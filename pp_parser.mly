@@ -93,13 +93,15 @@ non_directive:
 | SHARP_NON_DIRECTIVE l=pp_tokens NL { NonDirective(l) }
 
 line:
-| LINE wsps=wsp* l=pp_tokens NL {
-    Line(wsps @ l @ [NewLine])
-}
-| LINE wsps=wsp* NL { Line(wsps @ [NewLine]) } (* 空白だけの行 *)
+| LINE l=wsp_or_pp_tokens NL { Line(l @ [NewLine]) }
 
 param:
 | WSP* id=ID WSP* { id }
+
+wsp_or_pp_tokens:
+| { [] }
+| wsp=wsp l=wsp_or_pp_tokens { wsp :: l }
+| t=pp_token l=wsp_or_pp_tokens { t :: l }
 
 pp_tokens:
 | { [] }

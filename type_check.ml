@@ -31,42 +31,25 @@ and check_decl decl = match decl.exp with
     )
 
 | GlobalVarDecl { gv_ts = ts; gv_decl_inits = decl_inits } ->
-    (match ts.exp, decl_inits with
-    | Struct {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
-        let ty = Type.Struct {
-            id = Unique_id.new_id "struct-";
-            tag = Some tag;
-            body = None
-        } in
-        Env.register_tag tag ty;
-    | Union {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
-        let ty = Type.Union {
-            id = Unique_id.new_id "union-";
-            tag = Some tag;
-            body = None
-        } in
-        Env.register_tag tag ty;
-    | _ ->
-        let ty = type_of_type_spec ts in
-        decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
-                let ty, name = type_and_var_ty ty d in
+    let ty = type_of_type_spec ts in
+    decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
+            let ty, name = type_and_var_ty ty d in
 
-                (* 最上位の配列サイズが未定で初期化子があれば求める *)
-                let ty = match ty, init with
-                    | Type.Array (t, None), Some init ->
-                        let size = determine_array_size t init in
-                        Type.Array(t, Some size)
-                    | _, _ -> ty in
+            (* 最上位の配列サイズが未定で初期化子があれば求める *)
+            let ty = match ty, init with
+                | Type.Array (t, None), Some init ->
+                    let size = determine_array_size t init in
+                    Type.Array(t, Some size)
+                | _, _ -> ty in
 
-                check_complete ty d.loc;
+            check_complete ty d.loc;
 
-                register_global_var ty name;
+            register_global_var ty name;
 
-                let entry = get_entry name in
-                di.di_entry <- Some entry;
+            let entry = get_entry name in
+            di.di_entry <- Some entry;
 
-                Option.may check_init init
-        )
+            Option.may check_init init
     )
 | TypedefDecl (ts, decl) ->
     typedef ts decl;

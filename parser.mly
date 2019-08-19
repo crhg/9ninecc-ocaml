@@ -62,6 +62,7 @@ decl:
     (match ds with
     | { ds_storage_class_spec = Some { exp=Typedef } } ->
         raise(Misc.Error_at("typedef with body??", loc))
+    | _ -> ()
     );
 
     {
@@ -105,17 +106,12 @@ decl:
 }
 
 decl_spec:
-| ss=storage_class_spec ds=option(decl_spec) {
-    match ds with
-    | None -> { ds_type_spec = None; ds_storage_class_spec = Some ss }
-    | Some ({ ds_storage_class_spec = None } as ds) -> { ds with ds_storage_class_spec = Some ss }
-    | _ -> raise(Misc.Error_at("At most one storage class may be given", $startpos(ss)))
+| ts=type_spec {
+    { ds_type_spec = Some ts; ds_storage_class_spec = None }
 }
-| ts=type_spec ds=option(decl_spec) {
-    match ds with
-    | None -> { ds_type_spec = Some ts; ds_storage_class_spec = None }
-    | Some ({ ds_type_spec = None } as ds) -> { ds with ds_type_spec = Some ts }
-    | _ -> raise(Misc.Error_at("At most one type may be given(now)", $startpos(ts)))
+| ts=type_spec ss=storage_class_spec
+| ss=storage_class_spec ts=type_spec {
+    { ds_type_spec = Some ts; ds_storage_class_spec = Some ss }
 }
 
 storage_class_spec:
@@ -132,8 +128,6 @@ decl_type_spec:
 (*  *)
 function_decl_head:
 | ds=decl_spec d=declarator token=LBRACE {
-    Printf.fprintf stderr "function_decl_head!!\n";
-
     match d.exp with
     | Func(_, params) ->
         Typedef_env.new_scope();

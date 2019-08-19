@@ -96,3 +96,6 @@ and get_field ty field_name = match ty with
     raise Incomplete
 | _ -> failwith ("get_field ty? " ^ (show ty))
 
+and is_function ty = match ty with
+| Function _ -> true
+| _ -> false

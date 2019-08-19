@@ -30,16 +30,13 @@ and check_decl decl = match decl.exp with
         | _ -> failwith "not function"
     )
 
-| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts; ds_storage_class_spec = scs } ; gv_decl_inits = decl_inits } ->
+| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts; ds_storage_class_spec = scs } as ds; gv_decl_inits = decl_inits } ->
     let ty = type_of_type_spec ts in
-    let extern = match scs with
-        | Some { exp = Extern } -> true
-        | _ -> false in
 
     decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
         let ty, name = type_and_var_ty ty d in
 
-        let ty = (if extern then (
+        let ty = (if Ast.is_extern ds || Type.is_function ty then ( (* 関数型は暗黙のextern *)
             (match init with
             | Some init ->
                 raise(Misc.Error_at("extern with init?", init.loc))

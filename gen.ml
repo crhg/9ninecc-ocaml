@@ -17,14 +17,17 @@ and gen_decl decl = match decl.exp with
 | GlobalVarDecl { gv_decl_inits = decl_inits } ->
     decl_inits |> List.iter (fun di -> match di with
         | { di_entry = Some (GlobalVar (ty, label)); di_init = None } ->
-            printf "    .globl %s\n" label;
-            printf "    .bss\n";
-            printf "    .align %d\n" (Type.get_alignment ty);
-            printf "    .type %s, @object\n" label;
-            printf "    .size %s, %d\n" label (Type.get_size ty);
-            printf "%s:\n" label;
-            printf "    .zero %d\n" (Type.get_size ty);
-            printf "\n"
+            if Type.is_function ty then ()
+            else (
+                printf "    .globl %s\n" label;
+                printf "    .bss\n";
+                printf "    .align %d\n" (Type.get_alignment ty);
+                printf "    .type %s, @object\n" label;
+                printf "    .size %s, %d\n" label (Type.get_size ty);
+                printf "%s:\n" label;
+                printf "    .zero %d\n" (Type.get_size ty);
+                printf "\n"
+            )
         | { di_entry = Some (GlobalVar (ty, label)); di_init = Some init } ->
                 Init_global.gen ty label init;
             printf "\n"

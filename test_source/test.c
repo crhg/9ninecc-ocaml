@@ -1145,3 +1145,11 @@ int test140() {
     return i140;
 }
 // @end
+
+// @try_ret test141 41
+int f141();
+
+int test141() {
+    return 41;
+}
+// @end

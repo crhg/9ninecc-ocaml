@@ -9,11 +9,11 @@ let mem name =
     r
 
 let add name =
-    (* Printf.fprintf stderr "Typedef_env.add %s\n" name; *)
+    Printf.fprintf stderr "Typedef_env.add %s\n" name;
     map := S.add name !map
 
 let remove name =
-    (* Printf.fprintf stderr "Typedef_env.remove %s\n" name; *)
+    Printf.fprintf stderr "Typedef_env.remove %s\n" name;
     map := S.remove name !map
 
 let new_scope _ =

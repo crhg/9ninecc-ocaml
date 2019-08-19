@@ -86,6 +86,8 @@ decl:
     | { ds_storage_class_spec = Some {exp=Typedef}; ds_type_spec = Some ts } ->
         let decls = decl_inits |> List.map (fun di -> match di with
             | { di_decl = decl; di_init = None } ->
+                let var = Type_check.var_of_d decl in
+                Typedef_env.add var;
                 decl
             | { di_init = Some init } ->
                 raise(Misc.Error_at("typedef with init?", init.loc))

@@ -30,11 +30,26 @@ and check_decl decl = match decl.exp with
         | _ -> failwith "not function"
     )
 
-| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts }; gv_decl_inits = decl_inits } ->
+| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts; ds_storage_class_spec = scs } ; gv_decl_inits = decl_inits } ->
     let ty = type_of_type_spec ts in
-    decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
-            let ty, name = type_and_var_ty ty d in
+    let extern = match scs with
+        | Some { exp = Extern } -> true
+        | _ -> false in
 
+    decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
+        let ty, name = type_and_var_ty ty d in
+
+        let ty = (if extern then (
+            (match init with
+            | Some init ->
+                raise(Misc.Error_at("extern with init?", init.loc))
+            | _ ->
+                ()
+            );
+
+            (* externなので完全型かどうかのチェックはしない *)
+            ty
+        ) else (
             (* 最上位の配列サイズが未定で初期化子があれば求める *)
             let ty = match ty, init with
                 | Type.Array (t, None), Some init ->
@@ -42,14 +57,18 @@ and check_decl decl = match decl.exp with
                     Type.Array(t, Some size)
                 | _, _ -> ty in
 
+            (* 変数の実体を割り付けるので完全型でなければならない *)
             check_complete ty d.loc;
 
-            register_global_var ty name;
+            Option.may check_init init;
 
-            let entry = get_entry name in
-            di.di_entry <- Some entry;
+            ty
+        )) in
 
-            Option.may check_init init
+        register_global_var ty name;
+
+        let entry = get_entry name in
+        di.di_entry <- Some entry;
     )
 | TypedefDecl (ts, decls) ->
     List.iter (typedef ts) decls;

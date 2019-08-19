@@ -75,6 +75,7 @@ rule token = parse
 | "union"   { UNION }
 | "enum"    { ENUM }
 | "typedef" { TYPEDEF }
+| "extern"  { EXTERN }
 
 | ['0'-'9']+ as num { NUM num }
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { IDENT name }

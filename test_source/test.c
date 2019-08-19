@@ -1137,3 +1137,11 @@ int test139() {
     test139_f(1);
 }
 // @end
+
+// @try_ret test140 40
+extern int i140;
+
+int test140() {
+    return i140;
+}
+// @end

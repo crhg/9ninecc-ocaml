@@ -12,6 +12,8 @@ let rec gen decl_list =
     List.iter gen_decl decl_list
 
 and gen_decl decl = match decl.exp with
+| GlobalVarDecl { gv_ds = { ds_storage_class_spec = Some { exp = Extern } } } ->
+    ()
 | GlobalVarDecl { gv_decl_inits = decl_inits } ->
     decl_inits |> List.iter (fun di -> match di with
         | { di_entry = Some (GlobalVar (ty, label)); di_init = None } ->

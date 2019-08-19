@@ -97,47 +97,30 @@ and determine_array_size element_ty init =
 
 and check_stmt stmt = match stmt.exp with
 | Var ({var_ts = ts; var_decl_inits = decl_inits} as v) ->
-    (match ts.exp, decl_inits with
-    | Struct {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
-        let ty = Type.Struct {
-            id = Unique_id.new_id "struct-";
-            tag = Some tag;
-            body = None
-        } in
-        Env.register_tag tag ty
-    | Union {su_tag = Some tag; su_fields = None}, [] when not @@ Env.defined_tag_in_current_scope tag ->
-        let ty = Type.Union {
-            id = Unique_id.new_id "union-";
-            tag = Some tag;
-            body = None
-        } in
-        Env.register_tag tag ty
-    | _ ->
-        let ty = type_of_type_spec ts in
+    let ty = type_of_type_spec ts in
 
-        decl_inits |> List.iter (fun decl_init -> match decl_init with
-        | { di_decl = d; di_init = init } ->
-            let ty, name = type_and_var_ty ty d in
+    decl_inits |> List.iter (fun decl_init -> match decl_init with
+    | { di_decl = d; di_init = init } ->
+        let ty, name = type_and_var_ty ty d in
 
-            let ty = match ty, init with
-                | Type.Array (t, None), Some init ->
-                    let size = determine_array_size t init in
-                    Type.Array(t, Some size)
+        let ty = match ty, init with
+            | Type.Array (t, None), Some init ->
+                let size = determine_array_size t init in
+                Type.Array(t, Some size)
                 | _ -> ty in
 
-            check_complete ty d.loc;
+        check_complete ty d.loc;
 
-            register_local_var ty name;
+        register_local_var ty name;
 
-            init |> Option.may (fun init ->
-                let entry = get_entry name in
-                let ident = {
-                    exp = Ident { name=name };
-                loc=d.loc
-                } in
-                let assign = Init_local.to_assign ty ident init in
-                decl_init.di_init_assign <- List.map (Misc.compose snd convert) assign
-            )
+        init |> Option.may (fun init ->
+            let entry = get_entry name in
+            let ident = {
+                exp = Ident { name=name };
+            loc=d.loc
+            } in
+            let assign = Init_local.to_assign ty ident init in
+            decl_init.di_init_assign <- List.map (Misc.compose snd convert) assign
         )
     )
 | Typedef (ts, decl) ->

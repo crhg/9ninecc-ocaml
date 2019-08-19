@@ -8,7 +8,7 @@ let rec ast_of filename contents =
     (* デバッグ用 *)
     let token lexbuf =
         let t = Pp_lex.token lexbuf in
-        Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t);
+        (* Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t); *)
         t in
 
     let ast = try Pp_parser.preprocessing_file token lexbuf with

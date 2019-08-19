@@ -40,7 +40,10 @@ group_part:
 
 group_parts:
 | { [] }
-| p=group_part l=group_parts { Printf.fprintf stderr "group_parts\n"; p::l }
+| p=group_part l=group_parts {
+    (* Printf.fprintf stderr "group_parts\n"; *)
+    p::l
+}
 
 if_part:
 | p=if_line l=group_parts rest=elif_part {
@@ -93,7 +96,9 @@ else_line:
 | SHARP_ELSE NL { [Num "1"] }
 
 endif_line:
-| SHARP_ENDIF NL { Printf.fprintf stderr "endif_line\n" }
+| SHARP_ENDIF NL {
+    (* Printf.fprintf stderr "endif_line\n" *)
+}
 
 define_object:
 | SHARP_DEFINE id=ID WSP+ l=pp_tokens NL { DefineObject(id, l) }

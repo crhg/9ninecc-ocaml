@@ -26,11 +26,11 @@ rule token = parse
 | "//" { line_comment lexbuf }
 | "/*" { block_comment lexbuf }
 | '#' {
-    Printf.fprintf stderr "sharp line\n";
+    (* Printf.fprintf stderr "sharp line\n"; *)
     let open Lexing in
     let pos = lexbuf.lex_start_p in
-    (if pos.pos_cnum <> pos.pos_bol then
-        Printf.fprintf stderr "cnum<>bol?: cnum=%d bol=%d\n" pos.pos_cnum pos.pos_bol);
+    (* (if pos.pos_cnum <> pos.pos_bol then *)
+        (* Printf.fprintf stderr "cnum<>bol?: cnum=%d bol=%d\n" pos.pos_cnum pos.pos_bol); *)
     sharp_line (B.create 50) lexbuf
 }
 
@@ -134,7 +134,7 @@ and sharp_line buf = parse
         let fname = matched_group 2 line in
         let cur = lexbuf.lex_curr_p in
         let cur = { cur with pos_fname = fname; pos_lnum = lnum } in
-        Printf.fprintf stderr "linemarker %d %s\n" lnum fname;
+        (* Printf.fprintf stderr "linemarker %d %s\n" lnum fname; *)
         lexbuf.lex_curr_p <- cur
     ) else (
         Printf.fprintf stderr "? #%s\n" line;

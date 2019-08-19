@@ -44,7 +44,7 @@ and do_group_part g buf =
         buf.tokens <- line
 
 and do_if conds buf = 
-    Printf.fprintf stderr "do_if\n";
+    (* Printf.fprintf stderr "do_if\n"; *)
     let open Pp_ast in
     match conds with
     | [] -> push_group_part (Line [NewLine]) buf
@@ -113,7 +113,7 @@ and push_group_part g buf =
 and push_group_parts gs buf = 
     buf.group_parts <- gs @ [Pp_ast.Line buf.tokens] @ buf.group_parts;
     buf.tokens <- []
-    ;Printf.fprintf stderr "push_group_parts %s\n" (show buf)
+    (* ;Printf.fprintf stderr "push_group_parts %s\n" (show buf) *)
 
 
 and back_token t buf = 

@@ -39,6 +39,7 @@ type token =
   | STR of (string)
   | STRUCT
   | TYPEDEF
+  | EXTERN
   | TYPEDEF_ID of (string)
   | UNION
   | WHILE

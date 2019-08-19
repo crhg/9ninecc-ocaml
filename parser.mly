@@ -19,7 +19,7 @@
 
 %token SIZEOF
 
-%token LONG INT SHORT CHAR STRUCT UNION ENUM TYPEDEF
+%token LONG INT SHORT CHAR STRUCT UNION ENUM TYPEDEF EXTERN
 
 %token DUMMY // typedefで使うダミーのトークン
 
@@ -53,22 +53,20 @@ id:
 translation_unit:
 | l=decl* EOF { l }
 
-decl_type_spec:
-| ts = type_spec {
-    (* Printf.fprintf stderr "function_type_spec\n"; *)
-    Typedef_env.new_scope();
-    ts
-}
 
 decl:
-(* | t=decl_type_spec d=declarator body=block  *)
 | h=function_decl_head l=function_decl_tail {
-    let (t, d, loc) = h in
+    let (ds, d, loc) = h in
     let body = { exp = Block l; loc = loc } in
+
+    (match ds with
+    | { ds_storage_class_spec = Some { exp=Typedef } } ->
+        raise(Misc.Error_at("typedef with body??", loc))
+    );
 
     {
         exp = FunctionDecl {
-            func_ts = t;
+            func_ds = ds;
             func_decl = d;
             func_body = body;
             func_ty = None;
@@ -79,32 +77,73 @@ decl:
         loc = d.loc
     }
 }
-| t=decl_type_spec decl_inits = separated_list(COMMA, decl_init) SEMI {
-    { 
-        exp = GlobalVarDecl {
-            gv_ts = t;
-            gv_decl_inits = decl_inits
-        };
-        loc = t.loc
-    }
-}
-| typedef=typedef {
-    let (ts, decl, loc) = typedef in
-    { exp = TypedefDecl (ts, decl); loc = loc }
+
+| ds=decl_spec decl_inits = separated_list(COMMA, decl_init) semi=SEMI {
+    ignore semi;
+    match ds with
+    (* typedefの場合 *)
+    | { ds_storage_class_spec = Some {exp=Typedef}; ds_type_spec = Some ts } ->
+        let decls = decl_inits |> List.map (fun di -> match di with
+            | { di_decl = decl; di_init = None } ->
+                decl
+            | { di_init = Some init } ->
+                raise(Misc.Error_at("typedef with init?", init.loc))
+        ) in
+        {
+            exp = TypedefDecl(ts, decls);
+            loc = $startpos(semi)
+        }
+    (* 通常の宣言 *)
+    | _ ->
+        { 
+            exp = GlobalVarDecl {
+                gv_ds = ds;
+                gv_decl_inits = decl_inits
+            };
+            loc = $startpos(semi)
+        }
 }
 
+decl_spec:
+| ss=storage_class_spec ds=option(decl_spec) {
+    match ds with
+    | None -> { ds_type_spec = None; ds_storage_class_spec = Some ss }
+    | Some ({ ds_storage_class_spec = None } as ds) -> { ds with ds_storage_class_spec = Some ss }
+    | _ -> raise(Misc.Error_at("At most one storage class may be given", $startpos(ss)))
+}
+| ts=type_spec ds=option(decl_spec) {
+    match ds with
+    | None -> { ds_type_spec = Some ts; ds_storage_class_spec = None }
+    | Some ({ ds_type_spec = None } as ds) -> { ds with ds_type_spec = Some ts }
+    | _ -> raise(Misc.Error_at("At most one type may be given(now)", $startpos(ts)))
+}
+
+storage_class_spec:
+| token=TYPEDEF { ignore token; { exp = Typedef; loc = $startpos(token) } }
+| token=EXTERN { ignore token; { exp = Extern; loc = $startpos(token) } }
+
+decl_type_spec:
+| ts = type_spec {
+    (* Printf.fprintf stderr "function_type_spec\n"; *)
+    Typedef_env.new_scope();
+    ts
+}
+
+(*  *)
 function_decl_head:
-| t=decl_type_spec d=declarator token=LBRACE {
-    ignore token;
+| ds=decl_spec d=declarator token=LBRACE {
+    Printf.fprintf stderr "function_decl_head!!\n";
+
     match d.exp with
-    | Func (_, params) ->
+    | Func(_, params) ->
         Typedef_env.new_scope();
         params |> List.iter (fun (_, d) ->
-            Typedef_env.remove (Type_check.var_of_d d)
-        );
+                    Typedef_env.remove (Type_check.var_of_d d)
+                );
 
-        (t, d, $startpos(token))
-    | _ -> raise(Misc.Error_at("declarator is not of function", d.loc))
+        (ds, d, $startpos(token))
+    | _ ->
+        raise(Misc.Error_at("declarator is not function", d.loc))
 }
 
 function_decl_tail:
@@ -244,12 +283,9 @@ init:
 
 stmt:
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
-| typedef=typedef {
-    let (ts, decl, loc) = typedef in
-    { exp = Typedef (ts, decl); loc = loc }
-}
-| t=type_spec decl_inits=decl_init* SEMI {
-    { exp = Var {var_ts=t; var_decl_inits=decl_inits }; loc = t.loc }
+| ds=decl_spec decl_inits=decl_init* token=SEMI {
+    ignore token;
+    { exp = Var {var_ds=ds; var_decl_inits=decl_inits }; loc = $startpos(token) }
 }
 | e=expr SEMI {
     let es = make_expr_s e in

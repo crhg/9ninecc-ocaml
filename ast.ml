@@ -30,6 +30,16 @@ and enumerator_exp = {
 }
 and enumarator = enumerator_exp node
 
+and decl_spec = {
+    ds_type_spec: type_spec option;
+    ds_storage_class_spec: storage_class_spec option
+}
+
+and storage_class_spec_exp =
+| Typedef
+| Extern
+and storage_class_spec = storage_class_spec_exp node
+
 and type_spec_exp =
 | Long
 | Int
@@ -43,7 +53,7 @@ and type_spec = type_spec_exp node
 
 and function_decl_r =
 {
-    func_ts: type_spec;
+    func_ds: decl_spec;
     func_decl: declarator;
     func_body: stmt;
     mutable func_ty: Type.t option;
@@ -55,10 +65,10 @@ and function_decl_r =
 and decl_exp =
 | FunctionDecl of function_decl_r
 | GlobalVarDecl of {
-    gv_ts: type_spec;
+    gv_ds: decl_spec;
     gv_decl_inits: decl_init list
 }
-| TypedefDecl of type_spec * declarator
+| TypedefDecl of type_spec * declarator list
 | DummyDecl
 and decl = decl_exp node
 
@@ -88,10 +98,10 @@ and init = init_exp node
 and stmt_exp = 
 | Empty
 | Var of  {
-    var_ts: type_spec;
+    var_ds: decl_spec;
     var_decl_inits: decl_init list
 }
-| Typedef of type_spec * declarator
+| TypedefStmt of type_spec * declarator list
 | Expr of expr_s
 | Return of expr_s
 | If of expr_s * stmt * stmt option

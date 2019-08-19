@@ -11,7 +11,7 @@ let rec check decl_list =
     List.iter check_decl decl_list
 
 and check_decl decl = match decl.exp with
-| FunctionDecl ({ func_ts = ts; func_decl = decl; func_body={exp=Block stmt_list} } as fd ) ->
+| FunctionDecl ({ func_ds = {ds_type_spec = Some ts}; func_decl = decl; func_body={exp=Block stmt_list} } as fd ) ->
     let ty, name = type_and_var_ts ts decl in
     (match ty with
         | Type.Function (ret_ty, params) ->
@@ -30,7 +30,7 @@ and check_decl decl = match decl.exp with
         | _ -> failwith "not function"
     )
 
-| GlobalVarDecl { gv_ts = ts; gv_decl_inits = decl_inits } ->
+| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts }; gv_decl_inits = decl_inits } ->
     let ty = type_of_type_spec ts in
     decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
             let ty, name = type_and_var_ty ty d in
@@ -51,8 +51,8 @@ and check_decl decl = match decl.exp with
 
             Option.may check_init init
     )
-| TypedefDecl (ts, decl) ->
-    typedef ts decl;
+| TypedefDecl (ts, decls) ->
+    List.iter (typedef ts) decls;
 | DummyDecl -> ()
 | _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
 
@@ -96,7 +96,7 @@ and determine_array_size element_ty init =
         init.loc))
 
 and check_stmt stmt = match stmt.exp with
-| Var ({var_ts = ts; var_decl_inits = decl_inits} as v) ->
+| Var ({var_ds = { ds_type_spec=Some ts }; var_decl_inits = decl_inits} as v) ->
     let ty = type_of_type_spec ts in
 
     decl_inits |> List.iter (fun decl_init -> match decl_init with
@@ -123,8 +123,8 @@ and check_stmt stmt = match stmt.exp with
             decl_init.di_init_assign <- List.map (Misc.compose snd convert) assign
         )
     )
-| Typedef (ts, decl) ->
-    typedef ts decl;
+| TypedefStmt (ts, decls) ->
+    List.iter (typedef ts) decls;
 | Expr expr ->
     convert_and_store expr
 | Return expr ->

@@ -88,7 +88,6 @@ and gen_decl decl = match decl.exp with
     printf "    pop rbp\n";
     printf "    ret\n";
     printf "\n"
-| TypedefDecl _
 | DummyDecl ->
     ()
 | _ -> failwith("gen_decl: "^(Ast.show_decl decl))
@@ -101,8 +100,7 @@ try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with
 and gen_stmt' stmt =
 let gen_expr expr = gen_i_expr @@ Option.get expr.i_expr in
 match stmt.exp with
-| Empty
-| Typedef _ -> ()
+| Empty -> ()
 | Var { var_decl_inits = decl_inits } ->
     decl_inits |> List.iter (fun decl_init ->
         decl_init.di_init_assign |> List.iter (fun assign ->

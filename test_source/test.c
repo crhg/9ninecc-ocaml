@@ -924,13 +924,13 @@ int test117() {
 }
 // @end
 
-/* // @try_ret test118 4 */
-/* int test118() { */
-/*     typedef int INT118;; */
-/*     INT118 x; */
-/*     sizeof(x); */
-/* } */
-/* // @end */
+// @try_ret test118 4
+int test118() {
+    typedef int INT118;;
+    INT118 x;
+    sizeof(x);
+}
+// @end
 
 /* // @try_ret test119 4 */
 /* int test119() { */

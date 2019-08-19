@@ -281,7 +281,27 @@ stmt:
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
 | ds=decl_spec decl_inits=decl_init* token=SEMI {
     ignore token;
-    { exp = Var {var_ds=ds; var_decl_inits=decl_inits }; loc = $startpos(token) }
+    match ds with
+    (* typedefの場合 *)
+    | { ds_storage_class_spec = Some {exp=Typedef}; ds_type_spec = Some ts } ->
+        let decls = decl_inits |> List.map (fun di -> match di with
+            | { di_decl = decl; di_init = None } ->
+                let var = Type_check.var_of_d decl in
+                Typedef_env.add var;
+                decl
+            | { di_init = Some init } ->
+                raise(Misc.Error_at("typedef with init?", init.loc))
+        ) in
+        {
+            exp = TypedefStmt(ts, decls);
+            loc = $startpos(token)
+        }
+    (* 通常の宣言 *)
+    | _ ->
+        {
+            exp = Var {var_ds=ds; var_decl_inits=decl_inits };
+            loc = $startpos(token)
+        }
 }
 | e=expr SEMI {
     let es = make_expr_s e in

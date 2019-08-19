@@ -101,7 +101,9 @@ try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with
 and gen_stmt' stmt =
 let gen_expr expr = gen_i_expr @@ Option.get expr.i_expr in
 match stmt.exp with
-| Empty -> ()
+| Empty
+| TypedefStmt _ ->
+    ()
 | Var { var_decl_inits = decl_inits } ->
     decl_inits |> List.iter (fun decl_init ->
         decl_init.di_init_assign |> List.iter (fun assign ->

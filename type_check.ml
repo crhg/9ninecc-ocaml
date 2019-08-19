@@ -310,6 +310,15 @@ and convert_lval expr = match expr.exp with
 | _ ->
     raise(Misc.Error_at("not lval", expr.loc))
 
+(* declarator から定義すべき変数名のみ求める *)
+and var_of_d d = match d.exp with
+| DeclIdent var ->
+    var
+| PointerOf d
+| Array (d, _)
+| Func (d, _) ->
+    var_of_d d
+
 and type_and_var_ts ts d =
 let ty = type_of_type_spec ts in
 type_and_var_ty ty d

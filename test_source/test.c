@@ -1126,3 +1126,14 @@ int test138() {
     return TEST138;
 }
 // @end
+
+// @try_ret test139 1
+typedef int test139_a;
+int test139_f(int test139_a) {
+    return test139_a;
+}
+
+int test139() {
+    test139_f(1);
+}
+// @end

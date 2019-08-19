@@ -61,9 +61,10 @@ decl_type_spec:
 }
 
 decl:
-| t=decl_type_spec d=declarator body=block
-{
-    Typedef_env.overwrite_scope();
+(* | t=decl_type_spec d=declarator body=block  *)
+| h=function_decl_head l=function_decl_tail {
+    let (t, d, loc) = h in
+    let body = { exp = Block l; loc = loc } in
 
     {
         exp = FunctionDecl {
@@ -79,7 +80,6 @@ decl:
     }
 }
 | t=decl_type_spec decl_inits = separated_list(COMMA, decl_init) SEMI {
-    Typedef_env.restore_scope();
     { 
         exp = GlobalVarDecl {
             gv_ts = t;
@@ -91,6 +91,26 @@ decl:
 | typedef=typedef {
     let (ts, decl, loc) = typedef in
     { exp = TypedefDecl (ts, decl); loc = loc }
+}
+
+function_decl_head:
+| t=decl_type_spec d=declarator token=LBRACE {
+    ignore token;
+    match d.exp with
+    | Func (_, params) ->
+        Typedef_env.new_scope();
+        params |> List.iter (fun (_, d) ->
+            Typedef_env.remove (Type_check.var_of_d d)
+        );
+
+        (t, d, $startpos(token))
+    | _ -> raise(Misc.Error_at("declarator is not of function", d.loc))
+}
+
+function_decl_tail:
+| l=stmt* RBRACE {
+    Typedef_env.restore_scope();
+    l
 }
 
 typedef:
@@ -192,11 +212,24 @@ direct_declarator:
         loc = d.loc
     }
 }
-| d=direct_declarator LPAR params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) }) RPAR {
+(* | d=direct_declarator LPAR params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) }) RPAR { *)
+| d=function_declarator_head params=function_declarator_rest {
     {
         exp = Func (d, params);
         loc = d.loc
     }
+}
+
+function_declarator_head:
+| d=direct_declarator LPAR {
+    Typedef_env.new_scope();
+    d
+}
+
+function_declarator_rest:
+| params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) }) RPAR {
+    Typedef_env.restore_scope();
+    params
 }
 
 init:

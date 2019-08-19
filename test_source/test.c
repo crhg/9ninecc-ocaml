@@ -932,62 +932,62 @@ int test118() {
 }
 // @end
 
-/* // @try_ret test119 4 */
-/* int test119() { */
-/*     typedef int INT; */
-/*     INT x; */
-/*     sizeof(x); */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test120 4 */
-/* int test120() { */
-/*     typedef int a; */
-/*     struct a { int x; } x; */
-/*     sizeof(x); */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test121 1 */
-/* int test121() { */
-/*     typedef int a; */
-/*     struct { char a; } x; */
-/*     sizeof(x); */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test122 4 */
-/* int test122() { */
-/*     typedef int INT; */
-/*     typedef INT INT2; */
-/*     INT2 x; */
-/*     sizeof(x); */
-/* } */
-/* // @end */
-/*  */
-/* // @try_ret test123 6 */
-/* int test123() { */
-/*     typedef int INT; */
-/*     int x = 1; */
-/*     { */
-/*         INT INT; */
-/*         INT = 3; */
-/*         x = x + INT; */
-/*     } */
-/*     INT y = x + 2; */
-/*     return y; */
-/* } */
-/* // @end */
-/*  */
-/*  */
-/* // @try_ret test124 80 */
-/* int test124() { */
-/*     typedef int A[20]; */
-/*     A a; */
-/*  */
-/*     return sizeof a; */
-/* } */
-/* // @end */
+// @try_ret test119 4
+int test119() {
+    typedef int INT;
+    INT x;
+    sizeof(x);
+}
+// @end
+
+// @try_ret test120 4
+int test120() {
+    typedef int a;
+    struct a { int x; } x;
+    sizeof(x);
+}
+// @end
+
+// @try_ret test121 1
+int test121() {
+    typedef int a;
+    struct { char a; } x;
+    sizeof(x);
+}
+// @end
+
+// @try_ret test122 4
+int test122() {
+    typedef int INT;
+    typedef INT INT2;
+    INT2 x;
+    sizeof(x);
+}
+// @end
+
+// @try_ret test123 6
+int test123() {
+    typedef int INT;
+    int x = 1;
+    {
+        INT INT;
+        INT = 3;
+        x = x + INT;
+    }
+    INT y = x + 2;
+    return y;
+}
+// @end
+
+
+// @try_ret test124 80
+int test124() {
+    typedef int A[20];
+    A a;
+
+    return sizeof a;
+}
+// @end
 
 // @try_ret test125 2
 int test125() {

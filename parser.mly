@@ -129,6 +129,7 @@ decl_type_spec:
 (*  *)
 function_decl_head:
 | ds=decl_spec d=declarator token=LBRACE {
+    ignore token;
     match d.exp with
     | Func(_, params) ->
         Typedef_env.new_scope();

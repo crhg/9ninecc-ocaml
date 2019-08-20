@@ -59,7 +59,7 @@ decl:
     let body = { exp = Block l; loc = loc } in
 
     (match ds with
-    | { ds_storage_class_spec = Some { exp=Typedef } } ->
+    | { ds_storage_class_spec = Some { exp=Typedef; _ }; _ } ->
         raise(Misc.Error_at("typedef with body??", loc))
     | _ -> ()
     );
@@ -82,13 +82,13 @@ decl:
     ignore semi;
     match ds with
     (* typedefの場合 *)
-    | { ds_storage_class_spec = Some {exp=Typedef}; ds_type_spec = Some ts } ->
+    | { ds_storage_class_spec = Some {exp=Typedef; _}; ds_type_spec = Some ts; _ } ->
         let decls = decl_inits |> List.map (fun di -> match di with
-            | { di_decl = decl; di_init = None } ->
+            | { di_decl = decl; di_init = None; _ } ->
                 let var = Type_check.var_of_d decl in
                 Typedef_env.add var;
                 decl
-            | { di_init = Some init } ->
+            | { di_init = Some init; _ } ->
                 raise(Misc.Error_at("typedef with init?", init.loc))
         ) in
         {
@@ -282,13 +282,13 @@ stmt:
     ignore token;
     match ds with
     (* typedefの場合 *)
-    | { ds_storage_class_spec = Some {exp=Typedef}; ds_type_spec = Some ts } ->
+    | { ds_storage_class_spec = Some {exp=Typedef; _}; ds_type_spec = Some ts; _ } ->
         let decls = decl_inits |> List.map (fun di -> match di with
-            | { di_decl = decl; di_init = None } ->
+            | { di_decl = decl; di_init = None; _ } ->
                 let var = Type_check.var_of_d decl in
                 Typedef_env.add var;
                 decl
-            | { di_init = Some init } ->
+            | { di_init = Some init; _ } ->
                 raise(Misc.Error_at("typedef with init?", init.loc))
         ) in
         {
@@ -378,7 +378,7 @@ postfix_expression:
 }
 | func=postfix_expression LPAR params=separated_list(COMMA, p=assignment_expression { p }) RPAR {
     match func with
-    | { exp = Ident { name = name } } ->
+    | { exp = Ident { name = name }; _ } ->
         { exp = Call (name, params); loc = func.loc } 
     | _ ->
         raise(Misc.Error_at("function expression is not implemented", func.loc))

@@ -15,17 +15,17 @@ type t =
 | Function of t * (string * t) list (* 戻り値とパラメタ *)
 | Struct of aggregate 
     [@printer fun fmt aggregate -> match aggregate with
-        | {id=id} when SS.mem id !shown ->
+        | {id=id;_} when SS.mem id !shown ->
             fprintf fmt "Struct{id=%s;...}" id
-        | {id=id} ->
+        | {id=id;_} ->
             shown := SS.add id !shown;
             fprintf fmt "Struct ";
             pp_aggregate fmt  aggregate ]
 | Union of aggregate 
     [@printer fun fmt aggregate -> match aggregate with
-        | {id=id} when SS.mem id !shown ->
+        | {id=id;_} when SS.mem id !shown ->
             fprintf fmt "Union{id=%s;...}" id
-        | {id=id} ->
+        | {id=id;_} ->
             shown := SS.add id !shown;
             fprintf fmt "Union ";
             pp_aggregate fmt  aggregate ]
@@ -63,7 +63,7 @@ let rec get_size ty = match ty with
 | Char -> 1
 | Ptr _ -> 8
 | Array (t, Some n) -> get_size t * n
-| Struct {body=Some{size=size}} -> size
+| Struct {body=Some{size=size;_};_} -> size
 | _ -> raise Incomplete
 
 and get_alignment ty = match ty with
@@ -73,7 +73,7 @@ and get_alignment ty = match ty with
 | Char -> 1
 | Ptr _ -> 8
 | Array (t, _) -> get_alignment t
-| Struct {body=Some{alignment=alignment}} -> alignment
+| Struct {body=Some{alignment=alignment;_};_} -> alignment
 | _ -> raise Incomplete
 
 and is_complete_type ty = match ty with
@@ -82,7 +82,7 @@ and is_complete_type ty = match ty with
 | Short
 | Char
 | Ptr _
-| Struct {body=Some _} ->
+| Struct {body=Some _; _} ->
     true
 | Array (t, Some _) ->
     is_complete_type t
@@ -90,8 +90,8 @@ and is_complete_type ty = match ty with
     false
 
 and get_field ty field_name = match ty with
-| Struct { body = Some { fields = fields } } ->
-    List.find (fun { field_name = name } -> name = field_name) fields
+| Struct { body = Some { fields = fields; _ }; _ } ->
+    List.find (fun { field_name = name; _ } -> name = field_name) fields
 | Struct _ ->
     raise Incomplete
 | _ -> failwith ("get_field ty? " ^ (show ty))

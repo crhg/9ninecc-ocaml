@@ -1,5 +1,4 @@
 open Ast
-open Misc
 
 exception Not_Constant of string
 
@@ -25,4 +24,5 @@ and eval i_expr = match i_expr with
     | Ne, (None, x), (None, y) -> (None, if x <> y then 1 else 0)
     | _ -> raise(Not_Constant(Ast.show_i_expr i_expr))
     )
+| _ -> failwith "?"
 

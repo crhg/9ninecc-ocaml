@@ -1,5 +1,4 @@
 open Ast
-open Env
 open Misc
 open Printf
 
@@ -49,14 +48,14 @@ and init_data_pointer init =
 and scalar_init_value init = match init.exp with
 | ExprInitializer expr_s ->
     Const.eval @@ Option.get expr_s.i_expr
-| ListInitializer (({exp=ExprInitializer _} as init)::_) ->
+| ListInitializer (({exp=ExprInitializer _; _} as init)::_) ->
     scalar_init_value init 
 | _ -> failwith("not scalar initializer")
 
 and init_data_array ty n init = match init.exp with
 | ListInitializer l ->
     init_data_by_list ty n l
-| ExprInitializer {expr={exp=Str (s, _)}} when ty == Type.Char -> 
+| ExprInitializer {expr={exp=Str (s, _);_};_} when ty == Type.Char -> 
     init_str n s
 | _ -> raise(Error_at("cannot initialize", init.loc))
 

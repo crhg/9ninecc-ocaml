@@ -31,6 +31,7 @@ and gen_decl decl = match decl.exp with
         | { di_entry = Some (GlobalVar (ty, label)); di_init = Some init; _ } ->
                 Init_global.gen ty label init;
             printf "\n"
+        | _ -> failwith "?"
     )
 
 | FunctionDecl { func_name=Some func; func_params=Some params; func_body=body; func_frame_size=Some size; _ } ->
@@ -61,29 +62,37 @@ and gen_decl decl = match decl.exp with
     (* 文の中で式を実行した場合は必ず生成された値をpopする決まりとするので *)
     (* この時点でのスタック位置が式のコード生成開始時のスタック位置になる *)
 
-    let copy_param i {param_ty = ty; param_name = name; param_entry = Some (LocalVar (_, lvar_offset)); _ } =
-        printf "    mov rax, rbp\n";
-        printf "    sub rax, %d\n" lvar_offset;
-        Gen_misc.(match i with
-        | 0 ->
-            store ty "[rax]"  "rdi"
-        | 1 ->
-            store ty "[rax]"  "rsi"
-        | 2 ->
-            store ty "[rax]"  "rdx"
-        | 3 ->
-            store ty "[rax]"  "rcx"
-        | 4 ->
-            store ty "[rax]"  "r8"
-        | 5 ->
-            store ty "[rax]"  "r9"
-        | _ ->
-            let param_offset = (i - 6) * 8 + 16 in
-            printf "    mov r10, rbp\n";
-            printf "    add r10, %d # %s\n" param_offset name;
-            printf "    mov r10, [r10]\n";
+    let copy_param i param =
+        match param with
+        | {
+            param_ty = ty;
+            param_name = name;
+            param_entry = Some (LocalVar (_, lvar_offset));
+            _
+        } ->
+            printf "    mov rax, rbp\n";
+            printf "    sub rax, %d\n" lvar_offset;
+            Gen_misc.(match i with
+            | 0 ->
+                store ty "[rax]"  "rdi"
+            | 1 ->
+                store ty "[rax]"  "rsi"
+            | 2 ->
+                store ty "[rax]"  "rdx"
+            | 3 ->
+                store ty "[rax]"  "rcx"
+            | 4 ->
+                store ty "[rax]"  "r8"
+            | 5 ->
+                store ty "[rax]"  "r9"
+            | _ ->
+                let param_offset = (i - 6) * 8 + 16 in
+                printf "    mov r10, rbp\n";
+                printf "    add r10, %d # %s\n" param_offset name;
+                printf "    mov r10, [r10]\n";
             store ty "[rax]" "r10"
-        )
+            )
+        | _ -> failwith "?"
     in
         List.iteri copy_param params;
 

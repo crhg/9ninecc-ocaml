@@ -40,6 +40,7 @@ let select_reg ty reg = match (select_size ty, reg) with
 | (8, "r8")  -> "r8b"
 | (8, "r9")  -> "r9b"
 | (8, "r10") -> "r10b"
+| _ -> failwith "?"
 
 let load ty dst src = Printf.(match ty with
 | Type.Char ->

@@ -1,5 +1,4 @@
 {
-    open Parser
     open Token
     module B = Buffer
     module L = Lexing
@@ -27,8 +26,8 @@ rule token = parse
 | "/*" { block_comment lexbuf }
 | '#' {
     (* Printf.fprintf stderr "sharp line\n"; *)
-    let open Lexing in
-    let pos = lexbuf.lex_start_p in
+    (* let open Lexing in *)
+    (* let pos = lexbuf.lex_start_p in *)
     (* (if pos.pos_cnum <> pos.pos_bol then *)
         (* Printf.fprintf stderr "cnum<>bol?: cnum=%d bol=%d\n" pos.pos_cnum pos.pos_bol); *)
     sharp_line (B.create 50) lexbuf

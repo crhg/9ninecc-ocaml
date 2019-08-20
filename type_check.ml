@@ -11,10 +11,15 @@ let rec check decl_list =
     List.iter check_decl decl_list
 
 and check_decl decl = match decl.exp with
-| FunctionDecl ({ func_ds = {ds_type_spec = Some ts}; func_decl = decl; func_body={exp=Block stmt_list} } as fd ) ->
+| FunctionDecl ({
+    func_ds = {ds_type_spec = Some ts; _};
+    func_decl = decl;
+    func_body={exp=Block stmt_list; _};
+    _ 
+} as fd ) ->
     let ty, name = type_and_var_ts ts decl in
     (match ty with
-        | Type.Function (ret_ty, params) ->
+        | Type.Function (_, params) ->
             fd.func_name <- Some name;
             let params = params |> List.map (fun (pname, pty) ->
                 {
@@ -30,10 +35,10 @@ and check_decl decl = match decl.exp with
         | _ -> failwith "not function"
     )
 
-| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts; ds_storage_class_spec = scs } as ds; gv_decl_inits = decl_inits } ->
+| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts; _ } as ds; gv_decl_inits = decl_inits } ->
     let ty = type_of_type_spec ts in
 
-    decl_inits |> List.iter (fun ({ di_decl = d; di_init = init } as di) ->
+    decl_inits |> List.iter (fun ({ di_decl = d; di_init = init; _ } as di) ->
         let ty, name = type_and_var_ty ty d in
 
         let ty = (if Ast.is_extern ds || Type.is_function ty then ( (* 関数型は暗黙のextern *)
@@ -83,7 +88,7 @@ and prepare_func params stmt_list =
     Env.with_new_local_frame (fun _ ->
     Env.with_new_scope (fun _ ->
         let register param = match param with
-        | { param_ty = ty; param_name = name; param_loc = loc } as p ->
+        | { param_ty = ty; param_name = name; param_loc = loc; _ } as p ->
             check_complete ty loc;
 
             (try register_local_var ty name with
@@ -99,9 +104,9 @@ and prepare_func params stmt_list =
 and determine_array_size element_ty init =
     match element_ty, init.exp with
     (* charの配列のときのみ 文字列リテラル or {文字列リテラル} でも初期化可能 *)
-    | Type.Char, ExprInitializer {expr={exp = Str(s,_)}} ->
+    | Type.Char, ExprInitializer {expr={exp = Str(s,_);_};_} ->
         String.length s + 1
-    | Type.Char, ListInitializer [{ exp = ExprInitializer {expr={exp = Str(s,_)}}}] ->
+    | Type.Char, ListInitializer [{ exp = ExprInitializer {expr={exp = Str(s,_);_};_};_}] ->
         String.length s + 1
     | _, ListInitializer l ->
         List.length l
@@ -112,11 +117,11 @@ and determine_array_size element_ty init =
         init.loc))
 
 and check_stmt stmt = match stmt.exp with
-| Var ({var_ds = { ds_type_spec=Some ts }; var_decl_inits = decl_inits} as v) ->
+| Var {var_ds = { ds_type_spec=Some ts; _ }; var_decl_inits = decl_inits} ->
     let ty = type_of_type_spec ts in
 
     decl_inits |> List.iter (fun decl_init -> match decl_init with
-    | { di_decl = d; di_init = init } ->
+    | { di_decl = d; di_init = init; _ } ->
         let ty, name = type_and_var_ty ty d in
 
         let ty = match ty, init with
@@ -130,7 +135,6 @@ and check_stmt stmt = match stmt.exp with
         register_local_var ty name;
 
         init |> Option.may (fun init ->
-            let entry = get_entry name in
             let ident = {
                 exp = Ident { name=name };
             loc=d.loc
@@ -197,7 +201,7 @@ and convert' expr = match expr.exp with
 | Num n -> (Type.Int, Const (int_of_string n))
 | Str (s,label) ->
     (Type.Array(Type.Char, Some (String.length s + 1)), Label label)
-| Ident ({ name = name } as ident)->
+| Ident { name = name } ->
     let get_entry name = try get_entry name with
     | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
     (match get_entry name with
@@ -215,10 +219,10 @@ and convert' expr = match expr.exp with
     | TypeDef _ ->
         raise(Misc.Error_at("type name in expr" ^ name, expr.loc))
     )
-| Assign ({assign_lhs=lhs; assign_rhs=rhs} as r) ->
+| Assign {assign_lhs=lhs; assign_rhs=rhs} ->
     (* Printf.fprintf stderr "convert assign %s\n" (Ast.show_expr_short expr); *)
     let lty, l = convert_lval lhs in
-    let rty, r = convert_normalized rhs in
+    let _,   r = convert_normalized rhs in
 
     (* TODO: 型チェック *)
 
@@ -236,7 +240,7 @@ and convert' expr = match expr.exp with
 | Addr e ->
     let ty, e = convert_lval e in
     (Ptr ty, e)
-| Deref ({deref_expr = e} as r)->
+| Deref {deref_expr = e} ->
     let ty, e = convert_normalized e in
     (match ty with
     | Type.Ptr t ->
@@ -251,10 +255,10 @@ and convert' expr = match expr.exp with
     (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)
     let ty, lval = convert_lval expr in
     (ty, Load (ty, lval))
-| Sizeof ({sizeof_expr = e} as r) ->
+| Sizeof {sizeof_expr = e} ->
     let ty, _ = convert e in
     (Type.Int, Const (Type.get_size ty))
-| Binop ({ op=op; lhs=l; rhs=r} as binop) ->
+| Binop { op=op; lhs=l; rhs=r} ->
     let lty, l = convert_normalized l in
     let rty, r = convert_normalized r in
     (match op with
@@ -291,17 +295,18 @@ and convert' expr = match expr.exp with
     | Lt
     | Le ->
         (Type.Int, I_binop(op, l, r))
+    | _ -> failwith "?"
     )
 
-and to_pointer ty =
-    let open Type in
-    match ty with
-    | Array(t,_) -> Ptr t
-    | _ -> Ptr ty
+(* and to_pointer ty = *)
+(*     let open Type in *)
+(*     match ty with *)
+(*     | Array(t,_) -> Ptr t *)
+(*     | _ -> Ptr ty *)
 
 (* lvalの変換, (式の型, 式のポインタを求める式) *)
 and convert_lval expr = match expr.exp with
-| Ident ({ name = name } as ident)->
+| Ident { name = name } ->
     let get_entry name = try get_entry name with
     | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
     (match get_entry name with
@@ -312,7 +317,7 @@ and convert_lval expr = match expr.exp with
     | _ ->
         raise(Misc.Error_at("not lval", expr.loc))
     )
-| Deref ({deref_expr = e} as r)->
+| Deref ({deref_expr = e})->
     let ty, e = convert_normalized e in
     (match ty with
     | Type.Ptr t ->
@@ -320,9 +325,13 @@ and convert_lval expr = match expr.exp with
     | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
     )
 | Arrow { arrow_expr = e; arrow_field = f } ->
-    let Ptr ty, e = convert e in
-    let f = Type.get_field ty f in
-    (f.field_type, I_binop(Add, e, (Const f.field_offset)))
+    let ty, i_e = convert e in
+    (match ty with
+    | Ptr ty ->
+        let f = Type.get_field ty f in
+        (f.field_type, I_binop(Add, i_e, (Const f.field_offset)))
+    | _ -> raise(Error_at("not pointer", e.loc))
+    )
 | _ ->
     raise(Misc.Error_at("not lval", expr.loc))
 
@@ -383,7 +392,7 @@ and type_of_type_spec ts = match ts.exp with
     let body = body_of_struct fields in
     if Env.defined_tag_in_current_scope tag then
         (match Env.get_tag_opt tag with
-            | Some ((Type.Struct ({body = None} as s)) as ty) ->
+            | Some ((Type.Struct ({body = None; _} as s)) as ty) ->
                 s.body <- Some body;
                 ty
             | _ ->
@@ -408,7 +417,7 @@ and type_of_type_spec ts = match ts.exp with
     }
 | Union { su_tag = Some tag; su_fields = None } ->
     (match Env.get_tag_opt tag with
-        | Some ((Type.Union s) as ty) -> ty
+        | Some ((Type.Union _) as ty) -> ty
         | _ ->
             let ty = Type.Union {
                 id = Unique_id.new_id "union-";
@@ -422,7 +431,7 @@ and type_of_type_spec ts = match ts.exp with
     let body = body_of_union fields in
     if Env.defined_tag_in_current_scope tag then
         (match Env.get_tag_opt tag with
-            | Some ((Type.Union ({body = None} as s)) as ty) ->
+            | Some ((Type.Union ({body = None; _} as s)) as ty) ->
                 s.body <- Some body;
                 ty
             | _ ->
@@ -471,6 +480,7 @@ and type_of_type_spec ts = match ts.exp with
     | Env.TypeDef ty -> ty
     | _ -> raise(Misc.Error("not typedef id: "^id))
     )
+| _ -> failwith "?"
 
 and body_of_struct fields =
     let size, alignment, fields = body_of_struct' 0 0 fields in
@@ -516,7 +526,7 @@ and body_of_union' size alignment fields = match fields with
 and declare_enum_list l =
     let rec declare_enum_list' n l = match l with
     | [] -> ()
-    | {exp=e}::rest ->
+    | {exp=e;_}::rest ->
         let n = match e.en_expr with
         | None -> n
         | Some expr -> eval_expr expr.expr in

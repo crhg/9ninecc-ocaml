@@ -4,14 +4,14 @@ open Pp_token_buffer_data
 
 let rec token buf =
     match buf with
-    | {tokens = t::rest} -> 
+    | {tokens = t::rest; _} -> 
         buf.tokens <- rest;
         t
-    | {tokens = []; group_parts = g::rest} ->
+    | {tokens = []; group_parts = g::rest; _} ->
         buf.group_parts <- rest;
         do_group_part g buf ;
         token buf
-    | {tokens = []; group_parts = []} ->
+    | {tokens = []; group_parts = []; _} ->
         Pp_ast.Eof
 
 and do_group_part g buf =

@@ -1,13 +1,13 @@
 (* lexerのラッパ *)
 open Token
 
-let show token = match token with
-| TYPEDEF -> "TYPEDEF"
-| IDENT s -> "IDENT("^s^")"
-| TYPEDEF_ID s -> "TYPEDEF_iD("^s^")"
-| SEMI -> ";"
-| DUMMY -> "DUMMY"
-| _ -> "."
+(* let show token = match token with *)
+(* | TYPEDEF -> "TYPEDEF" *)
+(* | IDENT s -> "IDENT("^s^")" *)
+(* | TYPEDEF_ID s -> "TYPEDEF_iD("^s^")" *)
+(* | SEMI -> ";" *)
+(* | DUMMY -> "DUMMY" *)
+(* | _ -> "." *)
 
 let delayed_name = ref None
 let delay_count = ref 0

@@ -210,7 +210,7 @@ enum_list_rest:
 | COMMA e=enumarator l=enum_list_rest { e::l }
 
 enumarator:
-| id=id expr=option(ASSIGN e=expr{e}) {
+| id=id expr=option(ASSIGN e=constant_expression{e}) {
     let name, loc = id in
     let expr = Option.map make_expr_s expr in
     {
@@ -241,7 +241,7 @@ direct_declarator:
     { exp = DeclIdent name; loc = loc }
 }
 | LPAR d=declarator RPAR { d }
-| d=direct_declarator LBRACKET e=option(expr) RBRACKET {
+| d=direct_declarator LBRACKET e=option(assignment_expression) RBRACKET {
     {
         exp = Array (d, e);
         loc = d.loc
@@ -268,7 +268,7 @@ function_declarator_rest:
 }
 
 init:
-| e=expr {
+| e=assignment_expression {
     let es = make_expr_s e in
     { exp=ExprInitializer es; loc=e.loc }
 }
@@ -303,25 +303,25 @@ stmt:
             loc = $startpos(token)
         }
 }
-| e=expr SEMI {
+| e=expression SEMI {
     let es = make_expr_s e in
     { exp = Expr es; loc = e.loc }
 }
-| token=RETURN e=expr SEMI {
+| token=RETURN e=expression SEMI {
     ignore token;
     let e = make_expr_s e in
     { exp = Return e; loc = $startpos(token) } }
-| token=IF LPAR e=expr RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
+| token=IF LPAR e=expression RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
     ignore token;
     let e = make_expr_s e in
     { exp = If (e, then_stmt, else_stmt); loc = $startpos(token) }
 }
-| token=WHILE LPAR e=expr RPAR s=stmt {
+| token=WHILE LPAR e=expression RPAR s=stmt {
     ignore token;
     let e = make_expr_s e in
     { exp = While (e, s); loc = $startpos(token) }
 }
-| token=FOR LPAR init=expr? SEMI cond=expr? SEMI next=expr? RPAR s=stmt {
+| token=FOR LPAR init=expression? SEMI cond=expression? SEMI next=expression? RPAR s=stmt {
     ignore token;
     let init = Option.map make_expr_s init in
     let cond = Option.map make_expr_s cond in
@@ -345,79 +345,254 @@ block:
 }
 
 expr_eof:
-| e=expr EOF { e }
+| e=expression EOF { e }
 
-expr:
-| e=assign { e }
+identifier:
+| id=ident { 
+    let name, loc = id in
+    { exp = Ident { name = name }; loc = loc }
+}
 
-assign:
-| e=equality { e }
-| l=assign token=ASSIGN r=equality { ignore token; { exp = Assign { assign_lhs = l; assign_rhs = r }; loc = $startpos(token) } }
+constant:
+| n=NUM { { exp = Num n; loc = $startpos(n) } }
 
-equality:
-| e=relational { e }
-| l=equality token=EQ r=relational { ignore token; { exp = Binop{op=Eq; lhs=l; rhs=r}; loc = $startpos(token) } }
-| l=equality token=NE r=relational { ignore token; { exp = Binop{op=Ne; lhs=l; rhs=r}; loc = $startpos(token) } }
+string_literal:
+| str=STR {
+    { exp = Str (str, String_literal.add str); loc = $startpos(str) }
+}
 
-relational:
-| e=add { e }
-| l=relational token=LT r=add { ignore token; { exp = Binop{op=Lt; lhs=l; rhs=r}; loc = $startpos(token) } }
-| l=relational token=LE r=add { ignore token; { exp = Binop{op=Le; lhs=l; rhs=r}; loc = $startpos(token) } }
-| l=relational token=GT r=add { ignore token; { exp = Binop{op=Lt; lhs=r; rhs=l}; loc = $startpos(token) } }
-| l=relational token=GE r=add { ignore token; { exp = Binop{op=Le; lhs=r; rhs=l}; loc = $startpos(token) } }
+primary_expression:
+| i=identifier { i }
+| c=constant { c }
+| s=string_literal { s }
+| LPAR e=expression RPAR { e }
+| LPAR b=block RPAR { { exp = BlockExpr b; loc = b.loc } }
+(* 未実装: generic_selection *)
 
-add:
-| e=mul { e }
-| e=add token=PLUS m=mul { ignore token; { exp = Binop{op=Add; lhs=e; rhs=m}; loc = $startpos(token) } }
-| e=add token=MINUS m=mul { ignore token; { exp = Binop{op=Sub; lhs=e; rhs=m}; loc = $startpos(token) } }
+postfix_expression:
+| e=primary_expression { e }
+| arr=postfix_expression token=LBRACKET index=expression RBRACKET {
+    (* arr[index]は*(arr+index)に変換する *)
+    ignore token;
+    let pointer = { exp = Binop{op=Add; lhs=arr; rhs=index}; loc = $startpos(token) } in
+    { exp = Deref { deref_expr=pointer }; loc = $startpos(token) }
+}
+| func=postfix_expression LPAR params=separated_list(COMMA, p=assignment_expression { p }) RPAR {
+    match func with
+    | { exp = Ident { name = name } } ->
+        { exp = Call (name, params); loc = func.loc } 
+    | _ ->
+        raise(Misc.Error_at("function expression is not implemented", func.loc))
+}
+| e=postfix_expression token=DOT field=id {
+    (* e.f は (&e)->f に変換する *)
+    ignore token;
+    let field, _ = field in
+    let pointer = { exp = Addr e; loc = $startpos(token) } in
+    { exp = Arrow { arrow_expr = pointer; arrow_field = field }; loc = $startpos(token) }
+}
+| e=postfix_expression token=ARROW field=id {
+    ignore token;
+    let field, _ = field in
+    { exp = Arrow { arrow_expr = e; arrow_field = field }; loc = $startpos(token) }
+}
+(* 未実装: postfix_expression++ *)
+(* 未実装: postfix_expression-- *)
+(* 未実装: ( type-name ) { initializer-list } *)
+(* 未実装: ( type-name ) { initializer-list , } *)
 
-mul:
-| e=unary { e }
-| l=mul token=AST r=unary { ignore token; { exp = Binop{op=Mul; lhs=l; rhs=r}; loc = $startpos(token) } }
-| l=mul token=SLASH r=unary { ignore token; { exp = Binop{op=Div; lhs=l; rhs=r}; loc = $startpos(token) } }
-
-unary:
-| e=term { e }
-| PLUS e=term { e }
-| token=MINUS e=unary {
+unary_expression:
+| e=postfix_expression { e }
+(* 未実装: ++ unary-expression *)
+(* 未実装: -- unary-expression *)
+| token=AMP e=cast_expression { ignore token; { exp = Addr e; loc = $startpos(token) } }
+| token=AST e=cast_expression { ignore token; { exp = Deref { deref_expr = e }; loc = $startpos(token) } }
+| PLUS e=cast_expression { e }
+| token=MINUS e=cast_expression {
+    (* -e は 0-e に変換する *)
     ignore token;
     {
         exp = Binop{op=Sub; lhs={ exp = Num "0"; loc = $startpos(token) }; rhs=e};
         loc = $startpos(token)
     }
 }
-| token=AST e=unary { ignore token; { exp = Deref { deref_expr = e }; loc = $startpos(token) } }
-| token=AMP e=unary { ignore token; { exp = Addr e; loc = $startpos(token) } }
-| token=SIZEOF e=unary { ignore token; { exp = Sizeof{sizeof_expr=e}; loc = $startpos(token) } }
+| token=SIZEOF e=unary_expression { ignore token; { exp = Sizeof{sizeof_expr=e}; loc = $startpos(token) } }
+(* | token=SIZEOF LPAR t=type_name RPAR { ignore token; { exp = SizeofType t; loc = $startpos(token) } } *)
+(* 未実装: _Alignof ( type-name ) *)
 
-term:
-| n=NUM { { exp = Num n; loc = $startpos(n) } }
-| str=STR {
-    { exp = Str (str, String_literal.add str); loc = $startpos(str) }
-}
-| id=ident { 
-    let name, loc = id in
-    { exp = Ident { name = name }; loc = loc }
-}
-| func=ident LPAR l=separated_list(COMMA, expr) RPAR {
-    let func, loc = func in
-    { exp = Call (func, l); loc = loc } 
-}
-| arr=term token=LBRACKET offset=expr RBRACKET {
+cast_expression:
+| e=unary_expression { e }
+(* | token=LPAR t=type_name RPAR e=cast_expression { ignore token; { exp = Cast(t, e); loc=$startpos(token) } } *)
+
+multiplicative_expression:
+| e=cast_expression { e }
+| l=multiplicative_expression token=AST r=cast_expression {
     ignore token;
-    let pointer = { exp = Binop{op=Add; lhs=arr; rhs=offset}; loc = $startpos(token) } in
-    { exp = Deref { deref_expr=pointer }; loc = $startpos(token) }
+    { exp = Binop{op=Mul; lhs=l; rhs=r}; loc = $startpos(token) }
 }
-| term=term token=ARROW field=id {
+| l=multiplicative_expression token=SLASH r=cast_expression {
     ignore token;
-    let field, _ = field in
-    { exp = Arrow { arrow_expr = term; arrow_field = field }; loc = $startpos(token) }
+    { exp = Binop{op=Div; lhs=l; rhs=r}; loc = $startpos(token) }
 }
-| term=term token=DOT field=id {
+(* 未実装: multiplicatiove-expression % cast-expression *)
+
+additive_expression:
+| e=multiplicative_expression { e } 
+| l=additive_expression token=PLUS r=multiplicative_expression {
     ignore token;
-    let field, _ = field in
-    let pointer = { exp = Addr term; loc = $startpos(token) } in
-    { exp = Arrow { arrow_expr = pointer; arrow_field = field }; loc = $startpos(token) }
+    { exp = Binop{op=Add; lhs=l; rhs=r}; loc = $startpos(token) }
 }
-| LPAR e=expr RPAR { e }
-| LPAR b=block RPAR { { exp = BlockExpr b; loc = b.loc } }
+| l=additive_expression token=MINUS r=multiplicative_expression {
+    ignore token;
+    { exp = Binop{op=Sub; lhs=l; rhs=r}; loc = $startpos(token) }
+}
+
+shift_expression:
+| e=additive_expression { e }
+(* shift-expression << additive_expression *)
+(* shift-expression >> additive_expression *)
+
+relational_expression:
+| e=shift_expression { e }
+| l=relational_expression token=LT r=shift_expression {
+    ignore token;
+    { exp = Binop{op=Lt; lhs=l; rhs=r}; loc = $startpos(token) }
+}
+| l=relational_expression token=GT r=shift_expression {
+    ignore token;
+    { exp = Binop{op=Lt; lhs=r; rhs=l}; loc = $startpos(token) }
+}
+| l=relational_expression token=LE r=shift_expression {
+    ignore token;
+    { exp = Binop{op=Le; lhs=l; rhs=r}; loc = $startpos(token) }
+}
+| l=relational_expression token=GE r=shift_expression {
+    ignore token;
+    { exp = Binop{op=Le; lhs=r; rhs=l}; loc = $startpos(token) }
+}
+
+equality_expression:
+| e=relational_expression { e }
+| l=equality_expression token=EQ r=relational_expression {
+    ignore token;
+    { exp = Binop{op=Eq; lhs=l; rhs=r}; loc = $startpos(token) }
+}
+| l=equality_expression token=NE r=relational_expression {
+    ignore token;
+    { exp = Binop{op=Ne; lhs=l; rhs=r}; loc = $startpos(token) }
+}
+
+and_expression:
+| e=equality_expression { e }
+(* 未実装: AND-expression & equality-expression *)
+
+exclusive_or_expression:
+| e=and_expression { e }
+(* 未実装: exclusive-OR-expression ^ AND-expression *)
+
+inclusive_or_expression:
+| e=exclusive_or_expression { e }
+(* 未実装: inclusive-OR-expression ^ exclusive-OR-expression *)
+
+logical_and_expression:
+| e=inclusive_or_expression { e }
+(* 未実装: logical-AND-expression && inclusive-OR-expression *)
+
+logical_or_expression:
+| e=logical_and_expression { e }
+(* 未実装: logical-OR-expression && logical-AND-expression *)
+
+conditional_expression:
+| e=logical_or_expression { e }
+(* 未実装: logical-OR-expression ? expression : conditional-expression *)
+
+assignment_expression:
+| e=conditional_expression { e }
+| l=unary_expression token=ASSIGN r=assignment_expression {
+    ignore token;
+    { exp = Assign { assign_lhs = l; assign_rhs = r }; loc = $startpos(token) }
+}
+(* 未実装: *= /= %= += -= <<= >>= &= ^= |= *)
+
+expression:
+| e=assignment_expression { e }
+(* 未実装: expression , assignment-expression *)
+
+constant_expression:
+| e=conditional_expression { e }
+
+
+(* expr: *)
+(* | e=assign { e } *)
+(*  *)
+(* assign: *)
+(* | e=equality { e } *)
+(* | l=assign token=ASSIGN r=equality { ignore token; { exp = Assign { assign_lhs = l; assign_rhs = r }; loc = $startpos(token) } } *)
+(*  *)
+(* equality: *)
+(* | e=relational { e } *)
+(* | l=equality token=EQ r=relational { ignore token; { exp = Binop{op=Eq; lhs=l; rhs=r}; loc = $startpos(token) } } *)
+(* | l=equality token=NE r=relational { ignore token; { exp = Binop{op=Ne; lhs=l; rhs=r}; loc = $startpos(token) } } *)
+(*  *)
+(* relational: *)
+(* | e=add { e } *)
+(* | l=relational token=LT r=add { ignore token; { exp = Binop{op=Lt; lhs=l; rhs=r}; loc = $startpos(token) } } *)
+(* | l=relational token=LE r=add { ignore token; { exp = Binop{op=Le; lhs=l; rhs=r}; loc = $startpos(token) } } *)
+(* | l=relational token=GT r=add { ignore token; { exp = Binop{op=Lt; lhs=r; rhs=l}; loc = $startpos(token) } } *)
+(* | l=relational token=GE r=add { ignore token; { exp = Binop{op=Le; lhs=r; rhs=l}; loc = $startpos(token) } } *)
+(*  *)
+(* add: *)
+(* | e=mul { e } *)
+(* | e=add token=PLUS m=mul { ignore token; { exp = Binop{op=Add; lhs=e; rhs=m}; loc = $startpos(token) } } *)
+(* | e=add token=MINUS m=mul { ignore token; { exp = Binop{op=Sub; lhs=e; rhs=m}; loc = $startpos(token) } } *)
+(*  *)
+(* mul: *)
+(* | e=unary { e } *)
+(* | l=mul token=AST r=unary { ignore token; { exp = Binop{op=Mul; lhs=l; rhs=r}; loc = $startpos(token) } } *)
+(* | l=mul token=SLASH r=unary { ignore token; { exp = Binop{op=Div; lhs=l; rhs=r}; loc = $startpos(token) } } *)
+(*  *)
+(* unary: *)
+(* | e=term { e } *)
+(* | PLUS e=term { e } *)
+(* | token=MINUS e=unary { *)
+(*     ignore token; *)
+(*     { *)
+(*         exp = Binop{op=Sub; lhs={ exp = Num "0"; loc = $startpos(token) }; rhs=e}; *)
+(*         loc = $startpos(token) *)
+(*     } *)
+(* } *)
+(* | token=AST e=unary { ignore token; { exp = Deref { deref_expr = e }; loc = $startpos(token) } } *)
+(* | token=AMP e=unary { ignore token; { exp = Addr e; loc = $startpos(token) } } *)
+(* | token=SIZEOF e=unary { ignore token; { exp = Sizeof{sizeof_expr=e}; loc = $startpos(token) } } *)
+(*  *)
+(* term: *)
+(* | n=NUM { { exp = Num n; loc = $startpos(n) } } *)
+(* | str=STR { *)
+(*     { exp = Str (str, String_literal.add str); loc = $startpos(str) } *)
+(* } *)
+(* | id=ident {  *)
+(*     let name, loc = id in *)
+(*     { exp = Ident { name = name }; loc = loc } *)
+(* } *)
+(* | func=ident LPAR l=separated_list(COMMA, expr) RPAR { *)
+(*     let func, loc = func in *)
+(*     { exp = Call (func, l); loc = loc }  *)
+(* } *)
+(* | arr=term token=LBRACKET offset=expr RBRACKET { *)
+(*     ignore token; *)
+(*     let pointer = { exp = Binop{op=Add; lhs=arr; rhs=offset}; loc = $startpos(token) } in *)
+(*     { exp = Deref { deref_expr=pointer }; loc = $startpos(token) } *)
+(* } *)
+(* | term=term token=ARROW field=id { *)
+(*     ignore token; *)
+(*     let field, _ = field in *)
+(*     { exp = Arrow { arrow_expr = term; arrow_field = field }; loc = $startpos(token) } *)
+(* } *)
+(* | term=term token=DOT field=id { *)
+(*     ignore token; *)
+(*     let field, _ = field in *)
+(*     let pointer = { exp = Addr term; loc = $startpos(token) } in *)
+(*     { exp = Arrow { arrow_expr = pointer; arrow_field = field }; loc = $startpos(token) } *)
+(* } *)
+(* | LPAR e=expr RPAR { e } *)
+(* | LPAR b=block RPAR { { exp = BlockExpr b; loc = b.loc } } *)

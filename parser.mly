@@ -521,3 +521,51 @@ expression:
 constant_expression:
 | e=conditional_expression { e }
 
+type_name:
+| ts=specifier_qualifier_list d=abstract_declarator? {
+    {
+        let dummy = { exp = DeclIdent of "**DUMMY**"; loc = ts.loc } in
+        exp = {
+            type_name_ts = ts;
+            type_name_decl = Option.may_apply d dummy
+        };
+        loc = ts.loc
+    }
+}
+
+abstract_declarator:
+| d=pointer { d }
+| d=direct_abstract_declarator { d }
+| p=pointer d=direct_abstract_declarator  {
+    Misc.compose p d
+}
+
+pointer:
+| token=AMP d=pointer? { 
+    ignore token;
+    let loc = $startpos(token) in
+    let f = fun x -> { exp = PointerOf d; loc = loc } in
+    Option.may_compose (Some f) d
+}
+
+direct_abstract_declarator:
+| LPAR d=abstract_declarator RPAR { d }
+| d=direct_abstract_declarator? token=LBRACKET size=assignment_expression? RBRACKET {
+    ignore token;
+    let loc = $startpos(token) in
+    let f d = { exp = Array(d, size); loc=loc } in
+    Option.may_compose (Some f) d
+| d=direct_abstract_declarator? token=LPAR params=parameter_type_list RPAR
+    ignore token;
+    let f d = { exp = Func(d, params); loc=loc } in
+    Option.may_compose (Some f) d
+}
+
+specifier_qualifier_list:
+| ts=type_spec { ts }
+(* XXX: type_specがリストになっているのは unsigned short int のようなものを任意の順序で書けるからだが今のところサポートしない *)
+(* | type_spec specifier_qualifier_list? *)
+(* XXX: 今のところ type_qualifierはサポートしていない *)
+(* | type_qualifier specifier_qualifier_list? *)
+
+

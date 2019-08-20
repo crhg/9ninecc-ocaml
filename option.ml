@@ -26,3 +26,12 @@ let default_lazy x default_value = match x with
 | Some x -> x
 | None -> Lazy.force default_value
 
+let may_apply f x = match f with
+| Some f -> f x
+| None -> x
+
+let may_compose f g = match f, g with
+| Some f, Some g -> Misc.compose f g
+| Some f, None -> f
+| None, Some g -> g
+| None, None -> Misc.id

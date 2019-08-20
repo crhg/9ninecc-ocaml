@@ -30,6 +30,12 @@ and enumerator_exp = {
 }
 and enumarator = enumerator_exp node
 
+and type_name_exp = {
+    type_name_ts: type_spec;
+    type_name_decl: declarator
+}
+and type_name = type_name_exp node
+
 and decl_spec = {
     ds_type_spec: type_spec option;
     ds_storage_class_spec: storage_class_spec option

@@ -11,5 +11,8 @@ exception Error of string
 (* 関数合成 *)
 let compose f g x = f (g x)
 
+(* 恒等関数 *)
+let id x = x
+
 (* 総和 *)
 let sum = List.fold_left (+) 0

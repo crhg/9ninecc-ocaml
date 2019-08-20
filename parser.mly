@@ -1,6 +1,5 @@
 %{
     open Ast
-    open Misc
 %}
 
 %token PLUS MINUS AST SLASH AMP

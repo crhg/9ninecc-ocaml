@@ -533,6 +533,7 @@ type_name:
     }
 }
 
+(* abstract_declaratorの値はdeclarator->declaratorで表す *)
 abstract_declarator:
 | d=pointer { d }
 | d=direct_abstract_declarator { d }
@@ -545,7 +546,7 @@ pointer:
     ignore token;
     let loc = $startpos(token) in
     let f = fun x -> { exp = PointerOf d; loc = loc } in
-    Option.may_compose (Some f) d
+    Option.compose (Some f) d
 }
 
 direct_abstract_declarator:
@@ -554,11 +555,11 @@ direct_abstract_declarator:
     ignore token;
     let loc = $startpos(token) in
     let f d = { exp = Array(d, size); loc=loc } in
-    Option.may_compose (Some f) d
+    Option.compose (Some f) d
 | d=direct_abstract_declarator? token=LPAR params=parameter_type_list RPAR
     ignore token;
     let f d = { exp = Func(d, params); loc=loc } in
-    Option.may_compose (Some f) d
+    Option.compose (Some f) d
 }
 
 specifier_qualifier_list:

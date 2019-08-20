@@ -30,7 +30,9 @@ let may_apply f x = match f with
 | Some f -> f x
 | None -> x
 
-let may_compose f g = match f, g with
+(* 'a->'a optionを合成して'a->'aの関数を作る *)
+(* Noneは恒等関数と考えても良い *)
+let compose f g = match f, g with
 | Some f, Some g -> Misc.compose f g
 | Some f, None -> f
 | None, Some g -> g

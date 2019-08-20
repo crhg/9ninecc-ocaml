@@ -12,11 +12,11 @@ let rec gen decl_list =
     List.iter gen_decl decl_list
 
 and gen_decl decl = match decl.exp with
-| GlobalVarDecl { gv_ds = { ds_storage_class_spec = Some { exp = Extern } } } ->
+| GlobalVarDecl { gv_ds = { ds_storage_class_spec = Some { exp = Extern; _ }; _ }; _ } ->
     ()
-| GlobalVarDecl { gv_decl_inits = decl_inits } ->
+| GlobalVarDecl { gv_decl_inits = decl_inits; _ } ->
     decl_inits |> List.iter (fun di -> match di with
-        | { di_entry = Some (GlobalVar (ty, label)); di_init = None } ->
+        | { di_entry = Some (GlobalVar (ty, label)); di_init = None; _ } ->
             if Type.is_function ty then ()
             else (
                 printf "    .globl %s\n" label;
@@ -28,12 +28,12 @@ and gen_decl decl = match decl.exp with
                 printf "    .zero %d\n" (Type.get_size ty);
                 printf "\n"
             )
-        | { di_entry = Some (GlobalVar (ty, label)); di_init = Some init } ->
+        | { di_entry = Some (GlobalVar (ty, label)); di_init = Some init; _ } ->
                 Init_global.gen ty label init;
             printf "\n"
     )
 
-| FunctionDecl { func_name=Some func; func_params=Some params; func_body=body; func_frame_size=Some size } ->
+| FunctionDecl { func_name=Some func; func_params=Some params; func_body=body; func_frame_size=Some size; _ } ->
 
     printf "    .text\n";
     printf "    .globl %s\n" func;
@@ -61,7 +61,7 @@ and gen_decl decl = match decl.exp with
     (* 文の中で式を実行した場合は必ず生成された値をpopする決まりとするので *)
     (* この時点でのスタック位置が式のコード生成開始時のスタック位置になる *)
 
-    let copy_param i {param_ty = ty; param_name = name; param_entry = Some (LocalVar (_, lvar_offset)) } =
+    let copy_param i {param_ty = ty; param_name = name; param_entry = Some (LocalVar (_, lvar_offset)); _ } =
         printf "    mov rax, rbp\n";
         printf "    sub rax, %d\n" lvar_offset;
         Gen_misc.(match i with
@@ -109,7 +109,7 @@ match stmt.exp with
 | Empty
 | TypedefStmt _ ->
     ()
-| Var { var_decl_inits = decl_inits } ->
+| Var { var_decl_inits = decl_inits; _ } ->
     decl_inits |> List.iter (fun decl_init ->
         decl_init.di_init_assign |> List.iter (fun assign ->
             gen_i_expr assign;

@@ -232,5 +232,5 @@ and show_binop_short op = match op with
 let make_expr_s expr = { expr = expr; i_expr = None }
 
 let is_extern ds = match ds with
-| { ds_storage_class_spec = Some { exp = Extern } } -> true
+| { ds_storage_class_spec = Some { exp = Extern; _ }; _ } -> true
 | _ -> false

@@ -40,14 +40,14 @@
 %%
 
 ident:
-| DUMMY ident=IDENT { (ident, $startpos(ident)) }
+| ident=IDENT { (ident, $startpos(ident)) }
 
 typedef_id:
-| DUMMY tid=TYPEDEF_ID { (tid, $startpos(tid)) }
+| tid=TYPEDEF_ID { (tid, $startpos(tid)) }
 
 id:
-| DUMMY id=IDENT
-| DUMMY id=TYPEDEF_ID { (id, $startpos(id)) }
+| id=IDENT
+| id=TYPEDEF_ID { (id, $startpos(id)) }
 
 translation_unit:
 | l=decl* EOF { l }
@@ -143,8 +143,11 @@ function_decl_head:
 }
 
 function_decl_tail:
-| l=stmt* RBRACE {
-    Typedef_env.restore_scope();
+| DUMMY l=stmt*
+  midrule({
+      Typedef_env.restore_scope();
+  })
+  DUMMY RBRACE {
     l
 }
 
@@ -194,7 +197,7 @@ type_spec:
 }
 
 su_body:
-| LBRACE l=su_field* RBRACE { l }
+| LBRACE DUMMY l=su_field* DUMMY RBRACE { l }
 
 su_field:
 | ts=type_spec d=declarator SEMI { (ts, d) }
@@ -202,11 +205,11 @@ su_field:
 (* enum_list: *)
 (* | LBRACE l=separated_nonempty_list(COMMA, enumarator) COMMA? RBRACE { l }  *)
 enum_list:
-| LBRACE e=enumarator l=enum_list_rest { e::l }
+| LBRACE DUMMY e=enumarator l=enum_list_rest { e::l }
 
 enum_list_rest:
-| RBRACE { [] }
-| COMMA RBRACE { [] }
+| DUMMY RBRACE { [] }
+| COMMA DUMMY RBRACE { [] }
 | COMMA e=enumarator l=enum_list_rest { e::l }
 
 enumarator:
@@ -272,7 +275,7 @@ init:
     let es = make_expr_s e in
     { exp=ExprInitializer es; loc=e.loc }
 }
-| token=LBRACE l=separated_list(COMMA, init) RBRACE {
+| token=LBRACE DUMMY l=separated_list(COMMA, init) DUMMY RBRACE {
     ignore token;
     { exp=ListInitializer l; loc=$startpos(token) }
 }
@@ -336,11 +339,15 @@ block:
       (* Printf.fprintf stderr "block new_scope\n"; *)
       Typedef_env.new_scope()
   })
+  DUMMY
   l=stmt*
+  midrule({
+      Typedef_env.restore_scope();
+  })
+  DUMMY
   RBRACE
 {
     ignore token;
-    Typedef_env.restore_scope();
     { exp = Block l; loc = $startpos(token) }
 }
 

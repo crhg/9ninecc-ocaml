@@ -51,3 +51,4 @@ test_source/test_main.c
 
 ._d/
 ._ncdi/
+_build*

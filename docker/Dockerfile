@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 USER opam
 
 RUN opam install menhir \
+    && opam install dune \
     && opam install ppx_deriving
 
 WORKDIR /work

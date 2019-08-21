@@ -1,33 +1,22 @@
-RESULT=9ninecc
+MAKEFILE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 ifdef 9NINECC_ENV
-OCAMLYACC=menhir
+BUILD_DIR=_build_9ninecc_env
+9NINECC=$(MAKEFILE_DIR)/$(BUILD_DIR)/default/main.exe
+DUNE_OPT=--build-dir=$(BUILD_DIR)
 
-PACKS=ppx_deriving.show ppx_deriving.runtime str
 
-GENERATED_SRCS=lexer.ml parser.ml parser.mli pp_lexer.ml pp_parser.ml pp_parser.mli
-SRCS=$(sort $(GENERATED_SRCS) $(wildcard *.ml *.mli))
-include .sorted_srcs
-SOURCES=$(filter-out %parser.mli,$(patsubst %parser.ml,%parser.mly,$(patsubst %lexer.ml,%lexer.mll,$(SORTED_SRCS))))
-
-TRASH=.sorted_srcs
-
-default: debug-native-code
-
-parser.ml parser.mli: parser.mly
-	$(OCAMLYACC) $(YFLAGS) --external-tokens Token $<
-
-pp_parser.ml pp_parser.mli: pp_parser.mly
-	$(OCAMLYACC) $(YFLAGS) --external-tokens Pp_token $<
+default: 
+	dune build --verbose $(DUNE_OPT) main.exe
 
 .PHONY: test
 test: default
-	(cd test_source; make test ONLY=$(ONLY))
+	(cd test_source; make test ONLY=$(ONLY) 9NINECC=$(9NINECC))
 
-.sorted_srcs: $(SRCS)
-	echo SORTED_SRCS=$(shell $(OCAMLDEP) $(INCLUDES) -sort $(SRCS)) > $@
+.PHONY: clean
+clean:
+	dune clean $(DUNE_OPT)
 
-include OCamlMakefile
 else
 
 RUN=docker-compose run 9ninecc-env env 9NINECC_ENV=1

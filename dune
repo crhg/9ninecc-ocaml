@@ -1,0 +1,20 @@
+(executables
+  (names main)
+  (libraries str)
+  (preprocess (pps ppx_deriving.show))
+  )
+
+;;(install
+;;  (section bin)
+;;  (files (main.exe as 9ninecc)))
+
+(ocamllex lexer pp_lexer)
+
+(menhir
+  (flags (--external-tokens Token))
+  (modules parser))
+
+(menhir
+  (flags (--external-tokens Pp_token))
+  (modules pp_parser))
+

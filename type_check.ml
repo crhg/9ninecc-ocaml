@@ -258,6 +258,10 @@ and convert' expr = match expr.exp with
 | Sizeof {sizeof_expr = e} ->
     let ty, _ = convert e in
     (Type.Int, Const (Type.get_size ty))
+| Cast (type_name, e) ->
+    let _, e = convert e in
+    let ty = type_of_type_name type_name in
+    (ty, e)
 | Binop { op=op; lhs=l; rhs=r} ->
     let lty, l = convert_normalized l in
     let rty, r = convert_normalized r in
@@ -343,6 +347,13 @@ and var_of_d d = match d.exp with
 | Array (d, _)
 | Func (d, _) ->
     var_of_d d
+
+and type_of_type_name type_name =
+    let tn = type_name.exp in
+    let ts = tn.type_name_ts in
+    let decl = tn.type_name_decl in
+    let ty, _ = type_and_var_ts ts decl in
+    ty
 
 and type_and_var_ts ts d =
 let ty = type_of_type_spec ts in

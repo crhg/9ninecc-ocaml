@@ -166,6 +166,7 @@ and expr_exp =
 | Addr of expr
 | Sizeof of sizeof_r
 | Arrow of arrow_r
+| Cast of type_name * expr
 | BlockExpr of stmt
 and expr = expr_exp node
 
@@ -205,6 +206,8 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "sizeof(%s)" (show_expr_short e)
 | Arrow { arrow_expr = e; arrow_field = f} ->
     Printf.sprintf "(%s)->(%s)" (show_expr_short e) f
+| Cast(_, e) ->
+    Printf.sprintf "Cast(...,%s)" (show_expr_short e)
 | BlockExpr _ ->
     "{...}"
 

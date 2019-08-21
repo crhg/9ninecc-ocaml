@@ -1153,3 +1153,10 @@ int test141() {
     return 41;
 }
 // @end
+
+// @try_ret test142 2
+int test142() {
+    int x = 2;
+    return (char)x;
+}
+// @end

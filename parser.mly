@@ -429,7 +429,7 @@ unary_expression:
 
 cast_expression:
 | e=unary_expression { e }
-(* | token=LPAR t=type_name RPAR e=cast_expression { ignore token; { exp = Cast(t, e); loc=$startpos(token) } } *)
+| token=LPAR t=type_name RPAR e=cast_expression { ignore token; { exp = Cast(t, e); loc=$startpos(token) } }
 
 multiplicative_expression:
 | e=cast_expression { e }
@@ -530,8 +530,8 @@ constant_expression:
 
 type_name:
 | ts=specifier_qualifier_list d=abstract_declarator? {
+    let dummy = { exp = DeclIdent "**DUMMY**"; loc = ts.loc } in
     {
-        let dummy = { exp = DeclIdent of "**DUMMY**"; loc = ts.loc } in
         exp = {
             type_name_ts = ts;
             type_name_decl = Option.may_apply d dummy
@@ -552,7 +552,7 @@ pointer:
 | token=AMP d=pointer? { 
     ignore token;
     let loc = $startpos(token) in
-    let f = fun x -> { exp = PointerOf d; loc = loc } in
+    let f x = { exp = PointerOf x; loc = loc } in
     Option.compose (Some f) d
 }
 
@@ -561,11 +561,16 @@ direct_abstract_declarator:
 | d=direct_abstract_declarator? token=LBRACKET size=assignment_expression? RBRACKET {
     ignore token;
     let loc = $startpos(token) in
-    let f d = { exp = Array(d, size); loc=loc } in
+    let f x = { exp = Array(x, size); loc=loc } in
     Option.compose (Some f) d
-| d=direct_abstract_declarator? token=LPAR params=parameter_type_list RPAR
+}
+| d=direct_abstract_declarator? token=LPAR
+  midrule({ Typedef_env.new_scope(); })
+  params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) })
+  midrule({ Typedef_env.restore_scope(); })
+  RPAR {
     ignore token;
-    let f d = { exp = Func(d, params); loc=loc } in
+    let f x = { exp = Func(x, params); loc=x.loc } in
     Option.compose (Some f) d
 }
 

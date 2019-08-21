@@ -91,6 +91,7 @@ and expr_exp =
   | Addr of expr
   | Sizeof of sizeof_r
   | Arrow of arrow_r
+  | Cast of type_name * expr
   | BlockExpr of stmt
 and expr = expr_exp node
 and i_expr =

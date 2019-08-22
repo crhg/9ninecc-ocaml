@@ -20,18 +20,24 @@ and to_assign_scalar lhs init = Ast.(match init.exp with
 )
 
 and to_assign_array (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) = Ast.(match ty, init.exp with
-    | Type.Array(Char, Some size), ExprInitializer { expr = ({ exp = Str _; _ } as s); _} ->
-        [make_call_strncpy lhs s size]
+    | Type.Array(Char, Some size), ExprInitializer { expr = { exp = Str (s, _); loc = s_loc }; _} ->
+        to_assign_char_array_by_string lhs size s s_loc
     | Type.Array(ty, Some size), ListInitializer l ->
         to_assign_array_by_list ty lhs size l
     | _ -> raise(Misc.Error_at("gen_array_init: " ^ (Type.show ty), lhs.loc))
 )
 
-and make_call_strncpy (lhs:Ast.expr) (s:Ast.expr) (size:int) =
-    Ast.({
-        exp = Call ("strncpy", [lhs; s; make_num size lhs.loc]);
-        loc = lhs.loc
-    })
+(* XXX: とりあえず1文字ずつの文字コードの代入文列に変換 *)
+and to_assign_char_array_by_string lhs size s s_loc =
+    let s = s ^ "\000" in
+    let l = String.length s in
+    let copy_size = min size l in
+    let range = List.init (copy_size-1) (fun x -> x) in
+    range |> List.map (fun i ->
+        let lhs_at_i = make_array_at lhs i in
+        let rhs = make_num (Char.code s.[i]) s_loc in
+        make_assign lhs_at_i rhs
+    )
 
 and to_assign_array_by_list ty lhs size l =
     let rec to_assign_array_by_list' i l = match l with

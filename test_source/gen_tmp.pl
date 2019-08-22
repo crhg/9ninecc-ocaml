@@ -4,7 +4,7 @@ my $only = (@ARGV) > 1 ? pop @ARGV : undef;
 
 # printf "// only=%s\n", defined $only ? $only : 'undef';
 
-my $out_flag = 0;
+my $out_flag = 1;
 while (<>) {
     if (m%^//\s+\@try%) {
 
@@ -19,7 +19,7 @@ while (<>) {
     print if $out_flag;
 
     if (m%^//\s+\@end%) {
-        $out_flag = 0;
+        $out_flag = 1;
         # printf("// end: out_flag=%d\n", $out_flag);
     }
 }

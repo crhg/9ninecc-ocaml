@@ -161,7 +161,7 @@ and expr_exp =
 | Ident of ident_r
 | Binop of binop_r
 | Assign of assign_r
-| Call of string * expr list
+| Call of expr * expr list
 | Deref of deref_r
 | Addr of expr
 | Sizeof of sizeof_r
@@ -176,7 +176,7 @@ and i_expr =
 | Label of string (* ラベルのアドレス *)
 | LVar of int (* 指定されたオフセットの位置にあるローカル変数のアドレス *)
 | Load of Type.t * i_expr
-| ICall of string * i_expr list
+| ICall of i_expr * i_expr list
 | I_binop of binop * i_expr * i_expr
 | I_block of stmt
 
@@ -197,7 +197,7 @@ let rec show_expr_short expr = match expr.exp with
 | Assign { assign_lhs = l; assign_rhs = r } ->
     Printf.sprintf "(%s)=(%s)" (show_expr_short l) (show_expr_short r)
 | Call (f, params) ->
-    Printf.sprintf "%s(%s)" f (String.concat ", " (List.map show_expr_short params))
+    Printf.sprintf "(%s)(%s)" (show_expr_short f) (String.concat ", " (List.map show_expr_short params))
 | Deref { deref_expr = e } ->
     Printf.sprintf "*(%s)" (show_expr_short e)
 | Addr e ->
@@ -216,7 +216,7 @@ and show_i_expr_short i_expr = match i_expr with
 | Label label -> label
 | LVar offset -> Printf.sprintf "$%d" offset
 | Load (ty, e) -> Printf.sprintf "*[%s](%s)" (Type.show_type ty) (show_i_expr_short e)
-| ICall (f, params) -> Printf.sprintf "%s(%s)" f (String.concat ", " (List.map show_i_expr_short params))
+| ICall (f, params) -> Printf.sprintf "(%s)(%s)" (show_i_expr_short f) (String.concat ", " (List.map show_i_expr_short params))
 | I_binop (op, l, r) -> Printf.sprintf "(%s)%s(%s)" (show_i_expr_short l) (show_binop_short op) (show_i_expr_short r)
 | I_block _ -> "{...}"
 

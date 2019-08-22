@@ -1,3 +1,6 @@
+extern int pr_int();
+extern int try_printf();
+
 // @try_ret test0 0
 int test0() { 0; }
 // @end
@@ -224,30 +227,40 @@ int test38() {
 // @end
 
 // @try_out test39 OK
+extern int foo1();
 int test39() { foo1(); }
 // @end
 
 // @try_ret test40 45
+extern int foo2();
 int test40() { return 1 + foo2() + 2; }
 // @end
 
 // @try_out test41 1-2-3-4-5-6-7-8
+extern int foo3();
 int test41() { foo3(1, 2, 3, 4, 5, 6, 7, 8); }
 // @end
 
 // @try_out test42 "5"
-int test42() { pr_int(add(2, 3)); }
 int add(int a, int b) { return a + b; }
+int test42() { pr_int(add(2, 3)); }
 // @end
 
+/* レジスタ名と同じ関数名が使えるかどうかのテスト */
+/* どうもintel-syntaxだと予約語で使えないっぽい? */
+/* // @try_out test42_2 "5" */
+/* int r10(int a, int b) { return a + b; } */
+/* int test42_2() { pr_int(r10(2, 3)); } */
+/* // @end */
+
 // @try_out test43 "6765"
-int test43() { pr_int(fib(20)); }
 int fib(int n) {
   if (n <= 2)
     return 1;
   else
     return fib(n - 1) + fib(n - 2);
 }
+int test43() { pr_int(fib(20)); }
 // @end
 
 // @try_out test44 3
@@ -281,6 +294,7 @@ int test46() {
 }
 // @end
 
+int getdata();
 // @try_out test47 10
 int test47() {
   int *p;
@@ -297,6 +311,7 @@ int test48() {
 }
 // @end
 
+int getdata2();
 // @try_out test49 40
 int test49() {
   int **p;
@@ -349,6 +364,7 @@ int test54() {
 }
 // @end
 
+extern int at();
 // @try_out test55 2
 int test55() {
   int *p;
@@ -782,50 +798,50 @@ int test102() {
 }
 // @end
 
-// @trey_ret test103 103
-int test103() {
-    union U103 {
-        int x;
-        char y[10];
-    };
-
-    union U103 u;
-
-    u.y[0] = 33;
-
-    return u.y[0];
-}
-// @end
-
-// @trey_out test104 !
-int test104() {
-    union U104 {
-        int x;
-        char y[10];
-    };
-
-    union U104 u;
-
-    u.y[0] = 33;
-    u.y[1] = 0;
-
-    try_printf("%s", u.y);
-}
-// @end
-
-// @trey_out test105 !A
-int test105() {
-    union U105 {
-        int x;
-        char y[10];
-    };
-
-    union U105 u;
-
-    u.x = 33 + 65 * 256; // 33 = !, 65 = A
-
-    try_printf("%s", u.y);
-}
+/* // @try_ret test103 103 */
+/* int test103() { */
+/*     union U103 { */
+/*         int x; */
+/*         char y[10]; */
+/*     }; */
+/*  */
+/*     union U103 u; */
+/*  */
+/*     u.y[0] = 33; */
+/*  */
+/*     return u.y[0]; */
+/* } */
+/* // @end */
+/*  */
+/* // @try_out test104 ! */
+/* int test104() { */
+/*     union U104 { */
+/*         int x; */
+/*         char y[10]; */
+/*     }; */
+/*  */
+/*     union U104 u; */
+/*  */
+/*     u.y[0] = 33; */
+/*     u.y[1] = 0; */
+/*  */
+/*     try_printf("%s", u.y); */
+/* } */
+/* // @end */
+/*  */
+/* // @try_out test105 !A */
+/* int test105() { */
+/*     union U105 { */
+/*         int x; */
+/*         char y[10]; */
+/*     }; */
+/*  */
+/*     union U105 u; */
+/*  */
+/*     u.x = 33 + 65 * 256; // 33 = !, 65 = A */
+/*  */
+/*     try_printf("%s", u.y); */
+/* } */
 // @end
 
 /* // @try_out test106 106hoge */
@@ -1165,5 +1181,12 @@ int test142() {
 int test143() {
     char c[] = {1,2,3,4};
     try_printf("%08x\n", *((int*)c));
+}
+// @end
+
+// @try_ret test144 44
+int f144() { return 44; }
+int test144() {
+    return (*************************************************************************f144)();
 }
 // @end

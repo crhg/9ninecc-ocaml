@@ -385,11 +385,7 @@ postfix_expression:
     { exp = Deref { deref_expr=pointer }; loc = $startpos(token) }
 }
 | func=postfix_expression LPAR params=separated_list(COMMA, p=assignment_expression { p }) RPAR {
-    match func with
-    | { exp = Ident { name = name }; _ } ->
-        { exp = Call (name, params); loc = func.loc } 
-    | _ ->
-        raise(Misc.Error_at("function expression is not implemented", func.loc))
+    { exp = Call (func, params); loc = func.loc } 
 }
 | e=postfix_expression token=DOT field=id {
     (* e.f は (&e)->f に変換する *)

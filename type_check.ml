@@ -18,6 +18,7 @@ and check_decl decl = match decl.exp with
     _ 
 } as fd ) ->
     let ty, name = type_and_var_ts ts decl in
+    register_global_var ty name;
     (match ty with
         | Type.Function (_, params) ->
             fd.func_name <- Some name;
@@ -179,6 +180,7 @@ and normalize_type ty = match ty with
     | Type.Short
     | Type.Long -> Type.Int (* 式中ではcharもintも同一視してintとみなす。 *)
     | Type.Array (t, _) -> Type.Ptr t (* 配列型はポインタ型に読みかえる *)
+    | Type.Function _ -> Type.Ptr ty (* 関数型は関数へのポインタに読みかえる *)
     | _ -> ty
 
 and convert_normalized expr = 
@@ -207,7 +209,8 @@ and convert' expr = match expr.exp with
     (match get_entry name with
     | LocalVar ((Type.Array _) as t, offset) ->
         (t, LVar offset)
-    | GlobalVar ((Type.Array _) as t, label) ->
+    | GlobalVar ((Type.Array _) as t, label)
+    | GlobalVar ((Type.Function _) as t, label) ->
         (t, Label label)
     | LocalVar _
     | GlobalVar _ ->
@@ -229,8 +232,18 @@ and convert' expr = match expr.exp with
     if not @@ simple_type lty then (raise(Misc.Error_at("cannot assign "^(Type.show_type lty), expr.loc)));
 
     (lty, I_binop(Store lty, l, r))
-| Call (label, expr_list) ->
-    (Type.Int, ICall(label, List.map (Misc.compose snd convert) expr_list))
+| Call (func, expr_list) ->
+    let ty, f = convert func in
+    let ty, f = match ty with
+        | Function _ ->
+            let ty, f = convert_lval func in Type.Ptr ty, f
+        | _ -> ty, f in
+    (match ty with
+    | Ptr (Function _) ->
+        (Type.Int, ICall(f, List.map (Misc.compose snd convert) expr_list))
+    | _ ->
+        raise(Misc.Error_at("not function pointer: "^(Type.show_type ty), func.loc))
+    )
 | BlockExpr block ->
     check_stmt block;
 
@@ -247,6 +260,7 @@ and convert' expr = match expr.exp with
         (* if not @@ simple_type t then (raise(Misc.Error_at("cannot deref "^(Type.show_type t)^" "^(Ast.show_expr expr), expr.loc))); *)
         (match t with
         | Array _ -> (t, e)
+        | Function _ -> (ty, e)
         | _ -> (t, Load (t, e))
         )
     | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
@@ -324,6 +338,9 @@ and convert_lval expr = match expr.exp with
 | Deref ({deref_expr = e})->
     let ty, e = convert_normalized e in
     (match ty with
+    | Type.Ptr (Type.Function _) ->
+        (* 関数へのポインタはいくらDerefしてもそのまま *)
+        (ty, e)
     | Type.Ptr t ->
         (t, e)
     | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))

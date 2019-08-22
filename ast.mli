@@ -86,7 +86,7 @@ and expr_exp =
   | Ident of ident_r
   | Binop of binop_r
   | Assign of assign_r
-  | Call of string * expr list
+  | Call of expr * expr list
   | Deref of deref_r
   | Addr of expr
   | Sizeof of sizeof_r
@@ -99,7 +99,7 @@ and i_expr =
   | Label of string
   | LVar of int
   | Load of Type.t * i_expr
-  | ICall of string * i_expr list
+  | ICall of i_expr * i_expr list
   | I_binop of binop * i_expr * i_expr
   | I_block of stmt
 and expr_s = { expr : expr; mutable i_expr : i_expr option; }

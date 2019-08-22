@@ -247,7 +247,7 @@ int test42() { pr_int(add(2, 3)); }
 // @end
 
 /* レジスタ名と同じ関数名が使えるかどうかのテスト */
-/* どうもintel-syntaxだと予約語で使えないっぽい? */
+/* intel-syntaxだと予約語で使えないので今のところ通らない */
 /* // @try_out test42_2 "5" */
 /* int r10(int a, int b) { return a + b; } */
 /* int test42_2() { pr_int(r10(2, 3)); } */

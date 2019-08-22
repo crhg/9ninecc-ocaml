@@ -215,6 +215,24 @@ and gen_i_expr' i_expr = match i_expr with
     Stack.pop "rax";
     Gen_misc.load ty "rax" "[rax]";
     Stack.push "rax"
+(* 単純な関数呼び出しは直接callする *)
+| ICall (Label label, i_expr_list) ->
+    let n = List.length i_expr_list in
+    let n_stack = if n > 6 then n - 6 else 0 in
+    let stack_param_size = n_stack * 8 in
+    Stack.with_adjust stack_param_size (fun _ ->
+        List.iter gen_i_expr (List.rev i_expr_list);
+        (if n >= 1 then Stack.pop "rdi");
+        (if n >= 2 then Stack.pop "rsi");
+        (if n >= 3 then Stack.pop "rdx");
+        (if n >= 4 then Stack.pop "rcx");
+        (if n >= 5 then Stack.pop "r8");
+        (if n >= 6 then Stack.pop "r9");
+        printf "    mov al, 0\n";
+        printf "    call %s\n" label;
+        if stack_param_size > 0 then Stack.add stack_param_size
+    );
+    Stack.push "rax"
 | ICall (func, i_expr_list) ->
     let n = List.length i_expr_list in
     let n_stack = if n > 6 then n - 6 else 0 in
@@ -230,7 +248,6 @@ and gen_i_expr' i_expr = match i_expr with
         (if n >= 5 then Stack.pop "r8");
         (if n >= 6 then Stack.pop "r9");
         printf "    mov al, 0\n";
-        (* printf "    call %s\n" func; *)
         printf "    call r10\n";
         if stack_param_size > 0 then Stack.add stack_param_size
     );

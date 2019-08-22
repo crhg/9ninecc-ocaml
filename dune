@@ -18,3 +18,8 @@
   (flags (--external-tokens Pp_token))
   (modules pp_parser))
 
+(env
+ (dev
+  (flags (:standard -w +42 -g)))
+ (release
+  (flags (:standard -O3))))

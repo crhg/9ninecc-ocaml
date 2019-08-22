@@ -549,7 +549,7 @@ abstract_declarator:
 }
 
 pointer:
-| token=AMP d=pointer? { 
+| token=AST d=pointer? { 
     ignore token;
     let loc = $startpos(token) in
     let f x = { exp = PointerOf x; loc = loc } in

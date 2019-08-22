@@ -1160,3 +1160,10 @@ int test142() {
     return (char)x;
 }
 // @end
+
+// @try_out test143 04030201
+int test143() {
+    char c[] = {1,2,3,4};
+    try_printf("%08x\n", *((int*)c));
+}
+// @end

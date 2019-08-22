@@ -7,7 +7,7 @@ DUNE_OPT=--build-dir=$(BUILD_DIR)
 
 
 default: 
-	dune build --verbose $(DUNE_OPT) main.exe
+	dune build --verbose $(DUNE_OPT) --profile dev main.exe
 
 .PHONY: test
 test: default

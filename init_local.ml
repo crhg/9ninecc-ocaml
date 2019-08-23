@@ -1,6 +1,6 @@
 (* ローカル変数の初期化のために代入式のリストを作る *)
 
-let rec to_assign (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) =
+let rec to_assign ty lhs init =
     match ty with
     | Type.Char
     | Type.Short
@@ -19,7 +19,7 @@ and to_assign_scalar lhs init = Ast.(match init.exp with
     | _ -> raise(Misc.Error_at("invalid initializer", init.loc))
 )
 
-and to_assign_array (ty:Type.t) (lhs:Ast.expr) (init:Ast.init) = Ast.(match ty, init.exp with
+and to_assign_array ty lhs init = Ast.(match ty, init.exp with
     | Type.Array(Char, Some size), ExprInitializer { expr = { exp = Str (s, _); loc = s_loc }; _} ->
         to_assign_char_array_by_string lhs size s s_loc
     | Type.Array(ty, Some size), ListInitializer l ->

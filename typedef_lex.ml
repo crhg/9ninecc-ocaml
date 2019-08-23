@@ -32,6 +32,12 @@ and typedef_id_wrapper get_token lexbuf =
     | IDENT name -> make_token name
     | token -> token
 
+and make_token name = 
+    if Typedef_env.mem name then
+        TYPEDEF_ID name
+    else
+        IDENT name
+
 (*  typedefの次の{}外の;の次にint;を出力するhack *)
 and typedef_hack_wrapper get_token lexbuf =
     Buffering_wrapper.next typedef_buf
@@ -60,12 +66,7 @@ and next_typedef_status status buf token =
     | _ ->
         status
 
-and make_token name = 
-    if Typedef_env.mem name then
-        TYPEDEF_ID name
-    else
-        IDENT name
-
+(* {の後ろと}の前にDUMMYを入れる *)
 and brace_wrapper get_token lexbuf =
     Buffering_wrapper.next brace_buf
         (fun buf ->

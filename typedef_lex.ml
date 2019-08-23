@@ -4,16 +4,15 @@ open Token
 type typedef_status = {
     found: int option;
     level: int;
-    buf: Token.token list
 }
 
 let typedef_status = ref {
     found = None;
-    level = 0;
-    buf = []
+    level = 0
 }
 
-let brace_buf = ref []
+let typedef_buf = Buffering_wrapper.make()
+let brace_buf = Buffering_wrapper.make()
 
 let rec token lexbuf =
     let t = token' lexbuf in
@@ -35,26 +34,22 @@ and typedef_id_wrapper get_token lexbuf =
 
 (*  typedefの次の{}外の;の次にint;を出力するhack *)
 and typedef_hack_wrapper get_token lexbuf =
-    match !typedef_status.buf with
-    | token::rest ->
-        typedef_status := { !typedef_status with buf = rest };
-        token
-    | [] ->
-        let token = get_token lexbuf in
-        typedef_status := next_typedef_status !typedef_status token;
-        token
+    Buffering_wrapper.next typedef_buf
+        (fun buf ->
+            let token = get_token lexbuf in
+            typedef_status := next_typedef_status !typedef_status buf token;
+            token
+        )
 
-and next_typedef_status status token =
+and next_typedef_status status buf token =
     match token with
     | TYPEDEF ->
         { status with found = Some status.level }
     | SEMI ->
         (match status with
         | { found = Some lv; level = level; _ } when lv = level ->
-            { status with 
-                buf = INT :: SEMI :: status.buf;
-                found = None
-            }
+            Buffering_wrapper.push_list buf [INT;SEMI];
+            { status with found = None }
         | _ ->
             status
         )
@@ -72,18 +67,15 @@ and make_token name =
         IDENT name
 
 and brace_wrapper get_token lexbuf =
-    match !brace_buf with
-    | token::rest ->
-        brace_buf := rest;
-        token
-    | [] ->
-        (match get_token lexbuf with
-        | LBRACE ->
-            brace_buf := DUMMY :: !brace_buf;
-            LBRACE
-        | RBRACE ->
-            brace_buf := RBRACE :: !brace_buf;
-            DUMMY
-        | token ->
-            token
+    Buffering_wrapper.next brace_buf
+        (fun buf ->
+            match get_token lexbuf with
+            | LBRACE ->
+                Buffering_wrapper.push buf DUMMY;
+                LBRACE
+            | RBRACE ->
+                Buffering_wrapper.push buf RBRACE;
+                DUMMY
+            | token ->
+                token
         )

@@ -219,7 +219,7 @@ and convert' expr = match expr.exp with
     | TypeDef _ ->
         raise(Misc.Error_at("type name in expr" ^ name, expr.loc))
     )
-| Assign {assign_lhs=lhs; assign_rhs=rhs} ->
+| Assign (lhs, rhs) ->
     (* Printf.fprintf stderr "convert assign %s\n" (Ast.show_expr_short expr); *)
     let lty, l = convert_lval lhs in
     let _,   r = convert_normalized rhs in

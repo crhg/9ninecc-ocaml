@@ -513,7 +513,7 @@ assignment_expression:
 | e=conditional_expression { e }
 | l=unary_expression token=ASSIGN r=assignment_expression {
     ignore token;
-    { exp = Assign { assign_lhs = l; assign_rhs = r }; loc = $startpos(token) }
+    { exp = Assign (l, r); loc = $startpos(token) }
 }
 (* 未実装: *= /= %= += -= <<= >>= &= ^= |= *)
 

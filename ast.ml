@@ -133,11 +133,6 @@ and binop_r = {
     rhs: expr
 }
 
-and assign_r = {
-    assign_lhs : expr;
-    assign_rhs : expr
-}
-
 and arrow_r = {
     arrow_expr : expr;
     arrow_field : string;
@@ -148,7 +143,7 @@ and expr_exp =
 | Str of string * string (* 文字列そのものとラベル *)
 | Ident of string
 | Binop of binop_r
-| Assign of assign_r
+| Assign of expr * expr
 | Call of expr * expr list
 | Deref of expr
 | Addr of expr
@@ -182,7 +177,7 @@ let rec show_expr_short expr = match expr.exp with
     name
 | Binop { op=op; lhs=l; rhs=r } ->
     Printf.sprintf "(%s)%s(%s)" (show_expr_short l) (show_binop_short op) (show_expr_short r)
-| Assign { assign_lhs = l; assign_rhs = r } ->
+| Assign (l, r) ->
     Printf.sprintf "(%s)=(%s)" (show_expr_short l) (show_expr_short r)
 | Call (f, params) ->
     Printf.sprintf "(%s)(%s)" (show_expr_short f) (String.concat ", " (List.map show_expr_short params))

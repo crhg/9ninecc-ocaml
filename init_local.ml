@@ -59,7 +59,7 @@ and make_num n loc =
 
 and make_assign lhs rhs =
     Ast.({
-        exp = Assign {assign_lhs=lhs; assign_rhs=rhs};
+        exp = Assign (lhs, rhs);
         loc = lhs.loc
     })
 

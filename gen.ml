@@ -256,6 +256,18 @@ and gen_i_expr' i_expr = match i_expr with
 | I_block block ->
     gen_stmt block;
     Stack.push "rax"
+| ICond (cond,then_expr,else_expr) ->
+    let else_label = Unique_id.new_id ".Lelse" in
+    let end_label = Unique_id.new_id ".Lend" in
+    gen_i_expr cond;
+    Stack.pop "rax";
+    printf "    cmp rax, 0\n";
+    printf "    je %s\n" else_label;
+    Stack.with_save (fun _ -> gen_i_expr then_expr);
+    printf "    jmp %s\n" end_label;
+    printf "%s:\n" else_label;
+    gen_i_expr else_expr;
+    printf "%s:\n" end_label
 | I_binop (LAnd, l, r) ->
     let label = Unique_id.new_id ".Land" in
     gen_i_expr l;

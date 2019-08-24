@@ -36,8 +36,14 @@ let with_adjust n action =
 
 let with_save action =
     let saved = !sp in
+    let r = action() in
+    sp := saved;
+    r
+
+let diff action =
+    let saved = !sp in
     action();
-    sp := saved
+    !sp - saved
 
 exception Stack_changed
 let check_no_change action =

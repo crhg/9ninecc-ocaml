@@ -13,6 +13,8 @@
 
 %token DOT ARROW
 
+%token QUESTION COLON
+
 %token SEMI COMMA
 
 %token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET
@@ -564,7 +566,10 @@ logical_or_expression:
 
 conditional_expression:
 | e=logical_or_expression { e }
-(* 未実装: logical-OR-expression ? expression : conditional-expression *)
+| cond=logical_or_expression token=QUESTION then_expr=expression COLON else_expr=conditional_expression {
+    ignore token;
+    { exp = Cond(cond, then_expr, else_expr); loc=$startpos(token) }
+}
 
 assignment_expression:
 | e=conditional_expression { e }

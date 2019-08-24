@@ -1314,3 +1314,15 @@ int test160() {
     try_printf("%d\n", 1 || else160());
 }
 // @end
+
+// @try_ret test161 2
+int test161() {
+    return 1? 2: 3;
+}
+// @end
+
+// @try_ret test162 3
+int test162() {
+    return 0? 2: 3;
+}
+// @end

@@ -146,6 +146,7 @@ and expr_exp =
 | Sizeof of expr
 | Arrow of expr * string (* フィールド名 *)
 | Cast of type_name * expr
+| Cond of expr * expr * expr
 | BlockExpr of stmt
 and expr = expr_exp node
 
@@ -157,6 +158,7 @@ and i_expr =
 | Load of Type.t * i_expr
 | ICall of i_expr * i_expr list
 | I_binop of binop * i_expr * i_expr
+| ICond of i_expr * i_expr * i_expr
 | I_block of stmt
 
 (* 文の中に置く式, 中間表現に変換した結果を格納できる *)
@@ -187,6 +189,8 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "(%s)->(%s)" (show_expr_short e) f
 | Cast(_, e) ->
     Printf.sprintf "Cast(...,%s)" (show_expr_short e)
+| Cond(c, t, e) ->
+    Printf.sprintf "(%s)?(%s):(%s)" (show_expr_short c) (show_expr_short t) (show_expr_short e)
 | BlockExpr _ ->
     "{...}"
 
@@ -198,6 +202,7 @@ and show_i_expr_short i_expr = match i_expr with
 | ICall (f, params) -> Printf.sprintf "(%s)(%s)" (show_i_expr_short f) (String.concat ", " (List.map show_i_expr_short params))
 | I_binop (op, l, r) -> Printf.sprintf "(%s)%s(%s)" (show_i_expr_short l) (show_binop_short op) (show_i_expr_short r)
 | I_block _ -> "{...}"
+| ICond (c, t, e) -> Printf.sprintf "(%s)?(%s):(%s)" (show_i_expr_short c) (show_i_expr_short t) (show_i_expr_short e)
 
 and show_binop_short op = match op with
 | Add -> "+"

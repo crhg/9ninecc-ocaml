@@ -48,6 +48,9 @@ rule token = parse
 | '.' { DOT }
 | "->" { ARROW }
 
+| '?' { QUESTION }
+| ':' { COLON }
+
 | "<"  { LT }
 | "<=" { LE }
 | ">"  { GT }

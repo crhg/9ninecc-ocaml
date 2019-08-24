@@ -7,6 +7,7 @@ type token =
   | AST
   | AST_ASSIGN
   | CHAR
+  | COLON
   | COMMA
   | DOT
   | DUMMY
@@ -40,6 +41,7 @@ type token =
   | PLUS
   | PLUS_ASSIGN
   | PLUSPLUS
+  | QUESTION
   | RBRACE
   | RBRACKET
   | RETURN

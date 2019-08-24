@@ -276,6 +276,14 @@ and convert' expr = match expr.exp with
     let _, e = convert e in
     let ty = type_of_type_name type_name in
     (ty, e)
+| Cond (c, t, e) ->
+    let _, c = convert_normalized c in
+    let tty, t = convert_normalized t in
+    let ety, e = convert_normalized e in
+
+    (if tty <> ety then raise(Misc.Error_at("type unmatch then else", expr.loc)));
+
+    (tty, ICond(c, t, e))
 | Binop (op, l, r) ->
     let lty, l = convert_normalized l in
     let rty, r = convert_normalized r in

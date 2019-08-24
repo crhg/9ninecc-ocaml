@@ -87,6 +87,7 @@ and expr_exp =
   | Sizeof of expr
   | Arrow of expr * string
   | Cast of type_name * expr
+  | Cond of expr * expr * expr
   | BlockExpr of stmt
 and expr = expr_exp node
 and i_expr =
@@ -96,6 +97,7 @@ and i_expr =
   | Load of Type.t * i_expr
   | ICall of i_expr * i_expr list
   | I_binop of binop * i_expr * i_expr
+  | ICond of i_expr * i_expr * i_expr
   | I_block of stmt
 and expr_s = { expr : expr; mutable i_expr : i_expr option; }
 val pp_node :

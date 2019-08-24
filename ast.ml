@@ -133,10 +133,6 @@ and binop_r = {
     rhs: expr
 }
 
-and ident_r = { 
-    name : string;
-}
-
 and assign_r = {
     assign_lhs : expr;
     assign_rhs : expr
@@ -158,7 +154,7 @@ and arrow_r = {
 and expr_exp =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
-| Ident of ident_r
+| Ident of string
 | Binop of binop_r
 | Assign of assign_r
 | Call of expr * expr list
@@ -190,7 +186,7 @@ let rec show_expr_short expr = match expr.exp with
     n
 | Str (s, _) ->
     Printf.sprintf "\"%s\"" (String_literal.escaped s)
-| Ident { name = name } ->
+| Ident name ->
     name
 | Binop { op=op; lhs=l; rhs=r } ->
     Printf.sprintf "(%s)%s(%s)" (show_expr_short l) (show_binop_short op) (show_expr_short r)

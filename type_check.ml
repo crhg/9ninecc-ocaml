@@ -136,10 +136,7 @@ and check_stmt stmt = match stmt.exp with
         register_local_var ty name;
 
         init |> Option.may (fun init ->
-            let ident = {
-                exp = Ident { name=name };
-            loc=d.loc
-            } in
+            let ident = { exp = Ident name; loc=d.loc } in
             let assign = Init_local.to_assign ty ident init in
             decl_init.di_init_assign <- List.map (Misc.compose snd convert) assign
         )
@@ -203,7 +200,7 @@ and convert' expr = match expr.exp with
 | Num n -> (Type.Int, Const (int_of_string n))
 | Str (s,label) ->
     (Type.Array(Type.Char, Some (String.length s + 1)), Label label)
-| Ident { name = name } ->
+| Ident name ->
     let get_entry name = try get_entry name with
     | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
     (match get_entry name with
@@ -324,7 +321,7 @@ and convert' expr = match expr.exp with
 
 (* lvalの変換, (式の型, 式のポインタを求める式) *)
 and convert_lval expr = match expr.exp with
-| Ident { name = name } ->
+| Ident name ->
     let get_entry name = try get_entry name with
     | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
     (match get_entry name with

@@ -357,7 +357,7 @@ expr_eof:
 identifier:
 | id=ident { 
     let name, loc = id in
-    { exp = Ident { name = name }; loc = loc }
+    { exp = Ident name; loc = loc }
 }
 
 constant:

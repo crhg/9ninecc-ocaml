@@ -116,6 +116,7 @@ and gen_stmt' stmt =
 let gen_expr expr = gen_i_expr @@ Option.get expr.i_expr in
 match stmt.exp with
 | Empty
+| TmpVar _
 | TypedefStmt _ ->
     ()
 | Var { var_decl_inits = decl_inits; _ } ->

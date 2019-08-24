@@ -1190,3 +1190,27 @@ int test144() {
     return (*************************************************************************f144)();
 }
 // @end
+
+// @try_ret test145 45
+int test145() {
+    int i = 40;
+    i += 5;
+    return i;
+}
+// @end
+
+// @try_out test146 1-1
+int test146() {
+    int i = 0;
+    int x = ++i;
+    try_printf("%d-%d\n", x, i);
+}
+// @end
+
+// @try_out test147 9-9
+int test147() {
+    int i = 10;
+    int x = --i;
+    try_printf("%d-%d\n", x, i);
+}
+// @end

@@ -141,6 +141,9 @@ and check_stmt stmt = match stmt.exp with
             decl_init.di_init_assign <- List.map (Misc.compose snd convert) assign
         )
     )
+| TmpVar (name, expr) ->
+    let ty, _ = convert_normalized expr in
+    register_local_var ty name
 | TypedefStmt (ts, decls) ->
     List.iter (typedef ts) decls;
 | Expr expr ->

@@ -33,6 +33,7 @@ rule token = parse
     sharp_line (B.create 50) lexbuf
 }
 
+
 | '+' { PLUS }
 | '-' { MINUS }
 | '*' { AST }
@@ -56,7 +57,15 @@ rule token = parse
 | '[' { LBRACKET }
 | ']' { RBRACKET }
 
-| '=' { ASSIGN }
+| '='  { ASSIGN }
+| "+=" { PLUS_ASSIGN }
+| "-=" { MINUS_ASSIGN }
+| "*=" { AST_ASSIGN }
+| "/=" { SLASH_ASSIGN }
+
+| "++" { PLUSPLUS }
+| "--" { MINUSMINUS }
+
 | ';' { SEMI }
 | ',' { COMMA }
 

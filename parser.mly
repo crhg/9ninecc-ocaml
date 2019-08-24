@@ -4,9 +4,12 @@
 
 %token PLUS MINUS AST SLASH AMP
 
+%token PLUSPLUS MINUSMINUS
+
 %token LT LE GT GE EQ NE
 
 %token ASSIGN
+%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN
 
 %token DOT ARROW
 
@@ -406,8 +409,18 @@ postfix_expression:
 
 unary_expression:
 | e=postfix_expression { e }
-(* 未実装: ++ unary-expression *)
-(* 未実装: -- unary-expression *)
+| token=PLUSPLUS e=unary_expression {
+    ignore token;
+    let loc = $startpos(token) in
+    let one = { exp = Num "1"; loc=loc } in
+    op_assign Add loc e one
+}
+| token=MINUSMINUS e=unary_expression {
+    ignore token;
+    let loc = $startpos(token) in
+    let one = { exp = Num "1"; loc=loc } in
+    op_assign Sub loc e one
+}
 | token=AMP e=cast_expression { ignore token; { exp = Addr e; loc = $startpos(token) } }
 | token=AST e=cast_expression { ignore token; { exp = Deref e; loc = $startpos(token) } }
 | PLUS e=cast_expression { e }
@@ -515,7 +528,17 @@ assignment_expression:
     ignore token;
     { exp = Assign (l, r); loc = $startpos(token) }
 }
-(* 未実装: *= /= %= += -= <<= >>= &= ^= |= *)
+| l=unary_expression op=binop_assign r=assignment_expression {
+    let op, loc = op in
+    Ast.op_assign op loc l r
+}
+
+binop_assign:
+| token=AST_ASSIGN { ignore token; Mul, $startpos(token) } 
+| token=SLASH_ASSIGN { ignore token; Div, $startpos(token) } 
+| token=PLUS_ASSIGN { ignore token; Add, $startpos(token) } 
+| token=MINUS_ASSIGN { ignore token; Sub, $startpos(token) } 
+(* 未実装: %= <<= >>= &= ^= |= *)
 
 expression:
 | e=assignment_expression { e }

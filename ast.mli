@@ -65,6 +65,7 @@ and init = init_exp node
 and stmt_exp =
     Empty
   | Var of { var_ds : decl_spec; var_decl_inits : decl_init list; }
+  | TmpVar of string * expr
   | TypedefStmt of type_spec * declarator list
   | Expr of expr_s
   | Return of expr_s
@@ -211,3 +212,4 @@ val show_i_expr_short : i_expr -> string
 val show_binop_short : binop -> string
 val make_expr_s : expr -> expr_s
 val is_extern : decl_spec -> bool
+val op_assign : binop -> Lexing.position -> expr -> expr -> expr

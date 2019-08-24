@@ -4,6 +4,7 @@ type token =
   | ARROW
   | ASSIGN
   | AST
+  | AST_ASSIGN
   | CHAR
   | COMMA
   | DOT
@@ -25,9 +26,13 @@ type token =
   | LPAR
   | LT
   | MINUS
+  | MINUS_ASSIGN
+  | MINUSMINUS
   | NE
   | NUM of (string)
   | PLUS
+  | PLUS_ASSIGN
+  | PLUSPLUS
   | RBRACE
   | RBRACKET
   | RETURN
@@ -36,6 +41,7 @@ type token =
   | SHORT
   | SIZEOF
   | SLASH
+  | SLASH_ASSIGN
   | STR of (string)
   | STRUCT
   | TYPEDEF

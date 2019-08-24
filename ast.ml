@@ -107,6 +107,7 @@ and stmt_exp =
     var_ds: decl_spec;
     var_decl_inits: decl_init list
 }
+| TmpVar of string * expr (* 内部での一時変数導入用, exprの型の値がはいる変数が宣言する *)
 | TypedefStmt of type_spec * declarator list
 | Expr of expr_s
 | Return of expr_s
@@ -203,9 +204,29 @@ and show_binop_short op = match op with
 | Ne -> "!="
 | Store ty -> Printf.sprintf "<-[%s]" (Type.show_type ty)
 
-
 let make_expr_s expr = { expr = expr; i_expr = None }
 
 let is_extern ds = match ds with
 | { ds_storage_class_spec = Some { exp = Extern; _ }; _ } -> true
 | _ -> false
+
+let op_assign op loc l r =
+    (* l <op>= r は適当なtmpを用意して { tmp=&l; *tmp = *tmp <op> r; } にする *)
+    let tmp_name = "#tmp#" in
+    let tmp = { exp = Ident tmp_name; loc = l.loc } in
+    let deref_tmp = { exp = Deref tmp; loc = tmp.loc } in
+    let addr_of_l = { exp = Addr l; loc = l.loc } in 
+    let expr_st expr = { exp = Expr (make_expr_s expr); loc = expr.loc } in
+    let stmts = [
+            { exp = TmpVar (tmp_name, addr_of_l); loc = l.loc };
+            expr_st { exp = Assign (tmp, addr_of_l); loc=l.loc };
+            expr_st {
+                exp = Assign (
+                    deref_tmp,
+                    { exp = Binop(op, deref_tmp, r); loc=loc }
+                );
+                loc = loc
+            }
+        ] in
+    let block = { exp = Block stmts; loc = loc } in
+    { exp = BlockExpr block; loc = block.loc }

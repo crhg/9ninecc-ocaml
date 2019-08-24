@@ -138,10 +138,6 @@ and assign_r = {
     assign_rhs : expr
 }
 
-and sizeof_r = {
-    sizeof_expr : expr;
-}
-
 and arrow_r = {
     arrow_expr : expr;
     arrow_field : string;
@@ -156,7 +152,7 @@ and expr_exp =
 | Call of expr * expr list
 | Deref of expr
 | Addr of expr
-| Sizeof of sizeof_r
+| Sizeof of expr
 | Arrow of arrow_r
 | Cast of type_name * expr
 | BlockExpr of stmt
@@ -194,7 +190,7 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "*(%s)" (show_expr_short e)
 | Addr e ->
     Printf.sprintf "&(%s)" (show_expr_short e)
-| Sizeof {sizeof_expr = e} ->
+| Sizeof e ->
     Printf.sprintf "sizeof(%s)" (show_expr_short e)
 | Arrow { arrow_expr = e; arrow_field = f} ->
     Printf.sprintf "(%s)->(%s)" (show_expr_short e) f

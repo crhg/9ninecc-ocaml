@@ -266,7 +266,7 @@ and convert' expr = match expr.exp with
     (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)
     let ty, lval = convert_lval expr in
     (ty, Load (ty, lval))
-| Sizeof {sizeof_expr = e} ->
+| Sizeof e ->
     let ty, _ = convert e in
     (Type.Int, Const (Type.get_size ty))
 | Cast (type_name, e) ->

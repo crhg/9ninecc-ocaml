@@ -76,7 +76,6 @@ and stmt = stmt_exp node
 and binop = Add | Sub | Mul | Div | Lt | Le | Eq | Ne | Store of Type.t
 and binop_r = { op : binop; lhs : expr; rhs : expr; }
 and assign_r = { assign_lhs : expr; assign_rhs : expr; }
-and deref_r = { deref_expr : expr; }
 and sizeof_r = { sizeof_expr : expr; }
 and arrow_r = { arrow_expr : expr; arrow_field : string; }
 and expr_exp =
@@ -86,7 +85,7 @@ and expr_exp =
   | Binop of binop_r
   | Assign of assign_r
   | Call of expr * expr list
-  | Deref of deref_r
+  | Deref of expr
   | Addr of expr
   | Sizeof of sizeof_r
   | Arrow of arrow_r
@@ -204,10 +203,6 @@ val pp_assign_r :
   Ppx_deriving_runtime.Format.formatter ->
   assign_r -> Ppx_deriving_runtime.unit
 val show_assign_r : assign_r -> Ppx_deriving_runtime.string
-val pp_deref_r :
-  Ppx_deriving_runtime.Format.formatter ->
-  deref_r -> Ppx_deriving_runtime.unit
-val show_deref_r : deref_r -> Ppx_deriving_runtime.string
 val pp_sizeof_r :
   Ppx_deriving_runtime.Format.formatter ->
   sizeof_r -> Ppx_deriving_runtime.unit

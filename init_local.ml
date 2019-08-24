@@ -71,6 +71,6 @@ and make_array_at a i =
         loc = a.loc
     } in
     {
-        exp = Deref {deref_expr=ptr};
+        exp = Deref ptr;
         loc = a.loc
     }

@@ -138,10 +138,6 @@ and assign_r = {
     assign_rhs : expr
 }
 
-and deref_r = {
-    deref_expr : expr;
-}
-
 and sizeof_r = {
     sizeof_expr : expr;
 }
@@ -158,7 +154,7 @@ and expr_exp =
 | Binop of binop_r
 | Assign of assign_r
 | Call of expr * expr list
-| Deref of deref_r
+| Deref of expr
 | Addr of expr
 | Sizeof of sizeof_r
 | Arrow of arrow_r
@@ -194,7 +190,7 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "(%s)=(%s)" (show_expr_short l) (show_expr_short r)
 | Call (f, params) ->
     Printf.sprintf "(%s)(%s)" (show_expr_short f) (String.concat ", " (List.map show_expr_short params))
-| Deref { deref_expr = e } ->
+| Deref e ->
     Printf.sprintf "*(%s)" (show_expr_short e)
 | Addr e ->
     Printf.sprintf "&(%s)" (show_expr_short e)

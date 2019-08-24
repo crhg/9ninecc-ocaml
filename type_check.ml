@@ -250,7 +250,7 @@ and convert' expr = match expr.exp with
 | Addr e ->
     let ty, e = convert_lval e in
     (Ptr ty, e)
-| Deref {deref_expr = e} ->
+| Deref e ->
     let ty, e = convert_normalized e in
     (match ty with
     | Type.Ptr t ->
@@ -332,7 +332,7 @@ and convert_lval expr = match expr.exp with
     | _ ->
         raise(Misc.Error_at("not lval", expr.loc))
     )
-| Deref ({deref_expr = e})->
+| Deref e ->
     let ty, e = convert_normalized e in
     (match ty with
     | Type.Ptr (Type.Function _) ->

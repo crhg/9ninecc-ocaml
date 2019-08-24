@@ -382,7 +382,7 @@ postfix_expression:
     (* arr[index]は*(arr+index)に変換する *)
     ignore token;
     let pointer = { exp = Binop{op=Add; lhs=arr; rhs=index}; loc = $startpos(token) } in
-    { exp = Deref { deref_expr=pointer }; loc = $startpos(token) }
+    { exp = Deref pointer; loc = $startpos(token) }
 }
 | func=postfix_expression LPAR params=separated_list(COMMA, p=assignment_expression { p }) RPAR {
     { exp = Call (func, params); loc = func.loc } 
@@ -409,7 +409,7 @@ unary_expression:
 (* 未実装: ++ unary-expression *)
 (* 未実装: -- unary-expression *)
 | token=AMP e=cast_expression { ignore token; { exp = Addr e; loc = $startpos(token) } }
-| token=AST e=cast_expression { ignore token; { exp = Deref { deref_expr = e }; loc = $startpos(token) } }
+| token=AST e=cast_expression { ignore token; { exp = Deref e; loc = $startpos(token) } }
 | PLUS e=cast_expression { e }
 | token=MINUS e=cast_expression {
     (* -e は 0-e に変換する *)

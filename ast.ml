@@ -133,11 +133,6 @@ and binop_r = {
     rhs: expr
 }
 
-and arrow_r = {
-    arrow_expr : expr;
-    arrow_field : string;
-}
-
 and expr_exp =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
@@ -148,7 +143,7 @@ and expr_exp =
 | Deref of expr
 | Addr of expr
 | Sizeof of expr
-| Arrow of arrow_r
+| Arrow of expr * string (* フィールド名 *)
 | Cast of type_name * expr
 | BlockExpr of stmt
 and expr = expr_exp node
@@ -187,7 +182,7 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "&(%s)" (show_expr_short e)
 | Sizeof e ->
     Printf.sprintf "sizeof(%s)" (show_expr_short e)
-| Arrow { arrow_expr = e; arrow_field = f} ->
+| Arrow (e, f) ->
     Printf.sprintf "(%s)->(%s)" (show_expr_short e) f
 | Cast(_, e) ->
     Printf.sprintf "Cast(...,%s)" (show_expr_short e)

@@ -392,12 +392,12 @@ postfix_expression:
     ignore token;
     let field, _ = field in
     let pointer = { exp = Addr e; loc = $startpos(token) } in
-    { exp = Arrow { arrow_expr = pointer; arrow_field = field }; loc = $startpos(token) }
+    { exp = Arrow (pointer, field); loc = $startpos(token) }
 }
 | e=postfix_expression token=ARROW field=id {
     ignore token;
     let field, _ = field in
-    { exp = Arrow { arrow_expr = e; arrow_field = field }; loc = $startpos(token) }
+    { exp = Arrow (e, field); loc = $startpos(token) }
 }
 (* 未実装: postfix_expression++ *)
 (* 未実装: postfix_expression-- *)

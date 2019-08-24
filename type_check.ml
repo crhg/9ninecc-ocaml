@@ -342,7 +342,7 @@ and convert_lval expr = match expr.exp with
         (t, e)
     | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
     )
-| Arrow { arrow_expr = e; arrow_field = f } ->
+| Arrow (e, f) ->
     let ty, i_e = convert e in
     (match ty with
     | Ptr ty ->

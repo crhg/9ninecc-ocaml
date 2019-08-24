@@ -128,6 +128,8 @@ and binop =
 | Eq
 | Ne
 | BitAnd
+| BitXor
+| BitOr
 | Store of Type.t
 
 and expr_exp =
@@ -206,6 +208,8 @@ and show_binop_short op = match op with
 | Eq -> "=="
 | Ne -> "!="
 | BitAnd -> "&"
+| BitXor -> "^"
+| BitOr -> "|"
 | Store ty -> Printf.sprintf "<-[%s]" (Type.show_type ty)
 
 let make_expr_s expr = { expr = expr; i_expr = None }

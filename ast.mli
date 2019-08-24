@@ -74,7 +74,7 @@ and stmt_exp =
   | For of expr_s option * expr_s option * expr_s option * stmt
   | Block of stmt list
 and stmt = stmt_exp node
-and binop = Add | Sub | Mul | Div | Mod | Lt | Le | Eq | Ne | BitAnd | Store of Type.t
+and binop = Add | Sub | Mul | Div | Mod | Lt | Le | Eq | Ne | BitAnd | BitXor | BitOr | Store of Type.t
 and expr_exp =
     Num of string
   | Str of string * string

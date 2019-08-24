@@ -40,6 +40,8 @@ rule token = parse
 | '/' { SLASH }
 | '%' { MOD }
 | '&' { AMP }
+| '^' { XOR }
+| '|' { OR }
 
 | '.' { DOT }
 | "->" { ARROW }
@@ -65,6 +67,8 @@ rule token = parse
 | "/=" { SLASH_ASSIGN }
 | "%=" { MOD_ASSIGN }
 | "&=" { AMP_ASSIGN }
+| "^=" { XOR_ASSIGN }
+| "|=" { OR_ASSIGN }
 
 | "++" { PLUSPLUS }
 | "--" { MINUSMINUS }

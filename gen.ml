@@ -296,6 +296,10 @@ and gen_op op = match op with
         printf "    movzb rax, al\n"
     | BitAnd ->
         printf "    and rax, rdi\n"
+    | BitXor ->
+        printf "    xor rax, rdi\n"
+    | BitOr ->
+        printf "    or rax, rdi\n"
     | Store ty ->
         Gen_misc.store ty "[rax]" "rdi";
         printf "    mov rax, rdi\n"

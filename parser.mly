@@ -2,14 +2,14 @@
     open Ast
 %}
 
-%token PLUS MINUS AST SLASH MOD AMP
+%token PLUS MINUS AST SLASH MOD AMP XOR OR
 
 %token PLUSPLUS MINUSMINUS
 
 %token LT LE GT GE EQ NE
 
 %token ASSIGN
-%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN MOD_ASSIGN AMP_ASSIGN
+%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN MOD_ASSIGN AMP_ASSIGN XOR_ASSIGN OR_ASSIGN
 
 %token DOT ARROW
 
@@ -536,11 +536,17 @@ and_expression:
 
 exclusive_or_expression:
 | e=and_expression { e }
-(* 未実装: exclusive-OR-expression ^ AND-expression *)
+| l=exclusive_or_expression token=XOR r=and_expression {
+    ignore token;
+    { exp = Binop(BitXor, l, r); loc = $startpos(token) }
+}
 
 inclusive_or_expression:
 | e=exclusive_or_expression { e }
-(* 未実装: inclusive-OR-expression ^ exclusive-OR-expression *)
+| l=inclusive_or_expression token=OR r=exclusive_or_expression {
+    ignore token;
+    { exp = Binop(BitOr, l, r); loc = $startpos(token) }
+}
 
 logical_and_expression:
 | e=inclusive_or_expression { e }
@@ -572,7 +578,9 @@ binop_assign:
 | token=MINUS_ASSIGN { ignore token; Sub, $startpos(token) } 
 | token=MOD_ASSIGN { ignore token; Mod, $startpos(token) } 
 | token=AMP_ASSIGN { ignore token; BitAnd, $startpos(token) } 
-(* 未実装: <<= >>= &= ^= |= *)
+| token=XOR_ASSIGN { ignore token; BitXor, $startpos(token) } 
+| token=OR_ASSIGN { ignore token; BitOr, $startpos(token) } 
+(* 未実装: <<= >>= ^= *)
 
 expression:
 | e=assignment_expression { e }

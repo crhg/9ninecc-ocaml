@@ -1264,3 +1264,31 @@ int test154() {
     try_printf("%d\n", i);
 }
 // @end
+
+// @try_ret test155 14
+int test155() {
+    return 10 | 6;
+}
+// @end
+
+// @try_out test156 14-14
+int test156() {
+    int i = 10;
+    try_printf("%d-", i |= 6);
+    try_printf("%d\n", i);
+}
+// @end
+
+// @try_ret test157 12
+int test157() {
+    return 10 ^ 6;
+}
+// @end
+
+// @try_out test158 12-12
+int test158() {
+    int i = 10;
+    try_printf("%d-", i ^= 6);
+    try_printf("%d\n", i);
+}
+// @end

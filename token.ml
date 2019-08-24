@@ -33,6 +33,8 @@ type token =
   | MOD_ASSIGN
   | NE
   | NUM of (string)
+  | OR
+  | OR_ASSIGN
   | PLUS
   | PLUS_ASSIGN
   | PLUSPLUS
@@ -52,5 +54,7 @@ type token =
   | TYPEDEF_ID of (string)
   | UNION
   | WHILE
+  | XOR
+  | XOR_ASSIGN
   [@@deriving show {with_path = false}]
 

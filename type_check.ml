@@ -303,7 +303,9 @@ and convert' expr = match expr.exp with
     | Mul
     | Div
     | Mod
-    | BitAnd ->
+    | BitAnd
+    | BitXor
+    | BitOr ->
         (match (lty, rty) with
         | (Type.Int, Type.Int) ->
             (Type.Int, I_binop(op, l, r))

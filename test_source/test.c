@@ -1250,3 +1250,9 @@ int test152() {
     try_printf("%d\n", i);
 }
 // @end
+
+// @try_ret test153 2
+int test153() {
+    return 10 & 6;
+}
+// @end

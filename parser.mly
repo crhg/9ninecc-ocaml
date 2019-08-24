@@ -529,7 +529,10 @@ equality_expression:
 
 and_expression:
 | e=equality_expression { e }
-(* 未実装: AND-expression & equality-expression *)
+| l=and_expression token=AMP r=equality_expression {
+    ignore token;
+    { exp = Binop(BitAnd, l, r); loc = $startpos(token) }
+}
 
 exclusive_or_expression:
 | e=and_expression { e }

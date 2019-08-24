@@ -314,6 +314,8 @@ and convert' expr = match expr.exp with
     | BitAnd
     | BitXor
     | BitOr
+    | LShift
+    | RShift
     | LAnd
     | LOr ->
         (match (lty, rty) with

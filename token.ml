@@ -28,6 +28,8 @@ type token =
   | LONG
   | LOR
   | LPAR
+  | LSHIFT
+  | LSHIFT_ASSIGN
   | LT
   | MINUS
   | MINUS_ASSIGN
@@ -46,6 +48,8 @@ type token =
   | RBRACKET
   | RETURN
   | RPAR
+  | RSHIFT
+  | RSHIFT_ASSIGN
   | SEMI
   | SHORT
   | SIZEOF

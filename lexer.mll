@@ -44,6 +44,8 @@ rule token = parse
 | '|' { OR }
 | "&&" { LAND }
 | "||" { LOR }
+| "<<" { LSHIFT }
+| ">>" { RSHIFT }
 
 | '.' { DOT }
 | "->" { ARROW }
@@ -74,6 +76,8 @@ rule token = parse
 | "&=" { AMP_ASSIGN }
 | "^=" { XOR_ASSIGN }
 | "|=" { OR_ASSIGN }
+| "<<=" { LSHIFT_ASSIGN }
+| "<<=" { RSHIFT_ASSIGN }
 
 | "++" { PLUSPLUS }
 | "--" { MINUSMINUS }

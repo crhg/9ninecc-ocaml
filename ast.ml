@@ -130,6 +130,8 @@ and binop =
 | BitAnd
 | BitXor
 | BitOr
+| LShift
+| RShift
 | LAnd
 | LOr
 | Store of Type.t
@@ -217,6 +219,8 @@ and show_binop_short op = match op with
 | BitAnd -> "&"
 | BitXor -> "^"
 | BitOr -> "|"
+| LShift -> "<<"
+| RShift -> ">>"
 | LAnd -> "&&"
 | LOr -> "||"
 | Store ty -> Printf.sprintf "<-[%s]" (Type.show_type ty)

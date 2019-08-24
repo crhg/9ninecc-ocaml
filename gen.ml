@@ -330,6 +330,12 @@ and gen_op op = match op with
         printf "    xor rax, rdi\n"
     | BitOr ->
         printf "    or rax, rdi\n"
+    | LShift ->
+        printf "    mov cl, dil\n";
+        printf "    shl rax, cl\n"
+    | RShift ->
+        printf "    mov cl, dil\n";
+        printf "    sar rax, cl\n"
     | Store ty ->
         Gen_misc.store ty "[rax]" "rdi";
         printf "    mov rax, rdi\n"

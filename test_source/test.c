@@ -1326,3 +1326,21 @@ int test162() {
     return 0? 2: 3;
 }
 // @end
+
+// @try_ret test163 40
+int test163() {
+    return 5 << 3;
+}
+// @end
+
+// @try_ret test164 3
+int test164() {
+    return 100 >> 5;
+}
+// @end
+
+// @try_out test165 -4
+int test165() {
+    try_printf("%d", (-100) >> 5);
+}
+// @end

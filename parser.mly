@@ -2,14 +2,14 @@
     open Ast
 %}
 
-%token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR
+%token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR LSHIFT RSHIFT
 
 %token PLUSPLUS MINUSMINUS
 
 %token LT LE GT GE EQ NE
 
 %token ASSIGN
-%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN MOD_ASSIGN AMP_ASSIGN XOR_ASSIGN OR_ASSIGN
+%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN MOD_ASSIGN AMP_ASSIGN XOR_ASSIGN OR_ASSIGN LSHIFT_ASSIGN RSHIFT_ASSIGN
 
 %token DOT ARROW
 
@@ -496,8 +496,14 @@ additive_expression:
 
 shift_expression:
 | e=additive_expression { e }
-(* shift-expression << additive_expression *)
-(* shift-expression >> additive_expression *)
+| l=shift_expression token=LSHIFT r=additive_expression {
+    ignore token;
+    { exp = Binop(LShift, l, r); loc = $startpos(token) }
+}
+| l=shift_expression token=RSHIFT r=additive_expression {
+    ignore token;
+    { exp = Binop(RShift, l, r); loc = $startpos(token) }
+}
 
 relational_expression:
 | e=shift_expression { e }
@@ -591,7 +597,8 @@ binop_assign:
 | token=AMP_ASSIGN { ignore token; BitAnd, $startpos(token) } 
 | token=XOR_ASSIGN { ignore token; BitXor, $startpos(token) } 
 | token=OR_ASSIGN { ignore token; BitOr, $startpos(token) } 
-(* 未実装: <<= >>= ^= *)
+| token=LSHIFT_ASSIGN { ignore token; LShift, $startpos(token) } 
+| token=RSHIFT_ASSIGN { ignore token; RShift, $startpos(token) } 
 
 expression:
 | e=assignment_expression { e }

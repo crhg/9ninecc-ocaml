@@ -127,17 +127,11 @@ and binop =
 | Ne
 | Store of Type.t
 
-and binop_r = {
-    op: binop;
-    lhs: expr;
-    rhs: expr
-}
-
 and expr_exp =
 | Num of string
 | Str of string * string (* 文字列そのものとラベル *)
 | Ident of string
-| Binop of binop_r
+| Binop of binop * expr * expr
 | Assign of expr * expr
 | Call of expr * expr list
 | Deref of expr
@@ -170,7 +164,7 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "\"%s\"" (String_literal.escaped s)
 | Ident name ->
     name
-| Binop { op=op; lhs=l; rhs=r } ->
+| Binop (op, l, r) ->
     Printf.sprintf "(%s)%s(%s)" (show_expr_short l) (show_binop_short op) (show_expr_short r)
 | Assign (l, r) ->
     Printf.sprintf "(%s)=(%s)" (show_expr_short l) (show_expr_short r)

@@ -74,12 +74,11 @@ and stmt_exp =
   | Block of stmt list
 and stmt = stmt_exp node
 and binop = Add | Sub | Mul | Div | Lt | Le | Eq | Ne | Store of Type.t
-and binop_r = { op : binop; lhs : expr; rhs : expr; }
 and expr_exp =
     Num of string
   | Str of string * string
   | Ident of string
-  | Binop of binop_r
+  | Binop of binop * expr * expr
   | Assign of expr * expr
   | Call of expr * expr list
   | Deref of expr
@@ -192,10 +191,6 @@ val show_stmt : stmt -> Ppx_deriving_runtime.string
 val pp_binop :
   Ppx_deriving_runtime.Format.formatter -> binop -> Ppx_deriving_runtime.unit
 val show_binop : binop -> Ppx_deriving_runtime.string
-val pp_binop_r :
-  Ppx_deriving_runtime.Format.formatter ->
-  binop_r -> Ppx_deriving_runtime.unit
-val show_binop_r : binop_r -> Ppx_deriving_runtime.string
 val pp_expr_exp :
   Ppx_deriving_runtime.Format.formatter ->
   expr_exp -> Ppx_deriving_runtime.unit

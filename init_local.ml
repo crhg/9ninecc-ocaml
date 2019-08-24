@@ -67,7 +67,7 @@ and make_array_at a i =
     let open Ast in
     let offset = make_num i a.loc in
     let ptr = {
-        exp = Binop{op=Add; lhs=a; rhs=offset};
+        exp = Binop(Add, a, offset);
         loc = a.loc
     } in
     {

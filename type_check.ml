@@ -273,7 +273,7 @@ and convert' expr = match expr.exp with
     let _, e = convert e in
     let ty = type_of_type_name type_name in
     (ty, e)
-| Binop { op=op; lhs=l; rhs=r} ->
+| Binop (op, l, r) ->
     let lty, l = convert_normalized l in
     let rty, r = convert_normalized r in
     (match op with

@@ -381,7 +381,7 @@ postfix_expression:
 | arr=postfix_expression token=LBRACKET index=expression RBRACKET {
     (* arr[index]は*(arr+index)に変換する *)
     ignore token;
-    let pointer = { exp = Binop{op=Add; lhs=arr; rhs=index}; loc = $startpos(token) } in
+    let pointer = { exp = Binop(Add, arr, index); loc = $startpos(token) } in
     { exp = Deref pointer; loc = $startpos(token) }
 }
 | func=postfix_expression LPAR params=separated_list(COMMA, p=assignment_expression { p }) RPAR {
@@ -415,7 +415,7 @@ unary_expression:
     (* -e は 0-e に変換する *)
     ignore token;
     {
-        exp = Binop{op=Sub; lhs={ exp = Num "0"; loc = $startpos(token) }; rhs=e};
+        exp = Binop(Sub, { exp = Num "0"; loc = $startpos(token) }, e);
         loc = $startpos(token)
     }
 }
@@ -431,11 +431,11 @@ multiplicative_expression:
 | e=cast_expression { e }
 | l=multiplicative_expression token=AST r=cast_expression {
     ignore token;
-    { exp = Binop{op=Mul; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Mul, l, r); loc = $startpos(token) }
 }
 | l=multiplicative_expression token=SLASH r=cast_expression {
     ignore token;
-    { exp = Binop{op=Div; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Div, l, r); loc = $startpos(token) }
 }
 (* 未実装: multiplicatiove-expression % cast-expression *)
 
@@ -443,11 +443,11 @@ additive_expression:
 | e=multiplicative_expression { e } 
 | l=additive_expression token=PLUS r=multiplicative_expression {
     ignore token;
-    { exp = Binop{op=Add; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Add, l, r); loc = $startpos(token) }
 }
 | l=additive_expression token=MINUS r=multiplicative_expression {
     ignore token;
-    { exp = Binop{op=Sub; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Sub, l, r); loc = $startpos(token) }
 }
 
 shift_expression:
@@ -459,30 +459,30 @@ relational_expression:
 | e=shift_expression { e }
 | l=relational_expression token=LT r=shift_expression {
     ignore token;
-    { exp = Binop{op=Lt; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Lt, l, r); loc = $startpos(token) }
 }
 | l=relational_expression token=GT r=shift_expression {
     ignore token;
-    { exp = Binop{op=Lt; lhs=r; rhs=l}; loc = $startpos(token) }
+    { exp = Binop(Lt, r, l); loc = $startpos(token) }
 }
 | l=relational_expression token=LE r=shift_expression {
     ignore token;
-    { exp = Binop{op=Le; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Le, l, r); loc = $startpos(token) }
 }
 | l=relational_expression token=GE r=shift_expression {
     ignore token;
-    { exp = Binop{op=Le; lhs=r; rhs=l}; loc = $startpos(token) }
+    { exp = Binop(Le, r, l); loc = $startpos(token) }
 }
 
 equality_expression:
 | e=relational_expression { e }
 | l=equality_expression token=EQ r=relational_expression {
     ignore token;
-    { exp = Binop{op=Eq; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Eq, l, r); loc = $startpos(token) }
 }
 | l=equality_expression token=NE r=relational_expression {
     ignore token;
-    { exp = Binop{op=Ne; lhs=l; rhs=r}; loc = $startpos(token) }
+    { exp = Binop(Ne, l, r); loc = $startpos(token) }
 }
 
 and_expression:

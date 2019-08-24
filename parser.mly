@@ -2,7 +2,7 @@
     open Ast
 %}
 
-%token PLUS MINUS AST SLASH MOD AMP XOR OR
+%token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR
 
 %token PLUSPLUS MINUSMINUS
 
@@ -550,11 +550,17 @@ inclusive_or_expression:
 
 logical_and_expression:
 | e=inclusive_or_expression { e }
-(* 未実装: logical-AND-expression && inclusive-OR-expression *)
+| l=logical_and_expression token=LAND r=inclusive_or_expression {
+    ignore token;
+    { exp = Binop(LAnd, l, r); loc = $startpos(token) }
+}
 
 logical_or_expression:
 | e=logical_and_expression { e }
-(* 未実装: logical-OR-expression && logical-AND-expression *)
+| l=logical_or_expression token=LOR r=logical_and_expression {
+    ignore token;
+    { exp = Binop(LOr, l, r); loc = $startpos(token) }
+}
 
 conditional_expression:
 | e=logical_or_expression { e }

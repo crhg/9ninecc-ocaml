@@ -305,7 +305,9 @@ and convert' expr = match expr.exp with
     | Mod
     | BitAnd
     | BitXor
-    | BitOr ->
+    | BitOr
+    | LAnd
+    | LOr ->
         (match (lty, rty) with
         | (Type.Int, Type.Int) ->
             (Type.Int, I_binop(op, l, r))

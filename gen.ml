@@ -256,6 +256,24 @@ and gen_i_expr' i_expr = match i_expr with
 | I_block block ->
     gen_stmt block;
     Stack.push "rax"
+| I_binop (LAnd, l, r) ->
+    let label = Unique_id.new_id ".Land" in
+    gen_i_expr l;
+    printf "    mov rax, [rsp]\n";
+    printf "    cmp rax, 0\n";
+    printf "    je %s\n" label;
+    Stack.pop "rax";
+    gen_i_expr r;
+    printf "%s:\n" label
+| I_binop (LOr, l, r) ->
+    let label = Unique_id.new_id ".Lor" in
+    gen_i_expr l;
+    printf "    mov rax, [rsp]\n";
+    printf "    cmp rax, 0\n";
+    printf "    jne %s\n" label;
+    Stack.pop "rax";
+    gen_i_expr r;
+    printf "%s:\n" label
 | I_binop (op, l, r) ->
     gen_i_expr l;
     gen_i_expr r;
@@ -303,3 +321,7 @@ and gen_op op = match op with
     | Store ty ->
         Gen_misc.store ty "[rax]" "rdi";
         printf "    mov rax, rdi\n"
+    (* 以下の演算子は別扱いなのでここには来ない *)
+    | LAnd
+    | LOr ->
+        failwith "op?"

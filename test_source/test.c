@@ -1292,3 +1292,25 @@ int test158() {
     try_printf("%d\n", i);
 }
 // @end
+
+// @try_out test159 0-then-159
+int then159() {
+    try_printf("then-");
+    return 159;
+}
+int test159() {
+    try_printf("%d-", 0 && then159());
+    try_printf("%d\n", 1 && then159());
+}
+// @end
+
+// @try_out test160 else-160-1
+int else160() {
+    try_printf("else-");
+    return 160;
+}
+int test160() {
+    try_printf("%d-", 0 || else160());
+    try_printf("%d\n", 1 || else160());
+}
+// @end

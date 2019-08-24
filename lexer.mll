@@ -42,6 +42,8 @@ rule token = parse
 | '&' { AMP }
 | '^' { XOR }
 | '|' { OR }
+| "&&" { LAND }
+| "||" { LOR }
 
 | '.' { DOT }
 | "->" { ARROW }

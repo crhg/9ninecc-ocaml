@@ -20,10 +20,12 @@ type token =
   | IDENT of (string)
   | IF
   | INT
+  | LAND
   | LBRACE
   | LBRACKET
   | LE
   | LONG
+  | LOR
   | LPAR
   | LT
   | MINUS

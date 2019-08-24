@@ -402,8 +402,34 @@ postfix_expression:
     let field, _ = field in
     { exp = Arrow (e, field); loc = $startpos(token) }
 }
-(* 未実装: postfix_expression++ *)
-(* 未実装: postfix_expression-- *)
+| e=postfix_expression token=PLUSPLUS {
+    ignore token;
+    let loc = $startpos(token) in
+    let one = { exp = Num "1"; loc=loc } in
+    save_and_return_l_with e (fun tmp ->
+        {
+            exp = Assign(
+                tmp,
+                { exp = Binop(Add, tmp, one); loc=loc }
+            );
+            loc = loc
+        }
+    )
+}
+| e=postfix_expression token=MINUSMINUS {
+    ignore token;
+    let loc = $startpos(token) in
+    let one = { exp = Num "1"; loc=loc } in
+    save_and_return_l_with e (fun tmp ->
+        {
+            exp = Assign(
+                tmp,
+                { exp = Binop(Sub, tmp, one); loc=loc }
+            );
+            loc = loc
+        }
+    )
+}
 (* 未実装: ( type-name ) { initializer-list } *)
 (* 未実装: ( type-name ) { initializer-list , } *)
 

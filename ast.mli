@@ -213,3 +213,4 @@ val show_binop_short : binop -> string
 val make_expr_s : expr -> expr_s
 val is_extern : decl_spec -> bool
 val op_assign : binop -> Lexing.position -> expr -> expr -> expr
+val save_and_return_l_with : expr -> (expr -> expr) -> expr

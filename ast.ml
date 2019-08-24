@@ -210,8 +210,8 @@ let is_extern ds = match ds with
 | { ds_storage_class_spec = Some { exp = Extern; _ }; _ } -> true
 | _ -> false
 
+(* l <op>= r は適当なtmpを用意して { tmp=&l; *tmp = *tmp <op> r; } にする *)
 let op_assign op loc l r =
-    (* l <op>= r は適当なtmpを用意して { tmp=&l; *tmp = *tmp <op> r; } にする *)
     let tmp_name = "#tmp#" in
     let tmp = { exp = Ident tmp_name; loc = l.loc } in
     let deref_tmp = { exp = Deref tmp; loc = tmp.loc } in
@@ -229,4 +229,26 @@ let op_assign op loc l r =
             }
         ] in
     let block = { exp = Block stmts; loc = loc } in
+    { exp = BlockExpr block; loc = block.loc }
+
+(* 左辺値である式lの値を保存しそれを更新するような式を実行後 *)
+(* 保存した値を返すブロック式に変換する *)
+(* { #tmp# = &l; #save# = *#tmp#; *#tmp#を使った式; #save# } *)
+let save_and_return_l_with l f =
+    let save_name = "#save#" in
+    let save = { exp = Ident save_name; loc = l.loc } in
+    let tmp_name = "#tmp#" in
+    let tmp = { exp = Ident tmp_name; loc = l.loc } in
+    let deref_tmp = { exp = Deref tmp; loc = tmp.loc } in
+    let addr_of_l = { exp = Addr l; loc = l.loc } in 
+    let expr_st expr = { exp = Expr (make_expr_s expr); loc = expr.loc } in
+    let stmts = [
+            { exp = TmpVar (save_name, l); loc = l.loc };
+            { exp = TmpVar (tmp_name, addr_of_l); loc = l.loc };
+            expr_st { exp = Assign (tmp, addr_of_l); loc=l.loc };
+            expr_st { exp = Assign (save, deref_tmp); loc=l.loc };
+            expr_st @@ f deref_tmp;
+            expr_st save
+        ] in
+    let block = { exp = Block stmts; loc = l.loc } in
     { exp = BlockExpr block; loc = block.loc }

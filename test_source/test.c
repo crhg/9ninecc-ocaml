@@ -1214,3 +1214,19 @@ int test147() {
     try_printf("%d-%d\n", x, i);
 }
 // @end
+
+// @try_out test148 0-1
+int test148() {
+    int i = 0;
+    int x = i++;
+    try_printf("%d-%d\n", x, i);
+}
+// @end
+
+// @try_out test149 10-9
+int test149() {
+    int i = 10;
+    int x = i--;
+    try_printf("%d-%d\n", x, i);
+}
+// @end

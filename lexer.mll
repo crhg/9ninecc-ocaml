@@ -38,6 +38,7 @@ rule token = parse
 | '-' { MINUS }
 | '*' { AST }
 | '/' { SLASH }
+| '%' { MOD }
 | '&' { AMP }
 
 | '.' { DOT }
@@ -62,6 +63,7 @@ rule token = parse
 | "-=" { MINUS_ASSIGN }
 | "*=" { AST_ASSIGN }
 | "/=" { SLASH_ASSIGN }
+| "%=" { MOD_ASSIGN }
 
 | "++" { PLUSPLUS }
 | "--" { MINUSMINUS }

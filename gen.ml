@@ -274,6 +274,10 @@ and gen_op op = match op with
     | Div ->
         printf "    cqo\n";
         printf "    idiv rdi\n"
+    | Mod ->
+        printf "    cqo\n";
+        printf "    idiv rdi\n";
+        printf "    mov rax, rdx\n"
     | Eq ->
         printf "    cmp rax, rdi\n";
         printf "    sete al\n";

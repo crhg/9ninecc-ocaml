@@ -301,7 +301,8 @@ and convert' expr = match expr.exp with
         | _ -> raise (Misc.Error(Printf.sprintf "cannot sub %s %s" (Type.show_type lty) (Type.show_type rty)))
         )
     | Mul
-    | Div ->
+    | Div
+    | Mod ->
         (match (lty, rty) with
         | (Type.Int, Type.Int) ->
             (Type.Int, I_binop(op, l, r))
@@ -313,7 +314,8 @@ and convert' expr = match expr.exp with
     | Lt
     | Le ->
         (Type.Int, I_binop(op, l, r))
-    | _ -> failwith "?"
+    | Store _ ->
+        failwith "Store?"
     )
 
 (* and to_pointer ty = *)

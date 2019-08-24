@@ -28,6 +28,8 @@ type token =
   | MINUS
   | MINUS_ASSIGN
   | MINUSMINUS
+  | MOD
+  | MOD_ASSIGN
   | NE
   | NUM of (string)
   | PLUS

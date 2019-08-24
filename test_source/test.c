@@ -1230,3 +1230,23 @@ int test149() {
     try_printf("%d-%d\n", x, i);
 }
 // @end
+
+// @try_ret test150 3
+int test150() {
+    return 150 % 7;
+}
+// @end
+
+// @try_out test151 -1
+int test151() {
+    try_printf("%d\n", (-151) % 3);
+}
+// @end
+
+// @try_out test152 5-5
+int test152() {
+    int i = 152;
+    try_printf("%d-", i %= 7);
+    try_printf("%d\n", i);
+}
+// @end

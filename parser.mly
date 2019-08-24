@@ -2,14 +2,14 @@
     open Ast
 %}
 
-%token PLUS MINUS AST SLASH AMP
+%token PLUS MINUS AST SLASH MOD AMP
 
 %token PLUSPLUS MINUSMINUS
 
 %token LT LE GT GE EQ NE
 
 %token ASSIGN
-%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN
+%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN MOD_ASSIGN
 
 %token DOT ARROW
 
@@ -476,7 +476,10 @@ multiplicative_expression:
     ignore token;
     { exp = Binop(Div, l, r); loc = $startpos(token) }
 }
-(* 未実装: multiplicatiove-expression % cast-expression *)
+| l=multiplicative_expression token=MOD r=cast_expression {
+    ignore token;
+    { exp = Binop(Mod, l, r); loc = $startpos(token) }
+}
 
 additive_expression:
 | e=multiplicative_expression { e } 
@@ -564,7 +567,8 @@ binop_assign:
 | token=SLASH_ASSIGN { ignore token; Div, $startpos(token) } 
 | token=PLUS_ASSIGN { ignore token; Add, $startpos(token) } 
 | token=MINUS_ASSIGN { ignore token; Sub, $startpos(token) } 
-(* 未実装: %= <<= >>= &= ^= |= *)
+| token=MOD_ASSIGN { ignore token; Mod, $startpos(token) } 
+(* 未実装: <<= >>= &= ^= |= *)
 
 expression:
 | e=assignment_expression { e }

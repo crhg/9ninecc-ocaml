@@ -122,6 +122,7 @@ and binop =
 | Sub
 | Mul
 | Div
+| Mod
 | Lt
 | Le
 | Eq
@@ -198,6 +199,7 @@ and show_binop_short op = match op with
 | Sub -> "-"
 | Mul -> "*"
 | Div -> "/"
+| Mod -> "%"
 | Lt -> "<"
 | Le -> "<="
 | Eq -> "=="

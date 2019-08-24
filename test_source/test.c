@@ -1256,3 +1256,11 @@ int test153() {
     return 10 & 6;
 }
 // @end
+
+// @try_out test154 2-2
+int test154() {
+    int i = 154;
+    try_printf("%d-", i &= 7);
+    try_printf("%d\n", i);
+}
+// @end

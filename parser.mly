@@ -9,7 +9,7 @@
 %token LT LE GT GE EQ NE
 
 %token ASSIGN
-%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN MOD_ASSIGN
+%token PLUS_ASSIGN MINUS_ASSIGN AST_ASSIGN SLASH_ASSIGN MOD_ASSIGN AMP_ASSIGN
 
 %token DOT ARROW
 
@@ -571,6 +571,7 @@ binop_assign:
 | token=PLUS_ASSIGN { ignore token; Add, $startpos(token) } 
 | token=MINUS_ASSIGN { ignore token; Sub, $startpos(token) } 
 | token=MOD_ASSIGN { ignore token; Mod, $startpos(token) } 
+| token=AMP_ASSIGN { ignore token; BitAnd, $startpos(token) } 
 (* 未実装: <<= >>= &= ^= |= *)
 
 expression:

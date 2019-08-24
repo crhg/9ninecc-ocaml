@@ -64,6 +64,7 @@ rule token = parse
 | "*=" { AST_ASSIGN }
 | "/=" { SLASH_ASSIGN }
 | "%=" { MOD_ASSIGN }
+| "&=" { AMP_ASSIGN }
 
 | "++" { PLUSPLUS }
 | "--" { MINUSMINUS }

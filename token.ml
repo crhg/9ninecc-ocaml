@@ -1,6 +1,7 @@
 
 type token = 
   | AMP
+  | AMP_ASSIGN
   | ARROW
   | ASSIGN
   | AST

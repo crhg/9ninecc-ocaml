@@ -341,6 +341,8 @@ and gen_op op = match op with
     | RShift ->
         printf "    mov cl, dil\n";
         printf "    sar rax, cl\n"
+    | Comma ->
+        printf "    mov rax, rdi\n"
     | Store ty ->
         Gen_misc.store ty "[rax]" "rdi";
         printf "    mov rax, rdi\n"

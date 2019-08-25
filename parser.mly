@@ -614,7 +614,10 @@ binop_assign:
 
 expression:
 | e=assignment_expression { e }
-(* 未実装: expression , assignment-expression *)
+| l=expression token=COMMA r=assignment_expression {
+    ignore token;
+    { exp = Binop(Comma, l, r); loc = $startpos(token) }
+}
 
 constant_expression:
 | e=conditional_expression { e }

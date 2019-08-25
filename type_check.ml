@@ -335,6 +335,8 @@ and convert' expr = match expr.exp with
     | Lt
     | Le ->
         (Type.Int, I_binop(op, l, r))
+    | Comma ->
+        (rty, I_binop(Comma, l, r))
     | Store _ ->
         failwith "Store?"
     )

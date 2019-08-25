@@ -1368,3 +1368,9 @@ int test169() {
     return sizeof(int);
 }
 // @end
+
+// @try_ret test170 70
+int test170() {
+    return (2,3,70);
+}
+// @end

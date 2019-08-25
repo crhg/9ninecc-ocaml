@@ -127,12 +127,12 @@ match stmt.exp with
         )
     )
 | Expr expr ->
-    (* fprintf stderr "# expr start %s\n" (Ast.show_expr_short expr.expr); *)
+    fprintf stderr "# expr start %s\n" (Ast.show_expr_short expr.expr);
     printf "# expr start %s\n" (Ast.show_expr_short expr.expr);
     gen_expr expr;
     Stack.pop "rax";
-    (* fprintf stderr "# expr end\n"; *)
-    printf "# expr end\n"
+    printf "# expr end\n";
+    printf "\n"
 | Return expr ->
     printf "# return start %s\n" (Ast.show_expr_short expr.expr);
     gen_expr expr;
@@ -140,16 +140,21 @@ match stmt.exp with
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
     printf "    ret\n";
-    printf "# return end\n"
+    printf "# return end\n";
+    printf "\n"
 | If (expr, then_stmt, None) ->
+    printf "# if\n";
     let end_label = Unique_id.new_id ".Lend" in
     gen_expr expr;
     Stack.pop "rax";
     printf "    cmp rax, 0\n";
     printf "    je %s\n" end_label;
     gen_stmt then_stmt;
-    printf "%s:\n" end_label
+    printf "%s:\n" end_label;
+    printf "# if end\n";
+    printf "\n"
 | If (expr, then_stmt, Some(else_stmt)) ->
+    printf "# if else\n";
     let else_label = Unique_id.new_id ".Lelse" in
     let end_label = Unique_id.new_id ".Lend" in
     gen_expr expr;
@@ -160,8 +165,11 @@ match stmt.exp with
     printf "    jmp %s\n" end_label;
     printf "%s:\n" else_label;
     gen_stmt else_stmt;
-    printf "%s:\n" end_label
+    printf "%s:\n" end_label;
+    printf "# if else end\n";
+    printf "\n"
 | While (expr, stmt) ->
+    printf "# while\n";
     Env.with_new_break_label (fun break_label ->
     Env.with_new_continue_label (fun continue_label ->
     printf "%s:\n" continue_label;
@@ -172,8 +180,11 @@ match stmt.exp with
     gen_stmt stmt;
     printf "    jmp %s\n" continue_label;
     printf "%s:\n" break_label
-    ))
+    ));
+    printf " while end\n";
+    printf "\n"
 | For (init, cond, next, stmt) ->
+    printf "# for\n";
     let begin_label = Unique_id.new_id ".Lbegin" in
     Env.with_new_break_label (fun break_label ->
     Env.with_new_continue_label (fun continue_label ->
@@ -195,7 +206,9 @@ match stmt.exp with
     Option.may gen_expr' next;
     printf "    jmp %s\n" begin_label;
     printf "%s:\n" break_label
-    ))
+    ));
+    printf "# for end\n";
+    printf "\n"
 | Break ->
     let label = Env.get_break_label() in
     printf "    jmp %s\n" label
@@ -203,6 +216,7 @@ match stmt.exp with
     let label = Env.get_continue_label() in
     printf "    jmp %s\n" label
 | Switch (expr, stmt) ->
+    printf "# switch\n";
     gen_expr expr;
     Stack.pop "rax";
     (Env.with_new_break_label (fun break_label ->
@@ -226,12 +240,17 @@ match stmt.exp with
     printf "    jmp %s\n" break_label;
     gen_stmt stmt;
     printf "%s:\n" break_label
-    ))
+    ));
+    printf "# switch end\n";
+    printf "\n"
 | Case (_, label)
 | Default label ->
     printf "%s:\n" label
 | Block stmt_list ->
-    List.iter gen_stmt stmt_list
+    printf "# block\n";
+    List.iter gen_stmt stmt_list;
+    printf "# block end\n";
+    printf "\n"
 
 and gen_i_expr i_expr =
     try gen_i_expr' i_expr with

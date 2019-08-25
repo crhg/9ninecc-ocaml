@@ -20,6 +20,6 @@
 
 (env
  (dev
-  (flags (:standard -w +42 -g)))
+  (flags (:standard -w -g)))
  (release
   (flags (:standard -O3))))

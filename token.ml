@@ -37,6 +37,7 @@ type token =
   | MOD
   | MOD_ASSIGN
   | NE
+  | NOT
   | NUM of (string)
   | OR
   | OR_ASSIGN

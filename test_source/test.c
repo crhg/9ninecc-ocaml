@@ -1344,3 +1344,15 @@ int test165() {
     try_printf("%d", (-100) >> 5);
 }
 // @end
+
+// @try_out test166 0
+int test166() {
+    try_printf("%d", !1);
+}
+// @end
+
+// @try_out test167 1
+int test167() {
+    try_printf("%d", !0);
+}
+// @end

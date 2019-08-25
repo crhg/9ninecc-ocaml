@@ -46,6 +46,7 @@ rule token = parse
 | "||" { LOR }
 | "<<" { LSHIFT }
 | ">>" { RSHIFT }
+| '!' { NOT }
 
 | '.' { DOT }
 | "->" { ARROW }

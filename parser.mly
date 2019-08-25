@@ -2,7 +2,7 @@
     open Ast
 %}
 
-%token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR LSHIFT RSHIFT
+%token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR LSHIFT RSHIFT NOT
 
 %token PLUSPLUS MINUSMINUS
 
@@ -457,6 +457,14 @@ unary_expression:
     ignore token;
     {
         exp = Binop(Sub, { exp = Num "0"; loc = $startpos(token) }, e);
+        loc = $startpos(token)
+    }
+}
+| token=NOT e=cast_expression {
+    (* !e は 0 == e に変換する *)
+    ignore token;
+    {
+        exp = Binop(Eq, { exp = Num "0"; loc = $startpos(token) }, e);
         loc = $startpos(token)
     }
 }

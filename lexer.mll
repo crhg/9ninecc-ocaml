@@ -47,6 +47,7 @@ rule token = parse
 | "<<" { LSHIFT }
 | ">>" { RSHIFT }
 | '!' { NOT }
+| '~' { TILDA }
 
 | '.' { DOT }
 | "->" { ARROW }

@@ -276,6 +276,9 @@ and convert' expr = match expr.exp with
     let _, e = convert e in
     let ty = type_of_type_name type_name in
     (ty, e)
+| BitComplement e ->
+    let _, e = convert e in
+    (Type.Int, IBitComplement e)
 | Cond (c, t, e) ->
     let _, c = convert_normalized c in
     let tty, t = convert_normalized t in

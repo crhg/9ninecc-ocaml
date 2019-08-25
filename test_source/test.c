@@ -1356,3 +1356,9 @@ int test167() {
     try_printf("%d", !0);
 }
 // @end
+
+// @try_out test168 fffffffffffffffd
+int test168() {
+    try_printf("%lx", ~2);
+}
+// @end

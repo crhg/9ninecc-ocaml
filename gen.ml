@@ -268,6 +268,11 @@ and gen_i_expr' i_expr = match i_expr with
     printf "%s:\n" else_label;
     gen_i_expr else_expr;
     printf "%s:\n" end_label
+| IBitComplement e ->
+    gen_i_expr e;
+    Stack.pop "rax";
+    printf "    not rax\n";
+    Stack.push "rax";
 | I_binop (LAnd, l, r) ->
     let label = Unique_id.new_id ".Land" in
     gen_i_expr l;

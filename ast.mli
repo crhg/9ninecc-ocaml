@@ -87,6 +87,7 @@ and expr_exp =
   | Sizeof of expr
   | Arrow of expr * string
   | Cast of type_name * expr
+  | BitComplement of expr
   | Cond of expr * expr * expr
   | BlockExpr of stmt
 and expr = expr_exp node
@@ -99,6 +100,7 @@ and i_expr =
   | I_binop of binop * i_expr * i_expr
   | ICond of i_expr * i_expr * i_expr
   | I_block of stmt
+  | IBitComplement of i_expr
 and expr_s = { expr : expr; mutable i_expr : i_expr option; }
 val pp_node :
   (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->

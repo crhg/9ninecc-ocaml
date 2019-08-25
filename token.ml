@@ -58,6 +58,7 @@ type token =
   | SLASH_ASSIGN
   | STR of (string)
   | STRUCT
+  | TILDA
   | TYPEDEF
   | EXTERN
   | TYPEDEF_ID of (string)

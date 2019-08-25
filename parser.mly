@@ -2,7 +2,7 @@
     open Ast
 %}
 
-%token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR LSHIFT RSHIFT NOT
+%token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR LSHIFT RSHIFT NOT TILDA
 
 %token PLUSPLUS MINUSMINUS
 
@@ -467,6 +467,10 @@ unary_expression:
         exp = Binop(Eq, { exp = Num "0"; loc = $startpos(token) }, e);
         loc = $startpos(token)
     }
+}
+| token=TILDA e=cast_expression {
+    ignore token;
+    { exp = BitComplement e; loc = $startpos(token) }
 }
 | token=SIZEOF e=unary_expression { ignore token; { exp = Sizeof e; loc = $startpos(token) } }
 (* | token=SIZEOF LPAR t=type_name RPAR { ignore token; { exp = SizeofType t; loc = $startpos(token) } } *)

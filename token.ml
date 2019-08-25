@@ -7,10 +7,12 @@ type token =
   | AST
   | AST_ASSIGN
   | BREAK
+  | CASE
   | CHAR
   | COLON
   | COMMA
   | CONTINUE
+  | DEFAULT
   | DOT
   | DUMMY
   | ELSE
@@ -60,6 +62,7 @@ type token =
   | SLASH_ASSIGN
   | STR of (string)
   | STRUCT
+  | SWITCH
   | TILDA
   | TYPEDEF
   | EXTERN

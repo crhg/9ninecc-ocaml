@@ -141,6 +141,8 @@ and check_stmt stmt = match stmt.exp with
             decl_init.di_init_assign <- List.map (Misc.compose snd convert) assign
         )
     )
+| Var _ ->
+    failwith "var?"
 | TmpVar (name, expr) ->
     let ty, _ = convert_normalized expr in
     register_local_var ty name
@@ -162,11 +164,20 @@ and check_stmt stmt = match stmt.exp with
     Option.may convert_and_store cond;
     Option.may convert_and_store next;
     check_stmt stmt;
+| Switch (expr, stmt) ->
+    convert_and_store expr;
+    check_stmt stmt
 | Block stmt_list ->
     Env.with_new_scope (fun _ ->
         List.iter check_stmt stmt_list
     )
-| _ -> ()
+| Case (expr, _) ->
+    convert_and_store expr
+| Empty
+| Break
+| Continue
+| Default _ ->
+    ()
 
 and convert_and_store (expr_s:Ast.expr_s) =
     (* Printf.fprintf stderr "convert_and_store start %s\n" (Ast.show_expr_short expr_s.expr); *)

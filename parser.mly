@@ -19,7 +19,7 @@
 
 %token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET
 
-%token RETURN IF ELSE WHILE FOR BREAK CONTINUE
+%token RETURN IF ELSE WHILE FOR BREAK CONTINUE SWITCH CASE DEFAULT
 
 %token SIZEOF
 
@@ -336,9 +336,49 @@ stmt:
     let next = Option.map make_expr_s next in
     { exp = For (init, cond, next, s); loc = $startpos(token) }
 }
+| token=SWITCH LPAR e=expression RPAR b=switch_block {
+    ignore token;
+    { exp = Switch (make_expr_s e, b); loc = $startpos(token) }
+}
 | token=BREAK SEMI { ignore token; { exp = Break; loc = $startpos(token) } }
 | token=CONTINUE SEMI { ignore token; { exp = Continue; loc = $startpos(token) } }
 | b=block { b }
+
+switch_block:
+| token=LBRACE 
+  midrule({
+      (* Printf.fprintf stderr "switch block new_scope\n"; *)
+      Typedef_env.new_scope()
+  })
+  DUMMY
+  stmts=stmt*
+  cases=case*
+  default=default?
+  midrule({
+      Typedef_env.restore_scope();
+  })
+  DUMMY
+  RBRACE
+{
+    ignore token;
+    let default = Option.default default [] in
+    let l = stmts @ (List.concat cases) @ default in
+    { exp = Block l; loc = $startpos(token) }
+}
+
+case:
+| token=CASE c=constant_expression COLON stmts=stmt* {
+    ignore token;
+    let label = Unique_id.new_id ".Lcase" in
+    { exp = Case (make_expr_s c, label); loc = $startpos(token) } :: stmts
+}
+
+default:
+| token=DEFAULT COLON stmts=stmt* {
+    ignore token;
+    let label = Unique_id.new_id ".Ldefault" in
+    { exp = Default label; loc = $startpos(token) } :: stmts
+}
 
 block:
 | token=LBRACE 

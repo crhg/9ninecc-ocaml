@@ -202,6 +202,34 @@ match stmt.exp with
 | Continue ->
     let label = Env.get_continue_label() in
     printf "    jmp %s\n" label
+| Switch (expr, stmt) ->
+    gen_expr expr;
+    Stack.pop "rax";
+    (Env.with_new_break_label (fun break_label ->
+    (match stmt.exp with
+    | Block l ->
+        l |> List.iter (fun stmt ->
+            match stmt.exp with
+            | Case ({i_expr = Some i_expr; _}, label) ->
+                let c = Const.eval_int i_expr in
+                printf "    cmp rax, %d\n" c;
+                printf "    je %s\n" label
+            | Case _ ->
+                failwith "case?" (* 型検査でi_exprが設定されているはず *)
+            | Default label ->
+                printf "    jmp %s\n" label
+            | _ -> (* caseとdefault以外はスキップ *)
+                ()
+        )
+    | _ -> ()
+    );
+    printf "    jmp %s\n" break_label;
+    gen_stmt stmt;
+    printf "%s:\n" break_label
+    ))
+| Case (_, label)
+| Default label ->
+    printf "%s:\n" label
 | Block stmt_list ->
     List.iter gen_stmt stmt_list
 

@@ -1397,3 +1397,23 @@ int test172() {
     }
 }
 // @end
+
+// @try_out test173 abbcc
+int test173() {
+    int i;
+    for (i = 0; i < 5; i++) {
+        switch (i) {
+            case 0:
+                try_printf("a");
+                break;
+            case 1:
+            case 2:
+                try_printf("b");
+                break;
+            default:
+                try_printf("c");
+                break;
+        }
+    }
+}
+// @end

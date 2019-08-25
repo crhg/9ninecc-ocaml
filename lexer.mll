@@ -94,6 +94,9 @@ rule token = parse
 | "for"     { FOR }
 | "break"   { BREAK }
 | "continue" { CONTINUE }
+| "switch"  { SWITCH }
+| "case"    { CASE }
+| "default" { DEFAULT }
 | "long"    { LONG }
 | "int"     { INT }
 | "short"   { SHORT }

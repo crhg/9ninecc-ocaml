@@ -92,6 +92,8 @@ rule token = parse
 | "else"    { ELSE }
 | "while"   { WHILE }
 | "for"     { FOR }
+| "break"   { BREAK }
+| "continue" { CONTINUE }
 | "long"    { LONG }
 | "int"     { INT }
 | "short"   { SHORT }

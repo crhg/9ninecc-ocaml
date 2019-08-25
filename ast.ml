@@ -114,6 +114,8 @@ and stmt_exp =
 | If of expr_s * stmt * stmt option
 | While of expr_s * stmt
 | For of expr_s option * expr_s option * expr_s option * stmt
+| Break
+| Continue
 | Block of stmt list
 and stmt = stmt_exp node
 

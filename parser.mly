@@ -19,7 +19,7 @@
 
 %token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET
 
-%token RETURN IF ELSE WHILE FOR
+%token RETURN IF ELSE WHILE FOR BREAK CONTINUE
 
 %token SIZEOF
 
@@ -336,6 +336,8 @@ stmt:
     let next = Option.map make_expr_s next in
     { exp = For (init, cond, next, s); loc = $startpos(token) }
 }
+| token=BREAK SEMI { ignore token; { exp = Break; loc = $startpos(token) } }
+| token=CONTINUE SEMI { ignore token; { exp = Continue; loc = $startpos(token) } }
 | b=block { b }
 
 block:

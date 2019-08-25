@@ -71,3 +71,24 @@ let get_tag_opt name =
 
 let defined_tag_in_current_scope name =
     Env.mem name !current_tag_map
+
+(* break/continue *)
+let with_new_label prefix stack action =
+    let label = Unique_id.new_id prefix in
+    let saved_stack = !stack in
+    stack := label :: !stack;
+    action label;
+    stack := saved_stack
+
+let get_label stack =
+    match !stack with
+    | label :: _ -> label
+    | [] -> failwith "empty"
+
+let break_stack = ref []
+let with_new_break_label action = with_new_label ".Lbreak" break_stack action
+let get_break_label _ = get_label break_stack
+
+let continue_stack = ref []
+let with_new_continue_label action = with_new_label ".Lcontinue" continue_stack action
+let get_continue_label _ = get_label continue_stack

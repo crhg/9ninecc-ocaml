@@ -18,3 +18,7 @@ val register_tag : string -> Type.t -> unit
 val get_tag : string -> Type.t
 val get_tag_opt : string -> Type.t option
 val defined_tag_in_current_scope : string -> bool
+val with_new_break_label : (string -> unit) -> unit
+val get_break_label : 'a -> string
+val with_new_continue_label : (string -> unit) -> unit
+val get_continue_label : 'a -> string

@@ -1374,3 +1374,26 @@ int test170() {
     return (2,3,70);
 }
 // @end
+
+// @try_out test171 -0-1-2-4
+int test171() {
+    int i;
+    for (i = 0; ; i++) {
+        if (i == 3) continue;
+        if (i == 5) break;
+        try_printf("-%d", i);
+    }
+}
+// @end
+
+// @try_out test172 -1-2-4
+int test172() {
+    int i = 0;
+    while (1) {
+        i++;
+        if (i == 3) continue;
+        if (i == 5) break;
+        try_printf("-%d", i);
+    }
+}
+// @end

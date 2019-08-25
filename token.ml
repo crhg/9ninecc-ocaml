@@ -6,9 +6,11 @@ type token =
   | ASSIGN
   | AST
   | AST_ASSIGN
+  | BREAK
   | CHAR
   | COLON
   | COMMA
+  | CONTINUE
   | DOT
   | DUMMY
   | ELSE

@@ -272,6 +272,9 @@ and convert' expr = match expr.exp with
 | Sizeof e ->
     let ty, _ = convert e in
     (Type.Int, Const (Type.get_size ty))
+| SizeofType type_name ->
+    let ty = type_of_type_name type_name in
+    (Type.Int, Const (Type.get_size ty))
 | Cast (type_name, e) ->
     let _, e = convert e in
     let ty = type_of_type_name type_name in

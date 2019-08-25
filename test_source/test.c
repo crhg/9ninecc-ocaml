@@ -1362,3 +1362,9 @@ int test168() {
     try_printf("%lx", ~2);
 }
 // @end
+
+// @try_ret test169 4
+int test169() {
+    return sizeof(int);
+}
+// @end

@@ -134,7 +134,7 @@ match stmt.exp with
     (* fprintf stderr "# expr end\n"; *)
     printf "# expr end\n"
 | Return expr ->
-    printf "# return start%s\n" (Ast.show_expr_short expr.expr);
+    printf "# return start %s\n" (Ast.show_expr_short expr.expr);
     gen_expr expr;
     Stack.pop "rax";
     printf "    mov rsp, rbp\n";

@@ -85,6 +85,7 @@ and expr_exp =
   | Deref of expr
   | Addr of expr
   | Sizeof of expr
+  | SizeofType of type_name
   | Arrow of expr * string
   | Cast of type_name * expr
   | BitComplement of expr

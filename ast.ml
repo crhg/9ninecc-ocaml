@@ -146,6 +146,7 @@ and expr_exp =
 | Deref of expr
 | Addr of expr
 | Sizeof of expr
+| SizeofType of type_name
 | Arrow of expr * string (* フィールド名 *)
 | Cast of type_name * expr
 | BitComplement of expr
@@ -189,6 +190,8 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "&(%s)" (show_expr_short e)
 | Sizeof e ->
     Printf.sprintf "sizeof(%s)" (show_expr_short e)
+| SizeofType _ ->
+    Printf.sprintf "sizeof(...)"
 | Arrow (e, f) ->
     Printf.sprintf "(%s)->(%s)" (show_expr_short e) f
 | Cast(_, e) ->

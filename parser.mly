@@ -473,7 +473,7 @@ unary_expression:
     { exp = BitComplement e; loc = $startpos(token) }
 }
 | token=SIZEOF e=unary_expression { ignore token; { exp = Sizeof e; loc = $startpos(token) } }
-(* | token=SIZEOF LPAR t=type_name RPAR { ignore token; { exp = SizeofType t; loc = $startpos(token) } } *)
+| token=SIZEOF LPAR t=type_name RPAR { ignore token; { exp = SizeofType t; loc = $startpos(token) } }
 (* 未実装: _Alignof ( type-name ) *)
 
 cast_expression:

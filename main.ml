@@ -8,7 +8,7 @@ let preprocess filename source =
     )
 
 let compile filename source =
-    Compiler.process filename source Parser.translation_unit Typedef_lex.token (fun ast ->
+    Compiler.process filename source Parser.translation_unit Lex.token (fun ast ->
         Type_check.check ast;
         Gen.gen ast
     )

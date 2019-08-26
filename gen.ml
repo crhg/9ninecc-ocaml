@@ -127,7 +127,6 @@ match stmt.exp with
         )
     )
 | Expr expr ->
-    fprintf stderr "# expr start %s\n" (Ast.show_expr_short expr.expr);
     printf "# expr start %s\n" (Ast.show_expr_short expr.expr);
     gen_expr expr;
     Stack.pop "rax";
@@ -181,7 +180,7 @@ match stmt.exp with
     printf "    jmp %s\n" continue_label;
     printf "%s:\n" break_label
     ));
-    printf " while end\n";
+    printf "# while end\n";
     printf "\n"
 | For (init, cond, next, stmt) ->
     printf "# for\n";

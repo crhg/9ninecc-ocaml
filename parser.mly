@@ -285,7 +285,23 @@ init:
     { exp=ListInitializer l; loc=$startpos(token) }
 }
 
+label:
+| token=CASE c=constant_expression COLON {
+    ignore token;
+    let label = Unique_id.new_id ".Lcase" in
+    (Case (make_expr_s c), label, $startpos(token))
+}
+| token=DEFAULT COLON {
+    ignore token;
+    let label = Unique_id.new_id ".Ldefault" in
+    (Default, label, $startpos(token))
+}
+
 stmt:
+| label=label stmt=stmt {
+    let (kind, label, loc) = label in
+    { exp = LabeledStmt(kind, label, stmt); loc = loc }
+}
 | token = SEMI { ignore token; { exp = Empty; loc = $startpos(token) } }
 | ds=decl_spec decl_inits=decl_init* token=SEMI {
     ignore token;
@@ -336,49 +352,13 @@ stmt:
     let next = Option.map make_expr_s next in
     { exp = For (init, cond, next, s); loc = $startpos(token) }
 }
-| token=SWITCH LPAR e=expression RPAR b=switch_block {
+| token=SWITCH LPAR e=expression RPAR s=stmt {
     ignore token;
-    { exp = Switch (make_expr_s e, b); loc = $startpos(token) }
+    { exp = Switch (make_expr_s e, s); loc = $startpos(token) }
 }
 | token=BREAK SEMI { ignore token; { exp = Break; loc = $startpos(token) } }
 | token=CONTINUE SEMI { ignore token; { exp = Continue; loc = $startpos(token) } }
 | b=block { b }
-
-switch_block:
-| token=LBRACE 
-  midrule({
-      (* Printf.fprintf stderr "switch block new_scope\n"; *)
-      Typedef_env.new_scope()
-  })
-  DUMMY
-  stmts=stmt*
-  cases=case*
-  default=default?
-  midrule({
-      Typedef_env.restore_scope();
-  })
-  DUMMY
-  RBRACE
-{
-    ignore token;
-    let default = Option.default default [] in
-    let l = stmts @ (List.concat cases) @ default in
-    { exp = Block l; loc = $startpos(token) }
-}
-
-case:
-| token=CASE c=constant_expression COLON stmts=stmt* {
-    ignore token;
-    let label = Unique_id.new_id ".Lcase" in
-    { exp = Case (make_expr_s c, label); loc = $startpos(token) } :: stmts
-}
-
-default:
-| token=DEFAULT COLON stmts=stmt* {
-    ignore token;
-    let label = Unique_id.new_id ".Ldefault" in
-    { exp = Default label; loc = $startpos(token) } :: stmts
-}
 
 block:
 | token=LBRACE 

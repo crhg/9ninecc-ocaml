@@ -101,7 +101,12 @@ and init_exp =
 | ListInitializer of init list
 and init = init_exp node
 
+and label_kind =
+| Case of expr_s
+| Default
+
 and stmt_exp = 
+| LabeledStmt of label_kind * string * stmt
 | Empty
 | Var of  {
     var_ds: decl_spec;
@@ -117,8 +122,6 @@ and stmt_exp =
 | Switch of expr_s * stmt
 | Break
 | Continue
-| Case of expr_s * string (* ラベル *)
-| Default of string (* ラベル *)
 | Block of stmt list
 and stmt = stmt_exp node
 

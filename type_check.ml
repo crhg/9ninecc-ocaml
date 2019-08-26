@@ -118,6 +118,12 @@ and determine_array_size element_ty init =
         init.loc))
 
 and check_stmt stmt = match stmt.exp with
+| LabeledStmt (kind, _, stmt) ->
+    (match kind with
+        | Case expr -> convert_and_store expr
+        | Default -> ()
+    );
+    check_stmt stmt
 | Var {var_ds = { ds_type_spec=Some ts; _ }; var_decl_inits = decl_inits} ->
     let ty = type_of_type_spec ts in
 
@@ -171,12 +177,9 @@ and check_stmt stmt = match stmt.exp with
     Env.with_new_scope (fun _ ->
         List.iter check_stmt stmt_list
     )
-| Case (expr, _) ->
-    convert_and_store expr
 | Empty
 | Break
-| Continue
-| Default _ ->
+| Continue ->
     ()
 
 and convert_and_store (expr_s:Ast.expr_s) =

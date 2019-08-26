@@ -115,6 +115,9 @@ try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with
 and gen_stmt' stmt =
 let gen_expr expr = gen_i_expr @@ Option.get expr.i_expr in
 match stmt.exp with
+| LabeledStmt (_, label, stmt) ->
+    printf "%s:\n" label;
+    gen_stmt stmt
 | Empty
 | TmpVar _
 | TypedefStmt _ ->
@@ -219,32 +222,37 @@ match stmt.exp with
     gen_expr expr;
     Stack.pop "rax";
     (Env.with_new_break_label (fun break_label ->
-    (match stmt.exp with
-    | Block l ->
-        l |> List.iter (fun stmt ->
-            match stmt.exp with
-            | Case ({i_expr = Some i_expr; _}, label) ->
+    let rec gen_switch_branch stmt = match stmt.exp with
+        | LabeledStmt(kind, label, stmt) ->
+            (match kind with
+            | Case {i_expr = Some i_expr; _} ->
                 let c = Const.eval_int i_expr in
                 printf "    cmp rax, %d\n" c;
-                printf "    je %s\n" label
+                printf "    je %s\n" label;
             | Case _ ->
                 failwith "case?" (* 型検査でi_exprが設定されているはず *)
-            | Default label ->
+            | Default ->
                 printf "    jmp %s\n" label
-            | _ -> (* caseとdefault以外はスキップ *)
-                ()
-        )
-    | _ -> ()
-    );
+            );
+            gen_switch_branch stmt
+        | If (_, stmt1, stmt2) ->
+            gen_switch_branch stmt1;
+            Option.may gen_switch_branch stmt2
+        | While (_, stmt)
+        | For (_, _, _, stmt) ->
+            gen_switch_branch stmt
+        | Block stmts ->
+            List.iter gen_switch_branch stmts
+        | Empty | Var _ | TmpVar _ | TypedefStmt _ | Expr _ | Return _ | Switch _ | Break | Continue ->
+            ()
+    in 
+    gen_switch_branch stmt;
     printf "    jmp %s\n" break_label;
     gen_stmt stmt;
     printf "%s:\n" break_label
     ));
     printf "# switch end\n";
     printf "\n"
-| Case (_, label)
-| Default label ->
-    printf "%s:\n" label
 | Block stmt_list ->
     printf "# block\n";
     List.iter gen_stmt stmt_list;

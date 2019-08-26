@@ -62,8 +62,12 @@ and declarator_exp =
 and declarator = declarator_exp node
 and init_exp = ExprInitializer of expr_s | ListInitializer of init list
 and init = init_exp node
+and label_kind =
+    Case of expr_s
+  | Default
 and stmt_exp =
-    Empty
+    LabeledStmt of label_kind * string * stmt
+  | Empty
   | Var of { var_ds : decl_spec; var_decl_inits : decl_init list; }
   | TmpVar of string * expr
   | TypedefStmt of type_spec * declarator list
@@ -75,8 +79,6 @@ and stmt_exp =
   | Switch of expr_s * stmt
   | Break
   | Continue
-  | Case of expr_s * string
-  | Default of string
   | Block of stmt list
 and stmt = stmt_exp node
 and binop = Add | Sub | Mul | Div | Mod | Lt | Le | Eq | Ne | BitAnd | BitXor | BitOr | LShift | RShift | LAnd | LOr | Comma | Store of Type.t

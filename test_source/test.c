@@ -1417,3 +1417,21 @@ int test173() {
     }
 }
 // @end
+
+// @try_out test174 abb
+int test174() {
+    int i;
+    for (i = 0; i < 5; i++) {
+        switch (i) {
+            case 0:
+                try_printf("a");
+                break;
+            case 1:
+            case 2:
+                try_printf("b");
+                break;
+            default:
+        }
+    }
+}
+// @end

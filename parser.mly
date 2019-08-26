@@ -153,7 +153,7 @@ function_decl_tail:
       Typedef_env.restore_scope();
   })
   DUMMY RBRACE {
-    l
+      l
 }
 
 typedef:
@@ -202,7 +202,7 @@ type_spec:
 }
 
 su_body:
-| LBRACE DUMMY l=su_field* DUMMY RBRACE { l }
+| LBRACE DUMMY l=su_field* SEMI DUMMY RBRACE { l }
 
 su_field:
 | ts=type_spec d=declarator SEMI { (ts, d) }
@@ -213,8 +213,8 @@ enum_list:
 | LBRACE DUMMY e=enumarator l=enum_list_rest { e::l }
 
 enum_list_rest:
-| DUMMY RBRACE { [] }
-| COMMA DUMMY RBRACE { [] }
+| SEMI DUMMY RBRACE { [] }
+| COMMA SEMI DUMMY RBRACE { [] }
 | COMMA e=enumarator l=enum_list_rest { e::l }
 
 enumarator:
@@ -280,7 +280,7 @@ init:
     let es = make_expr_s e in
     { exp=ExprInitializer es; loc=e.loc }
 }
-| token=LBRACE DUMMY l=separated_list(COMMA, init) DUMMY RBRACE {
+| token=LBRACE DUMMY l=separated_list(COMMA, init) SEMI DUMMY RBRACE {
     ignore token;
     { exp=ListInitializer l; loc=$startpos(token) }
 }
@@ -295,6 +295,17 @@ label:
     ignore token;
     let label = Unique_id.new_id ".Ldefault" in
     (Default, label, $startpos(token))
+}
+
+label_empty:
+| label = label {
+    let kind, label, loc = label in
+    let empty = { exp = Empty; loc = loc } in
+    { exp = LabeledStmt(kind, label, empty); loc = loc }
+}
+| label=label stmt=label_empty {
+    let kind, label, loc = label in
+    { exp = LabeledStmt(kind, label, stmt); loc = loc }
 }
 
 stmt:

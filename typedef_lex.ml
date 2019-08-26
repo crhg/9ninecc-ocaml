@@ -13,6 +13,7 @@ let typedef_status = ref {
 
 let typedef_buf = Buffering_wrapper.make()
 let brace_buf = Buffering_wrapper.make()
+let insert_empty_buf = Buffering_wrapper.make()
 
 let rec token lexbuf =
     let t = token' lexbuf in
@@ -24,6 +25,7 @@ and token' lexbuf =
         Lexer.token
         |> typedef_id_wrapper
         |> typedef_hack_wrapper
+        |> insert_empty_statement_wrapper
         |> brace_wrapper
     )
 
@@ -77,6 +79,17 @@ and brace_wrapper get_token lexbuf =
             | RBRACE ->
                 Buffering_wrapper.push buf RBRACE;
                 DUMMY
+            | token ->
+                token
+        )
+
+and insert_empty_statement_wrapper get_token lexbuf =
+    Buffering_wrapper.next insert_empty_buf
+        (fun buf ->
+            match get_token lexbuf with
+            | RBRACE ->
+                Buffering_wrapper.push buf RBRACE;
+                SEMI
             | token ->
                 token
         )

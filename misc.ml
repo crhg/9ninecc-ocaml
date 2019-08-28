@@ -16,3 +16,11 @@ let id x = x
 
 (* 総和 *)
 let sum = List.fold_left (+) 0
+
+(* listの先頭n要素のリスト *)
+let rec take n l = match n, l with
+| 0, _
+| _, [] ->
+    []
+| n, x :: xs ->
+    x :: take (n-1) xs

@@ -23,7 +23,7 @@ and to_assign_array ty lhs init = Ast.(match ty, init.exp with
     | Type.Array(Char, Some size), ExprInitializer { expr = { exp = Str (s, _); loc = s_loc }; _} ->
         to_assign_char_array_by_string lhs size s s_loc
     | Type.Array(ty, Some size), ListInitializer l ->
-        to_assign_array_by_list ty lhs size l
+        to_assign_array_by_list ty lhs (Misc.take size l)
     | _ -> raise(Misc.Error_at("gen_array_init: " ^ (Type.show ty), lhs.loc))
 )
 
@@ -39,17 +39,11 @@ and to_assign_char_array_by_string lhs size s s_loc =
         make_assign lhs_at_i rhs
     )
 
-and to_assign_array_by_list ty lhs size l =
-    let rec to_assign_array_by_list' i l = match l with
-    | []
-        -> []
-    | _ when i >= size
-        -> []
-    | x::rest ->
+and to_assign_array_by_list ty lhs l =
+    let make_assign i x =
         let lhs_at_i = make_array_at lhs i in
-        let assign = to_assign ty lhs_at_i x in
-        assign @ to_assign_array_by_list' (i+1) rest in
-    to_assign_array_by_list' 0 l
+        to_assign ty lhs_at_i x in
+    List.concat @@ List.mapi make_assign l
 
 and make_num n loc =
     Ast.({

@@ -5,3 +5,4 @@ exception Error of string
 val compose : ('a -> 'b) -> ('c -> 'a) -> 'c -> 'b
 val id : 'a -> 'a
 val sum : int list -> int
+val take : int -> 'a list -> 'a list

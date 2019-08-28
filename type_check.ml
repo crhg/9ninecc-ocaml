@@ -5,7 +5,6 @@
 (* - 式に型を付ける *)
 open Ast
 open Env
-open Misc
 
 let rec check decl_list =
     List.iter check_decl decl_list
@@ -277,7 +276,7 @@ and convert' expr = match expr.exp with
         | Function _ -> (ty, e)
         | _ -> (t, Load (t, e))
         )
-    | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
+    | _ -> raise(Misc.Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
     )
 | Arrow _ ->
     (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)
@@ -382,7 +381,7 @@ and convert_lval expr = match expr.exp with
         (ty, e)
     | Type.Ptr t ->
         (t, e)
-    | _ -> raise(Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
+    | _ -> raise(Misc.Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
     )
 | Arrow (e, f) ->
     let ty, i_e = convert e in
@@ -390,7 +389,7 @@ and convert_lval expr = match expr.exp with
     | Ptr ty ->
         let f = Type.get_field ty f in
         (f.field_type, I_binop(Add, i_e, (Const f.field_offset)))
-    | _ -> raise(Error_at("not pointer", e.loc))
+    | _ -> raise(Misc.Error_at("not pointer", e.loc))
     )
 | _ ->
     raise(Misc.Error_at("not lval", expr.loc))
@@ -603,7 +602,7 @@ and declare_enum_list l =
 
 and check_complete ty loc = 
         if not @@ Type.is_complete_type ty then
-            raise(Error_at("incomplete type: " ^ (Type.show ty), loc))
+            raise(Misc.Error_at("incomplete type: " ^ (Type.show ty), loc))
 
 and typedef ts decl =
     let ty, name = type_and_var_ts ts decl in

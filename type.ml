@@ -55,6 +55,7 @@ let show_type ty =
     show ty
 
 exception Incomplete
+exception NoSize
 
 let rec get_size ty = match ty with
 | Long -> 8
@@ -63,8 +64,12 @@ let rec get_size ty = match ty with
 | Char -> 1
 | Ptr _ -> 8
 | Array (t, Some n) -> get_size t * n
+| Array (_, None) -> raise Incomplete
 | Struct {body=Some{size=size;_};_} -> size
-| _ -> raise Incomplete
+| Struct {body=None;_} -> raise Incomplete
+| Union {body=Some{size=size;_};_} -> size
+| Union {body=None;_} -> raise Incomplete
+| Function _ -> raise NoSize
 
 and get_alignment ty = match ty with
 | Long -> 8
@@ -74,7 +79,10 @@ and get_alignment ty = match ty with
 | Ptr _ -> 8
 | Array (t, _) -> get_alignment t
 | Struct {body=Some{alignment=alignment;_};_} -> alignment
-| _ -> raise Incomplete
+| Struct {body=None;_} -> raise Incomplete
+| Union {body=Some{alignment=alignment;_};_} -> alignment
+| Union {body=None;_} -> raise Incomplete
+| Function _ -> raise NoSize
 
 and is_complete_type ty = match ty with
 | Long
@@ -82,17 +90,25 @@ and is_complete_type ty = match ty with
 | Short
 | Char
 | Ptr _
-| Struct {body=Some _; _} ->
+| Struct {body=Some _; _}
+| Union {body=Some _; _} ->
     true
 | Array (t, Some _) ->
     is_complete_type t
-| _ ->
+| Struct {body=None; _}
+| Union {body=None; _}
+| Array (_, None)
+| Function _ ->
     false
 
 and get_field ty field_name = match ty with
 | Struct { body = Some { fields = fields; _ }; _ } ->
     List.find (fun { field_name = name; _ } -> name = field_name) fields
 | Struct _ ->
+    raise Incomplete
+| Union { body = Some { fields = fields; _ }; _ } ->
+    List.find (fun { field_name = name; _ } -> name = field_name) fields
+| Union _ ->
     raise Incomplete
 | _ -> failwith ("get_field ty? " ^ (show ty))
 

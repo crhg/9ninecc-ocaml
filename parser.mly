@@ -136,16 +136,24 @@ decl_type_spec:
 function_decl_head:
 | ds=decl_spec d=declarator token=LBRACE {
     ignore token;
-    match d.exp with
-    | Func(_, params) ->
-        Typedef_env.new_scope();
-        params |> List.iter (fun (_, d) ->
-                    Typedef_env.remove (Type_check.var_of_d d)
-                );
 
-        (ds, d, $startpos(token))
-    | _ ->
-        raise(Misc.Error_at("declarator is not function", d.loc))
+    let rec params_of_declarator d = match d.exp with
+        | Func ({exp=DeclIdent _; _}, params) ->
+            params
+        | Func (d, _)
+        | PointerOf d
+        | Array (d, _) ->
+            params_of_declarator d
+        | DeclIdent _ ->
+            failwith "not a function" in
+    let params = params_of_declarator d in
+
+    Typedef_env.new_scope();
+    params |> List.iter (fun (_, d) ->
+                Typedef_env.remove (Type_check.var_of_d d)
+            );
+
+    (ds, d, $startpos(token))
 }
 
 function_decl_tail:

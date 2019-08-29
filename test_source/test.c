@@ -1483,3 +1483,11 @@ int test179() {
 }
 // @end
 
+// @try_out test180 foo
+char *f180() {
+    return "foo";
+}
+int test180() {
+    try_printf("%s", f180());
+}
+// @end

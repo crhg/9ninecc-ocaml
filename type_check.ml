@@ -4,7 +4,6 @@
 (*    - 配列のサイズが省略されていたら決定する *)
 (* - 式に型を付ける *)
 open Ast
-open Env
 
 let rec check decl_list =
     List.iter check_decl decl_list
@@ -17,7 +16,7 @@ and check_decl decl = match decl.exp with
     _ 
 } as fd ) ->
     let ty, name = type_and_var_ts ts decl in
-    register_global_var ty name;
+    Env.register_global_var ty name;
     (match ty with
         | Type.Function (_, params) ->
             fd.func_name <- Some name;
@@ -67,9 +66,9 @@ and check_decl decl = match decl.exp with
             ty
         )) in
 
-        register_global_var ty name;
+        Env.register_global_var ty name;
 
-        let entry = get_entry name in
+        let entry = Env.get_entry name in
         di.di_entry <- Some entry;
     )
 | TypedefDecl (ts, decls) ->
@@ -91,10 +90,10 @@ and prepare_func params stmt_list =
         | { param_ty = ty; param_name = name; param_loc = loc; _ } as p ->
             check_complete ty loc;
 
-            (try register_local_var ty name with
+            (try Env.register_local_var ty name with
                 | Type.Incomplete -> raise(Misc.Error_at("incomplete", loc))
             );
-            let entry = get_entry name in
+            let entry = Env.get_entry name in
             p.param_entry <- Some entry in
         List.iter register params;
 
@@ -138,7 +137,7 @@ and check_stmt stmt = match stmt.exp with
 
         check_complete ty d.loc;
 
-        register_local_var ty name;
+        Env.register_local_var ty name;
 
         init |> Option.may (fun init ->
             let ident = { exp = Ident name; loc=d.loc } in
@@ -150,7 +149,7 @@ and check_stmt stmt = match stmt.exp with
     failwith "var?"
 | TmpVar (name, expr) ->
     let ty, _ = convert_normalized expr in
-    register_local_var ty name
+    Env.register_local_var ty name
 | TypedefStmt (ts, decls) ->
     List.iter (typedef ts) decls;
 | Expr expr ->
@@ -217,7 +216,7 @@ and convert' expr = match expr.exp with
 | Str (s,label) ->
     (Type.Array(Type.Char, Some (String.length s + 1)), Label label)
 | Ident name ->
-    let get_entry name = try get_entry name with
+    let get_entry name = try Env.get_entry name with
     | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
     (match get_entry name with
     | LocalVar ((Type.Array _) as t, offset) ->
@@ -363,7 +362,7 @@ and convert' expr = match expr.exp with
 (* lvalの変換, (式の型, 式のポインタを求める式) *)
 and convert_lval expr = match expr.exp with
 | Ident name ->
-    let get_entry name = try get_entry name with
+    let get_entry name = try Env.get_entry name with
     | Not_found -> raise(Misc.Error(Printf.sprintf "not_found: "^(Ast.show_expr expr))) in
     (match get_entry name with
     | LocalVar (ty, offset) ->

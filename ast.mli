@@ -38,6 +38,7 @@ and function_decl_r = {
   func_ds : decl_spec;
   func_decl : declarator;
   func_body : stmt;
+  func_has_varargs : bool;
   mutable func_ty : Type.t option;
   mutable func_label : string option;
   mutable func_params : param list option;
@@ -59,7 +60,7 @@ and declarator_exp =
     DeclIdent of string
   | PointerOf of declarator
   | Array of declarator * expr option
-  | Func of declarator * (type_spec * declarator) list
+  | Func of declarator * (type_spec * declarator) list * bool
 and declarator = declarator_exp node
 and init_exp = ExprInitializer of expr_s | ListInitializer of init list
 and init = init_exp node

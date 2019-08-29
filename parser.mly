@@ -60,7 +60,7 @@ translation_unit:
 
 decl:
 | h=function_decl_head l=function_decl_tail {
-    let (ds, d, loc) = h in
+    let (ds, d, has_varargs, loc) = h in
     let body = { exp = Block l; loc = loc } in
 
     (match ds with
@@ -74,6 +74,7 @@ decl:
             func_ds = ds;
             func_decl = d;
             func_body = body;
+            func_has_varargs = has_varargs;
             func_ty = None;
             func_label = None;
             func_params = None;
@@ -138,22 +139,22 @@ function_decl_head:
     ignore token;
 
     let rec params_of_declarator d = match d.exp with
-        | Func ({exp=DeclIdent _; _}, params) ->
-            params
-        | Func (d, _)
+        | Func ({exp=DeclIdent _; _}, params, has_varargs) ->
+            (params, has_varargs)
+        | Func (d, _, _)
         | PointerOf d
         | Array (d, _) ->
             params_of_declarator d
         | DeclIdent _ ->
             failwith "not a function" in
-    let params = params_of_declarator d in
+    let params, has_varargs = params_of_declarator d in
 
     Typedef_env.new_scope();
     params |> List.iter (fun (_, d) ->
                 Typedef_env.remove (Type_check.var_of_d d)
             );
 
-    (ds, d, $startpos(token))
+    (ds, d, has_varargs, $startpos(token))
 }
 
 function_decl_tail:
@@ -267,8 +268,9 @@ direct_declarator:
 }
 (* | d=direct_declarator LPAR params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) }) RPAR { *)
 | d=function_declarator_head params=function_declarator_rest {
+    let params, has_varargs = params in
     {
-        exp = Func (d, params);
+        exp = Func (d, params, has_varargs);
         loc = d.loc
     }
 }
@@ -283,14 +285,16 @@ function_declarator_rest:
 | params=separated_list(COMMA, param) RPAR {
     Typedef_env.restore_scope();
 
-    (* 末尾の...は当面無視する *)
-    let params = match List.rev params with
-        | None :: rest -> List.rev rest
-        | _ -> params in
+    let (params, has_varargs) =
+        if not @@ List.mem None params then
+            (params, false)
+        else (
+            let params = List.rev @@ List.tl @@ List.rev params in
+            (if List.mem None params then failwith "invalid ...");
+            (params, true)
+        ) in
 
-    (if List.mem None params then failwith "invalid ...");
-
-    List.map Option.get params
+    (List.map Option.get params, has_varargs)
 }
 
 param:
@@ -735,7 +739,7 @@ direct_abstract_declarator:
   midrule({ Typedef_env.restore_scope(); })
   RPAR {
     ignore token;
-    let f x = { exp = Func(x, params); loc=x.loc } in
+    let f x = { exp = Func(x, params, false); loc=x.loc } in
     Option.compose (Some f) d
 }
 

@@ -9,6 +9,7 @@ let preprocess filename source =
 
 let compile filename source =
     Compiler.process filename source Parser.translation_unit Lex.token (fun ast ->
+        Builtin.register();
         Type_check.check ast;
         Gen.gen ast
     )

@@ -12,6 +12,7 @@ and check_decl decl = match decl.exp with
 | FunctionDecl ({
     func_ds = {ds_type_spec = Some ts; _} as ds;
     func_decl = decl;
+    func_has_varargs = has_varargs;
     func_body={exp=Block stmt_list; _};
     _ 
 } as fd ) ->
@@ -32,7 +33,7 @@ and check_decl decl = match decl.exp with
                 }
             ) in
             fd.func_params <- Some params;
-            let size = prepare_func params stmt_list in
+            let size = prepare_func params has_varargs stmt_list in
             fd.func_frame_size <- Some size
         | _ -> failwith "not function"
     )
@@ -90,8 +91,8 @@ and check_init init = match init.exp with
     List.iter check_init l
 
 (* ローカル変数にオフセットを割り当てる *)
-and prepare_func params stmt_list =
-    Env.with_new_local_frame (fun _ ->
+and prepare_func params has_varargs stmt_list =
+    Env.with_new_local_frame has_varargs (fun _ ->
     Env.with_new_scope (fun _ ->
         let register param = match param with
         | { param_ty = ty; param_name = name; param_loc = loc; _ } as p ->
@@ -406,7 +407,7 @@ and var_of_d d = match d.exp with
     var
 | PointerOf d
 | Array (d, _)
-| Func (d, _) ->
+| Func (d, _, _) ->
     var_of_d d
 
 and type_of_type_name type_name =
@@ -429,7 +430,7 @@ match d.exp with
 | Array (d, e) ->
     let n = Option.map eval_expr e in
     type_and_var_ty (Type.Array(ty, n)) d 
-| Func (d, params) ->
+| Func (d, params, _) ->
     let tv = fun (ts, d) ->
         let ty, name = type_and_var_ts ts d in
         (name, ty) in

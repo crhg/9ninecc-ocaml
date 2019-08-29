@@ -1,5 +1,6 @@
 extern int pr_int();
 extern int try_printf();
+extern int vsprintf();
 
 // @try_ret test0 0
 int test0() { 0; }
@@ -1497,5 +1498,20 @@ int test181() {
     for (int i = 0; i < 3; i++) {
         try_printf("%d,", i);
     }
+}
+// @end
+
+// @try_out test182 foo
+int f182(char *buf, char *fmt,...) {
+    void *ap[4];
+
+    __builtin_va_start(&ap);
+    vsprintf(buf, fmt, &ap);
+}
+int test182() {
+    char buf[256];
+
+    f182(buf, "%s", "foo");
+    try_printf("%s", buf);
 }
 // @end

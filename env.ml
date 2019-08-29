@@ -15,8 +15,8 @@ let current_tag_map = ref Env.empty
 
 let offset = ref 0
 
-let with_new_local_frame action =
-    offset := 0;
+let with_new_local_frame has_varargs action =
+    offset := (if has_varargs then 56 else 0);
     action();
     !offset
 

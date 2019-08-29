@@ -57,12 +57,6 @@ and gen_decl decl = match decl.exp with
     (* ローカル変数領域を確保, rspが8バイト境界になるように切り上げる *)
     Stack.sub (Misc.round_up size 8);
 
-    (* 可変引数があるときはレジスタ渡しのパラメタをメモリに保存 *)
-    (if has_varargs then (
-        let n = List.length params in
-        Varargs.gen_register_save n
-    ));
-
     (* この時点ではスタックはこうなっているはず *)
     (* rsp = rbp - ローカル変数領域のサイズ: ここから先にローカル変数が割り付けられている *)
     (* ...ローカル変数領域... *)
@@ -103,11 +97,17 @@ and gen_decl decl = match decl.exp with
                 printf "    mov r10, rbp\n";
                 printf "    add r10, %d # %s\n" param_offset name;
                 printf "    mov r10, [r10]\n";
-            store ty "[rax]" "r10"
+                store ty "[rax]" "r10"
             )
         | _ -> failwith "?"
     in
-        List.iteri copy_param params;
+    List.iteri copy_param params;
+
+    (* 可変引数があるときはレジスタ渡しのパラメタをメモリに保存 *)
+    (if has_varargs then (
+        let n = List.length params in
+        Varargs.gen_register_save n
+    ));
 
     gen_stmt body;
 

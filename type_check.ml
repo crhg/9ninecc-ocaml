@@ -430,6 +430,7 @@ match d.exp with
     type_and_var_ty (Type.Function(ty, params)) d
 
 and type_of_type_spec ts = match ts.exp with
+| Void -> Type.Void
 | Long -> Type.Long
 | Int -> Type.Int
 | Short -> Type.Short
@@ -537,6 +538,8 @@ and type_of_type_spec ts = match ts.exp with
         declare_enum_list enum_list;
         Type.Int
     )
+| Enum { enum_tag = None; enum_list = None } ->
+    failwith "enum with no tag no body"
 
 | Type id ->
     let get_entry id = try Env.get_entry id with
@@ -545,7 +548,6 @@ and type_of_type_spec ts = match ts.exp with
     | Env.TypeDef ty -> ty
     | _ -> raise(Misc.Error("not typedef id: "^id))
     )
-| _ -> failwith "?"
 
 and body_of_struct fields =
     let size, alignment, fields = body_of_struct' 0 0 fields in

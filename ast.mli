@@ -24,7 +24,8 @@ and decl_spec = {
 and storage_class_spec_exp = Typedef | Extern
 and storage_class_spec = storage_class_spec_exp node
 and type_spec_exp =
-    Long
+    Void
+  | Long
   | Int
   | Short
   | Char

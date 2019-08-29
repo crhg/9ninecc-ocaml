@@ -1,5 +1,6 @@
 type t =
-    Long
+    Void
+  | Long
   | Int
   | Short
   | Char

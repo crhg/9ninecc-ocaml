@@ -97,6 +97,7 @@ rule token = parse
 | "switch"  { SWITCH }
 | "case"    { CASE }
 | "default" { DEFAULT }
+| "void"    { VOID }
 | "long"    { LONG }
 | "int"     { INT }
 | "short"   { SHORT }

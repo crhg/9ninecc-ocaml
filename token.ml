@@ -68,6 +68,7 @@ type token =
   | EXTERN
   | TYPEDEF_ID of (string)
   | UNION
+  | VOID
   | WHILE
   | XOR
   | XOR_ASSIGN

@@ -3,6 +3,7 @@ module SS = Set.Make(String)
 let shown = ref SS.empty
 
 type t =
+| Void
 | Long
 | Int
 | Short
@@ -58,6 +59,7 @@ exception Incomplete
 exception NoSize
 
 let rec get_size ty = match ty with
+| Void -> 1
 | Long -> 8
 | Int -> 4
 | Short -> 2
@@ -82,6 +84,7 @@ and get_alignment ty = match ty with
 | Struct {body=None;_} -> raise Incomplete
 | Union {body=Some{alignment=alignment;_};_} -> alignment
 | Union {body=None;_} -> raise Incomplete
+| Void
 | Function _ -> raise NoSize
 
 and is_complete_type ty = match ty with
@@ -95,6 +98,7 @@ and is_complete_type ty = match ty with
     true
 | Array (t, Some _) ->
     is_complete_type t
+| Void
 | Struct {body=None; _}
 | Union {body=None; _}
 | Array (_, None)

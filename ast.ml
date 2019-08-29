@@ -47,6 +47,7 @@ and storage_class_spec_exp =
 and storage_class_spec = storage_class_spec_exp node
 
 and type_spec_exp =
+| Void
 | Long
 | Int
 | Short

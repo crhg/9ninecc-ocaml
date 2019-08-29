@@ -1435,3 +1435,12 @@ int test174() {
     }
 }
 // @end
+
+// @try_out test175 10
+int test175() {
+    void *p;
+    int x = 10;
+    p = &x;
+    try_printf("%d", *(int*)p);
+}
+// @end

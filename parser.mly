@@ -15,7 +15,7 @@
 
 %token QUESTION COLON
 
-%token SEMI COMMA
+%token SEMI COMMA DOTS
 
 %token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET
 
@@ -272,10 +272,22 @@ function_declarator_head:
 }
 
 function_declarator_rest:
-| params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) }) RPAR {
+| params=separated_list(COMMA, param) RPAR {
     Typedef_env.restore_scope();
-    params
+
+    (* 末尾の...は当面無視する *)
+    let params = match List.rev params with
+        | None :: rest -> List.rev rest
+        | _ -> params in
+
+    (if List.mem None params then failwith "invalid ...");
+
+    List.map Option.get params
 }
+
+param:
+| ts=type_spec d=declarator { Some (ts, d) }
+| DOTS { None }
 
 init:
 | e=assignment_expression {

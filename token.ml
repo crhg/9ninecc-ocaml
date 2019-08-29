@@ -14,6 +14,7 @@ type token =
   | CONTINUE
   | DEFAULT
   | DOT
+  | DOTS
   | DUMMY
   | ELSE
   | ENUM

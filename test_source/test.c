@@ -1473,3 +1473,13 @@ int test178() {
     return x178;
 }
 // @end
+
+// @try_ret test179 79
+int f179(int x,...) {
+    return x;
+}
+int test179() {
+    return f179(79);
+}
+// @end
+

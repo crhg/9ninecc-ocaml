@@ -90,6 +90,7 @@ rule token = parse
 
 | ';' { SEMI }
 | ',' { COMMA }
+| "..." { DOTS }
 
 | "return"  { RETURN }
 | "if"      { IF }

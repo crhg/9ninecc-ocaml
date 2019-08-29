@@ -1444,3 +1444,14 @@ int test175() {
     try_printf("%d", *(int*)p);
 }
 // @end
+
+// @try_out test176 61,0a,5c,27,00,01,1b,23,
+int test176() {
+    char c[] = { 'a', '\n', '\\', '\'', '\0', '\1', '\033', '\x23' };
+
+    int i;
+    for (i = 0; i < sizeof c; i++ ) {
+        try_printf("%02x,", c[i]);
+    }
+}
+// @end

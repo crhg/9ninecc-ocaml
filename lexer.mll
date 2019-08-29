@@ -19,6 +19,10 @@
 let space = ['\t' ' ']
 let nl = [ '\n' ]
 
+let octal_digit = ['0' - '7']
+let octal_digit3 = octal_digit octal_digit octal_digit | octal_digit octal_digit | octal_digit
+let hexadecimal_digit = ['0' - '9' 'a' - 'f' 'A' - 'F']
+
 rule token = parse
 | space+ { token lexbuf }
 | nl     { L.new_line lexbuf; token lexbuf }
@@ -112,6 +116,34 @@ rule token = parse
 | ['0'-'9']+ as num { NUM num }
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { IDENT name }
 | '"' { STR (string_literal (B.create 100) lexbuf) }
+
+| "'" ([' ' - '\x7e'] # [ '\'' '\\']) "'"  { 
+    let c = Lexing.lexeme_char lexbuf 1 in
+    NUM (string_of_int @@ Char.code c)
+}
+| "'\\" (octal_digit3 as o) "'" {
+    let o = "0o" ^ o in
+    NUM (string_of_int @@ int_of_string o)
+}
+| "'\\x" (hexadecimal_digit+ as h) "'" {
+    let h = "0x" ^ h in
+    NUM (string_of_int @@ int_of_string h)
+}
+| "'\\" [' ' - '\x7e'] "'"  { 
+    let c = Lexing.lexeme_char lexbuf 2 in
+    let c = match c with
+        |'a' -> '\x07'
+        |'b' -> '\x08'
+        |'t' -> '\x09'
+        |'n' -> '\n'
+        |'v' -> '\x0b'
+        |'f' -> '\x0c'
+        |'r' -> '\r'
+        |'e' -> '\x1b'
+        |_   -> c in
+    NUM (string_of_int @@ Char.code c)
+}
+
 | eof { EOF }
 
 and string_literal buf = parse

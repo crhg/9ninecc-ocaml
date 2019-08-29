@@ -117,8 +117,7 @@ rule token = parse
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { IDENT name }
 | '"' { STR (string_literal (B.create 100) lexbuf) }
 
-| "'" ([' ' - '\x7e'] # [ '\'' '\\']) "'"  { 
-    let c = Lexing.lexeme_char lexbuf 1 in
+| "'" ([' ' - '\x7e'] # [ '\'' '\\'] as c) "'"  { 
     NUM (string_of_int @@ Char.code c)
 }
 | "'\\" (octal_digit3 as o) "'" {

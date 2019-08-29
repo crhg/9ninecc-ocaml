@@ -1491,3 +1491,11 @@ int test180() {
     try_printf("%s", f180());
 }
 // @end
+
+// @try_out test181 0,1,2,
+int test181() {
+    for (int i = 0; i < 3; i++) {
+        try_printf("%d,", i);
+    }
+}
+// @end

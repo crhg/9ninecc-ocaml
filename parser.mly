@@ -385,6 +385,22 @@ stmt:
     let next = Option.map make_expr_s next in
     { exp = For (init, cond, next, s); loc = $startpos(token) }
 }
+| token=FOR LPAR ds=decl_spec decl_inits=decl_init* SEMI cond=expression? SEMI next=expression? RPAR s=stmt {
+    ignore token;
+    let loc = $startpos(token) in
+    let var = match ds with
+        | { ds_storage_class_spec = None; _ } ->
+            {
+                exp = Var {var_ds=ds; var_decl_inits=decl_inits };
+                loc = loc
+            }
+        | _ ->
+            failwith "storage class?" in
+    let cond = Option.map make_expr_s cond in
+    let next = Option.map make_expr_s next in
+    let for_stmt = { exp = For (None, cond, next, s); loc = loc } in
+    { exp = Block [var; for_stmt]; loc=loc }
+}
 | token=SWITCH LPAR e=expression RPAR s=stmt {
     ignore token;
     { exp = Switch (make_expr_s e, s); loc = $startpos(token) }

@@ -128,8 +128,7 @@ rule token = parse
     let h = "0x" ^ h in
     NUM (string_of_int @@ int_of_string h)
 }
-| "'\\" [' ' - '\x7e'] "'"  { 
-    let c = Lexing.lexeme_char lexbuf 2 in
+| "'\\" ([' ' - '\x7e'] as c) "'"  { 
     let c = match c with
         |'a' -> '\x07'
         |'b' -> '\x08'

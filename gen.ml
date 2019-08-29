@@ -60,13 +60,7 @@ and gen_decl decl = match decl.exp with
     (* 可変引数があるときはレジスタ渡しのパラメタをメモリに保存 *)
     (if has_varargs then (
         let n = List.length params in
-        printf "    mov dword ptr [rbp-8], %d\n" (n * 8);
-        printf "    mov [rbp-16], r9\n";
-        printf "    mov [rbp-24], r8\n";
-        printf "    mov [rbp-32], rcx\n";
-        printf "    mov [rbp-40], rdx\n";
-        printf "    mov [rbp-48], rsi\n";
-        printf "    mov [rbp-56], rdi\n"
+        Varargs.gen_register_save n
     ));
 
     (* この時点ではスタックはこうなっているはず *)

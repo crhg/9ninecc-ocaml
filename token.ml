@@ -60,6 +60,7 @@ type token =
   | SIZEOF
   | SLASH
   | SLASH_ASSIGN
+  | STATIC
   | STR of (string)
   | STRUCT
   | SWITCH

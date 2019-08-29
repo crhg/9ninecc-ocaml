@@ -36,8 +36,8 @@ let register_local_var ty name =
     offset := round_up !offset alignment + size;
     map := Env.add name (LocalVar (ty, !offset)) !map
 
-let register_global_var ty name =
-    map := Env.add name (GlobalVar (ty, name)) !map
+let register_global_var ty name label =
+    map := Env.add name (GlobalVar (ty, label)) !map
 
 let register_typedef ty name =
     map := Env.add name (TypeDef ty) !map

@@ -21,7 +21,7 @@ and decl_spec = {
   ds_type_spec : type_spec option;
   ds_storage_class_spec : storage_class_spec option;
 }
-and storage_class_spec_exp = Typedef | Extern
+and storage_class_spec_exp = Typedef | Extern | Static
 and storage_class_spec = storage_class_spec_exp node
 and type_spec_exp =
     Void
@@ -39,7 +39,7 @@ and function_decl_r = {
   func_decl : declarator;
   func_body : stmt;
   mutable func_ty : Type.t option;
-  mutable func_name : string option;
+  mutable func_label : string option;
   mutable func_params : param list option;
   mutable func_frame_size : int option;
 }
@@ -225,5 +225,6 @@ val show_i_expr_short : i_expr -> string
 val show_binop_short : binop -> string
 val make_expr_s : expr -> expr_s
 val is_extern : decl_spec -> bool
+val is_static : decl_spec -> bool
 val op_assign : binop -> Lexing.position -> expr -> expr -> expr
 val save_and_return_l_with : expr -> (expr -> expr) -> expr

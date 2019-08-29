@@ -10,16 +10,19 @@ let rec check decl_list =
 
 and check_decl decl = match decl.exp with
 | FunctionDecl ({
-    func_ds = {ds_type_spec = Some ts; _};
+    func_ds = {ds_type_spec = Some ts; _} as ds;
     func_decl = decl;
     func_body={exp=Block stmt_list; _};
     _ 
 } as fd ) ->
     let ty, name = type_and_var_ts ts decl in
-    Env.register_global_var ty name;
+    let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
+
+    Env.register_global_var ty name label;
+
     (match ty with
         | Type.Function (_, params) ->
-            fd.func_name <- Some name;
+            fd.func_label <- Some label;
             let params = params |> List.map (fun (pname, pty) ->
                 {
                     param_ty = pty;
@@ -40,7 +43,10 @@ and check_decl decl = match decl.exp with
     decl_inits |> List.iter (fun ({ di_decl = d; di_init = init; _ } as di) ->
         let ty, name = type_and_var_ty ty d in
 
-        let ty = (if Ast.is_extern ds || Type.is_function ty then ( (* 関数型は暗黙のextern *)
+        let ty = (if Ast.is_extern ds || Type.is_function ty then (
+            (* externと関数型 *)
+            (*   初期化があってはいけない *)
+            (*   完全型かどうかのチェックは不要 *)
             (match init with
             | Some init ->
                 raise(Misc.Error_at("extern with init?", init.loc))
@@ -48,7 +54,6 @@ and check_decl decl = match decl.exp with
                 ()
             );
 
-            (* externなので完全型かどうかのチェックはしない *)
             ty
         ) else (
             (* 最上位の配列サイズが未定で初期化子があれば求める *)
@@ -66,7 +71,9 @@ and check_decl decl = match decl.exp with
             ty
         )) in
 
-        Env.register_global_var ty name;
+        let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
+
+        Env.register_global_var ty name label;
 
         let entry = Env.get_entry name in
         di.di_entry <- Some entry;

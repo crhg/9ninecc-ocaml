@@ -9,7 +9,7 @@ val show_entry : entry -> Ppx_deriving_runtime.string
 val with_new_local_frame : (unit -> unit) -> int
 val with_new_scope : (unit -> unit) -> unit
 val register_local_var : Type.t -> string -> unit
-val register_global_var : Type.t -> string -> unit
+val register_global_var : Type.t -> string -> string -> unit
 val register_typedef : Type.t -> string -> unit
 val register_enum : string -> int -> unit
 val get_entry : string -> entry

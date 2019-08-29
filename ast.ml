@@ -44,6 +44,7 @@ and decl_spec = {
 and storage_class_spec_exp =
 | Typedef
 | Extern
+| Static
 and storage_class_spec = storage_class_spec_exp node
 
 and type_spec_exp =
@@ -64,7 +65,7 @@ and function_decl_r =
     func_decl: declarator;
     func_body: stmt;
     mutable func_ty: Type.t option;
-    mutable func_name: string option;
+    mutable func_label: string option;
     mutable func_params: param list option;
     mutable func_frame_size: int option (* ローカル変数領域に必要なサイズ。type_check時に決まる *)
 }
@@ -248,6 +249,10 @@ let make_expr_s expr = { expr = expr; i_expr = None }
 
 let is_extern ds = match ds with
 | { ds_storage_class_spec = Some { exp = Extern; _ }; _ } -> true
+| _ -> false
+
+let is_static ds = match ds with
+| { ds_storage_class_spec = Some { exp = Static; _ }; _ } -> true
 | _ -> false
 
 (* l <op>= r は適当なtmpを用意して { tmp=&l; *tmp = *tmp <op> r; } にする *)

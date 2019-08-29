@@ -34,12 +34,12 @@ and gen_decl decl = match decl.exp with
         | _ -> failwith "?"
     )
 
-| FunctionDecl { func_name=Some func; func_params=Some params; func_body=body; func_frame_size=Some size; _ } ->
+| FunctionDecl { func_label=Some label; func_params=Some params; func_body=body; func_frame_size=Some size; _ } ->
 
     printf "    .text\n";
-    printf "    .globl %s\n" func;
-    printf "    .type %s, @function\n" func;
-    printf "%s:\n" func;
+    printf "    .globl %s\n" label;
+    printf "    .type %s, @function\n" label;
+    printf "%s:\n" label;
 
     (* call命令の実行時にrspを16バイト境界にするので、呼び出されたときは戻り番地が積まれた分ズレている *)
     Stack.set (-8);

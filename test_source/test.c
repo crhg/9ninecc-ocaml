@@ -1455,3 +1455,21 @@ int test176() {
     }
 }
 // @end
+
+// @try_ret test177 100
+static int f177() {
+    return 100;
+}
+
+int test177() {
+    return f177();
+}
+// @end
+
+// @try_ret test178 100
+static int x178;
+int test178() {
+    x178 = 100;
+    return x178;
+}
+// @end

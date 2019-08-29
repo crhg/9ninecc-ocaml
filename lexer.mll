@@ -112,6 +112,7 @@ rule token = parse
 | "enum"    { ENUM }
 | "typedef" { TYPEDEF }
 | "extern"  { EXTERN }
+| "static"  { STATIC }
 
 | ['0'-'9']+ as num { NUM num }
 | ['_' 'a'-'z' 'A' - 'Z']['_' 'a'-'z' 'A'-'Z' '0'-'9']* as name { IDENT name }

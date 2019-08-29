@@ -23,7 +23,7 @@
 
 %token SIZEOF
 
-%token VOID LONG INT SHORT CHAR STRUCT UNION ENUM TYPEDEF EXTERN
+%token VOID LONG INT SHORT CHAR STRUCT UNION ENUM TYPEDEF EXTERN STATIC
 
 %token DUMMY // typedefで使うダミーのトークン
 
@@ -75,7 +75,7 @@ decl:
             func_decl = d;
             func_body = body;
             func_ty = None;
-            func_name = None;
+            func_label = None;
             func_params = None;
             func_frame_size = None
         };
@@ -123,6 +123,7 @@ decl_spec:
 storage_class_spec:
 | token=TYPEDEF { ignore token; { exp = Typedef; loc = $startpos(token) } }
 | token=EXTERN { ignore token; { exp = Extern; loc = $startpos(token) } }
+| token=STATIC { ignore token; { exp = Static; loc = $startpos(token) } }
 
 decl_type_spec:
 | ts = type_spec {

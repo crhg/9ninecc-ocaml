@@ -1501,7 +1501,7 @@ int test181() {
 }
 // @end
 
-// @try_out test182 foo
+// @try_out test182 foo-1-2-3-4-5-6-7-8
 int f182(char *buf, char *fmt,...) {
     void *ap[4];
 
@@ -1511,7 +1511,7 @@ int f182(char *buf, char *fmt,...) {
 int test182() {
     char buf[256];
 
-    f182(buf, "%s", "foo");
+    f182(buf, "%s-%d-%d-%d-%d-%d-%d-%d-%d", "foo", 1, 2, 3, 4, 5, 6, 7, 8);
     try_printf("%s", buf);
 }
 // @end

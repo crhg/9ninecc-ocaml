@@ -258,8 +258,8 @@ and convert' expr = match expr.exp with
             let ty, f = convert_lval func in Type.Ptr ty, f
         | _ -> ty, f in
     (match ty with
-    | Ptr (Function _) ->
-        (Type.Int, ICall(f, List.map (Misc.compose snd convert) expr_list))
+    | Ptr (Function (ty, _)) ->
+        (ty, ICall(f, List.map (Misc.compose snd convert) expr_list))
     | _ ->
         raise(Misc.Error_at("not function pointer: "^(Type.show_type ty), func.loc))
     )
@@ -282,7 +282,7 @@ and convert' expr = match expr.exp with
         | Function _ -> (ty, e)
         | _ -> (t, Load (t, e))
         )
-    | _ -> raise(Misc.Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
+    | _ -> raise(Misc.Error_at("Deref: not a pointer: " ^ (Type.show_type ty), expr.loc))
     )
 | Arrow _ ->
     (* Printf.fprintf stderr "type_check Arrow!! %s\n" (Ast.show_expr expr); *)

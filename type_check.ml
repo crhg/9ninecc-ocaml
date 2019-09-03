@@ -111,8 +111,7 @@ and prepare_func params has_varargs stmt_list =
 and determine_array_size element_ty init =
     match element_ty, init.exp with
     (* charの配列のときのみ 文字列リテラル or {文字列リテラル} でも初期化可能 *)
-    | Type.Char, ExprInitializer {expr={exp = Str(s,_);_};_} ->
-        String.length s + 1
+    | Type.Char, ExprInitializer {expr={exp = Str(s,_);_};_}
     | Type.Char, ListInitializer [{ exp = ExprInitializer {expr={exp = Str(s,_);_};_};_}] ->
         String.length s + 1
     | _, ListInitializer l ->

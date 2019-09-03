@@ -1,7 +1,8 @@
 open Ast
 open Env
 open Misc
-open Printf
+
+let printf = Printf.printf
 
 (* コード生成 本体 *)
 let rec gen decl_list =

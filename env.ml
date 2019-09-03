@@ -1,5 +1,3 @@
-open Misc
-
 module Env = Map.Make(String)
 
 type entry = 
@@ -33,7 +31,7 @@ let with_new_scope action =
 let register_local_var ty name =
     let size = Type.get_size ty in
     let alignment = Type.get_alignment ty in
-    offset := round_up !offset alignment + size;
+    offset := Misc.round_up !offset alignment + size;
     map := Env.add name (LocalVar (ty, !offset)) !map
 
 let register_global_var ty name label =

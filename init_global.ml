@@ -1,5 +1,4 @@
 open Ast
-open Misc
 open Printf
 
 let rec gen ty label init =
@@ -21,7 +20,7 @@ and init_data ty init =
         init_data_pointer init
     | Type.Array (ty, Some n) ->
         init_data_array ty n init
-    | _ -> raise(Error_at("cannot initialize type: " ^ (Type.show ty), init.loc))
+    | _ -> raise(Misc.Error_at("cannot initialize type: " ^ (Type.show ty), init.loc))
 
 and init_data_int ty init =
     let open Type in
@@ -57,7 +56,7 @@ and init_data_array ty n init = match init.exp with
     init_data_by_list ty n l
 | ExprInitializer {expr={exp=Str (s, _);_};_} when ty == Type.Char -> 
     init_str n s
-| _ -> raise(Error_at("cannot initialize", init.loc))
+| _ -> raise(Misc.Error_at("cannot initialize", init.loc))
 
 and init_data_by_list ty n inits = 
     inits |> List.iteri (fun i init ->

@@ -1,6 +1,4 @@
 open Ast
-(* open Env *)
-open Misc
 
 let printf = Printf.printf
 
@@ -124,7 +122,7 @@ and gen_decl decl = match decl.exp with
 and gen_stmt stmt =
 try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with
 | Stack.Stack_changed ->
-    raise(Error_at("stack changed: " ^ (Ast.show_stmt stmt), stmt.loc))
+    raise(Misc.Error_at("stack changed: " ^ (Ast.show_stmt stmt), stmt.loc))
 
 and gen_stmt' stmt =
 let gen_expr expr = gen_i_expr @@ Option.get expr.i_expr in

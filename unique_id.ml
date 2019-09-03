@@ -1,7 +1,7 @@
 let seq = ref 0
 
 let new_seq _ =
-    seq := !seq + 1;
+    incr seq;
     !seq
 
 let new_id prefix =

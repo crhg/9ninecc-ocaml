@@ -27,7 +27,7 @@ and pickup_line s pos =
 and count c s =
     let r = ref 0 in
     s |> String.iter (fun c' ->
-        if c' = c then r := !r + 1
+        if c' = c then incr r
     );
     !r
 

@@ -1,5 +1,3 @@
-open Ast
-
 let printf = Printf.printf
 
 let rec gen ty label init =
@@ -21,20 +19,19 @@ and init_data ty init =
         init_data_pointer init
     | Array (ty, Some n) ->
         init_data_array ty n init
-    | _ -> raise(Misc.Error_at("cannot initialize type: " ^ (Type.show ty), init.loc))
+    | _ -> raise(Misc.Error_at("cannot initialize type: " ^ (Type.show ty), init.Ast.loc))
 
 and init_data_int ty init =
-    let open Type in
     let value = match scalar_init_value init with
         | (None, value) -> value
         | _ -> raise(Misc.Error("not a number")) in
-    (match ty with
+    let open Type in
+    match ty with
     | Char  -> printf "    .byte %d\n" value
     | Short -> printf "    .word %d\n" value
     | Int   -> printf "    .long %d\n" value
     | Long  -> printf "    .quad %d\n" value
     | _ -> failwith "not integral: "
-    )
 
 and init_data_pointer init =
     match scalar_init_value init with
@@ -45,19 +42,23 @@ and init_data_pointer init =
     | (Some label, offset) ->
         printf "    .quad %s%+d\n" label offset
 
-and scalar_init_value init = match init.exp with
-| ExprInitializer expr_s ->
-    Const.eval @@ Option.get expr_s.i_expr
-| ListInitializer (({exp=ExprInitializer _; _} as init)::_) ->
-    scalar_init_value init 
-| _ -> failwith("not scalar initializer")
+and scalar_init_value init =
+    let open Ast in
+    match init.exp with
+    | ExprInitializer expr_s ->
+        Const.eval @@ Option.get expr_s.i_expr
+    | ListInitializer (({exp=ExprInitializer _; _} as init)::_) ->
+        scalar_init_value init 
+    | _ -> failwith("not scalar initializer")
 
-and init_data_array ty n init = match init.exp with
-| ListInitializer l ->
-    init_data_by_list ty n l
-| ExprInitializer {expr={exp=Str (s, _);_};_} when ty == Type.Char -> 
-    init_str n s
-| _ -> raise(Misc.Error_at("cannot initialize", init.loc))
+and init_data_array ty n init =
+    let open Ast in
+    match init.exp with
+    | ListInitializer l ->
+        init_data_by_list ty n l
+    | ExprInitializer {expr={exp=Str (s, _);_};_} when ty == Type.Char -> 
+        init_str n s
+    | _ -> raise(Misc.Error_at("cannot initialize", init.loc))
 
 and init_data_by_list ty n inits = 
     inits |> List.iteri (fun i init ->

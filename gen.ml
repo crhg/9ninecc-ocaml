@@ -292,48 +292,37 @@ and gen_i_expr' i_expr = match i_expr with
     Stack.pop "rax";
     Gen_misc.load ty "rax" "[rax]";
     Stack.push "rax"
-(* 単純な関数呼び出しは直接callする *)
-| ICall (Label label, i_expr_list) ->
-    if Builtin.is_builtin label then (
-        List.iter gen_i_expr (List.rev i_expr_list);
-        Builtin.gen label
-    ) else (
+| ICall (func, i_expr_list) ->
+    let gen_call prepare call =
         let n = List.length i_expr_list in
-        let n_stack = if n > 6 then n - 6 else 0 in
+        let n_register = min n 6 in
+        let n_stack = max (n-6) 0 in
         let stack_param_size = n_stack * 8 in
+        let pop_register_params n =
+            let regs = ["rdi";"rsi";"rdx";"rcx";"r8";"r9"] in
+            Misc.take n regs |> List.iter Stack.pop in
         Stack.with_adjust stack_param_size (fun _ ->
-            List.iter gen_i_expr (List.rev i_expr_list);
-            (if n >= 1 then Stack.pop "rdi");
-            (if n >= 2 then Stack.pop "rsi");
-            (if n >= 3 then Stack.pop "rdx");
-            (if n >= 4 then Stack.pop "rcx");
-            (if n >= 5 then Stack.pop "r8");
-            (if n >= 6 then Stack.pop "r9");
+            List.rev i_expr_list |> List.iter gen_i_expr;
+            prepare();
+            pop_register_params n_register;
             printf "    mov al, 0\n";
-            printf "    call %s\n" label;
+            call();
             if stack_param_size > 0 then Stack.add stack_param_size
         );
-        Stack.push "rax"
-    )
-| ICall (func, i_expr_list) ->
-    let n = List.length i_expr_list in
-    let n_stack = if n > 6 then n - 6 else 0 in
-    let stack_param_size = n_stack * 8 in
-    Stack.with_adjust stack_param_size (fun _ ->
+        Stack.push "rax" in
+    (match func with
+    | Label label when Builtin.is_builtin label ->
         List.iter gen_i_expr (List.rev i_expr_list);
-        gen_i_expr func;
-        Stack.pop "r10";
-        (if n >= 1 then Stack.pop "rdi");
-        (if n >= 2 then Stack.pop "rsi");
-        (if n >= 3 then Stack.pop "rdx");
-        (if n >= 4 then Stack.pop "rcx");
-        (if n >= 5 then Stack.pop "r8");
-        (if n >= 6 then Stack.pop "r9");
-        printf "    mov al, 0\n";
-        printf "    call r10\n";
-        if stack_param_size > 0 then Stack.add stack_param_size
-    );
-    Stack.push "rax"
+        Builtin.gen label
+    | Label label ->
+        let prepare _ = () in
+        let call _ = printf "    call %s\n" label in
+        gen_call prepare call
+    | _ ->
+        let prepare _ = Stack.pop "r10" in
+        let call _ = printf "    call r10\n" in
+        gen_call prepare call
+    )
 | I_block block ->
     gen_stmt block;
     Stack.push "rax"

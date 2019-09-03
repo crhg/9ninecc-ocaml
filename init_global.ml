@@ -70,6 +70,7 @@ and init_data_by_list ty n inits =
     if n > List.length inits then
         init_zero (Type.get_size ty * (n - List.length inits))
 
+(* 文字列sを使ってnバイトを初期化する *)
 and init_str n s =
     let l = String.length s in
     if l >= n then
@@ -77,8 +78,11 @@ and init_str n s =
     else
         begin 
             printf "    .string \"%s\"\n" s;
-            if l + 1 < n then
-                init_zero (n-l-1)
+
+            (* 初期化すべきバイト数の残りの処理 *)
+            let n_rest = n - (l + 1) in
+            if n_rest > 0 then
+                init_zero n_rest
         end
 
 (* nバイトの0で初期化します *)

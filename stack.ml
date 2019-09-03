@@ -1,4 +1,4 @@
-open Printf
+let printf = Printf.printf
 
 (* スタックの深さ管理 *)
 let sp = ref 0

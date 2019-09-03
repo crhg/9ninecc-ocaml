@@ -1,5 +1,5 @@
 open Ast
-open Env
+(* open Env *)
 open Misc
 
 let printf = Printf.printf

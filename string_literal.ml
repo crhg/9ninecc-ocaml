@@ -1,4 +1,3 @@
-open Printf
 
 let queue = Queue.create()
 
@@ -8,6 +7,8 @@ let rec add s =
     label
 
 and gen _ =
+    let printf = Printf.printf in
+
     printf "    .section .rodata\n";
 
     Queue.iter

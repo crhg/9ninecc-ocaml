@@ -19,7 +19,7 @@ and init_data ty init =
         init_data_int ty init
     | Ptr _ ->
         init_data_pointer init
-    | Type.Array (ty, Some n) ->
+    | Array (ty, Some n) ->
         init_data_array ty n init
     | _ -> raise(Misc.Error_at("cannot initialize type: " ^ (Type.show ty), init.loc))
 

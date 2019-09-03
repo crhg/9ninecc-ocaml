@@ -1,8 +1,7 @@
 (* token buffer といいながら各種 # xx の処理もほぼここでやっている *)
 
-open Pp_token_buffer_data
-
 let rec token buf =
+    let open Pp_token_buffer_data in
     match buf with
     | {tokens = t::rest; _} -> 
         buf.tokens <- rest;
@@ -117,4 +116,5 @@ and push_group_parts gs buf =
 
 
 and back_token t buf = 
+    let open Pp_token_buffer_data in
     buf.tokens <- t :: buf.tokens

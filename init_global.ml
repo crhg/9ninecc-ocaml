@@ -61,14 +61,12 @@ and init_data_array ty n init =
     | _ -> raise(Misc.Error_at("cannot initialize", init.loc))
 
 and init_data_by_list ty n inits = 
-    inits |> List.iteri (fun i init ->
-        if i < n then 
-            init_data ty init
-    );
+    List.iter (init_data ty) @@ Misc.take n inits;
 
     (* 初期化リストが足りなければ残りは0で埋める *)
-    if n > List.length inits then
-        init_zero (Type.get_size ty * (n - List.length inits))
+    let n_rest = n - List.length inits in
+    if n_rest > 0 then
+        init_zero (Type.get_size ty * n_rest)
 
 (* 文字列sを使ってnバイトを初期化する *)
 and init_str n s =

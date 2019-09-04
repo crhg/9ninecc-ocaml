@@ -1517,9 +1517,18 @@ int test182() {
 // @end
 
 // @try_out test183 2-3-0
-struct { int p; int q; int r; } x182 = { 2, 3 };
+struct { int p; int q; int r; } x183 = { 2, 3 };
 int test183() {
 
-    try_printf("%d-%d-%d", x182.p, x182.q, x182.r);
+    try_printf("%d-%d-%d", x183.p, x183.q, x183.r);
+}
+// @end
+
+// @try_out test184 2-3-0
+typedef struct { int p; int q; int r; } s184;
+s184 *p184= &(s184){ 2, 3 };
+int test184() {
+
+    try_printf("%d-%d-%d", p184->p, p184->q, p184->r);
 }
 // @end

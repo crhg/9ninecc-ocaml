@@ -36,6 +36,9 @@
 
 %nonassoc IF
 
+%nonassoc COMPOUND_LITERAL
+%nonassoc CAST
+
 %type <Ast.decl list> translation_unit
 %type <Ast.expr> expr_eof
 
@@ -306,7 +309,10 @@ init:
     let es = make_expr_s e in
     { exp=ExprInitializer es; loc=e.loc }
 }
-| token=LBRACE DUMMY l=separated_list(COMMA, init) SEMI DUMMY RBRACE {
+| l = list_initializer { l }
+
+list_initializer:
+| token=LBRACE DUMMY l=separated_list(COMMA, init) COMMA? SEMI DUMMY RBRACE {
     ignore token;
     { exp=ListInitializer l; loc=$startpos(token) }
 }
@@ -507,8 +513,12 @@ postfix_expression:
         }
     )
 }
-(* 未実装: ( type-name ) { initializer-list } *)
-(* 未実装: ( type-name ) { initializer-list , } *)
+| LPAR tn=type_name RPAR l=list_initializer %prec COMPOUND_LITERAL {
+    {
+        exp = CompoundLiteral (tn, l);
+        loc = l.loc
+    }
+}
 
 unary_expression:
 | e=postfix_expression { e }
@@ -553,7 +563,7 @@ unary_expression:
 
 cast_expression:
 | e=unary_expression { e }
-| token=LPAR t=type_name RPAR e=cast_expression { ignore token; { exp = Cast(t, e); loc=$startpos(token) } }
+| token=LPAR t=type_name RPAR e=cast_expression %prec CAST { ignore token; { exp = Cast(t, e); loc=$startpos(token) } }
 
 multiplicative_expression:
 | e=cast_expression { e }

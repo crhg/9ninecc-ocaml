@@ -93,6 +93,7 @@ and expr_exp =
   | BitComplement of expr
   | Cond of expr * expr * expr
   | BlockExpr of stmt
+  | CompoundLiteral of type_name * init
 and expr = expr_exp node
 and i_expr =
     Const of int

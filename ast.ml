@@ -144,6 +144,7 @@ and expr_exp =
 | BitComplement of expr
 | Cond of expr * expr * expr
 | BlockExpr of stmt
+| CompoundLiteral of type_name * init
 and expr = expr_exp node
 
 (* 式の中間表現 *)
@@ -194,6 +195,8 @@ let rec show_expr_short expr = match expr.exp with
     Printf.sprintf "(%s)?(%s):(%s)" (show_expr_short c) (show_expr_short t) (show_expr_short e)
 | BlockExpr _ ->
     "{...}"
+| CompoundLiteral (tn, init) ->
+    Printf.sprintf "(%s)%s" (show_type_name_exp tn.exp) (show_init_exp init.exp)
 
 and show_i_expr_short i_expr = match i_expr with
 | Const x -> Printf.sprintf "%d" x

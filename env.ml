@@ -13,9 +13,9 @@ let current_tag_map = ref Env.empty
 
 let offset = ref 0
 
-let is_global_flag = ref true;
+let is_global_flag = ref true
 
-let is_global _ = is_global_flag
+let is_global _ = !is_global_flag
 
 let with_new_local_frame has_varargs action =
     offset := (if has_varargs then Varargs.save_area_size else 0);

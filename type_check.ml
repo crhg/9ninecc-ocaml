@@ -311,6 +311,15 @@ and convert' expr = match expr.exp with
     (if tty <> ety then raise(Misc.Error_at("type unmatch then else", expr.loc)));
 
     (tty, ICond(c, t, e))
+| CompoundLiteral (tn, init) ->
+    let ty = type_of_type_name tn in
+    if Env.is_global() then
+        let label = Unique_id.new_id ".Lcl" in
+        check_init init;
+        Global_var.(register { ty = ty; label = label; init = Some init });
+        (ty, Label label)
+    else
+        failwith "local compound literal is not implemented yet"
 | Binop (op, l, r) ->
     let lty, l = convert_normalized l in
     let rty, r = convert_normalized r in
@@ -399,6 +408,15 @@ and convert_lval expr = match expr.exp with
         (f.field_type, I_binop(Add, i_e, (Const f.field_offset)))
     | _ -> raise(Misc.Error_at("not pointer", e.loc))
     )
+| CompoundLiteral (tn, init) ->
+    let ty = type_of_type_name tn in
+    if Env.is_global() then
+        let label = Unique_id.new_id ".Lcl" in
+        check_init init;
+        Global_var.(register { ty = ty; label = label; init = Some init });
+        (ty, Label label)
+    else
+        failwith "local compound literal is not implemented yet"
 | _ ->
     raise(Misc.Error_at("not lval", expr.loc))
 

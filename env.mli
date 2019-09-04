@@ -22,3 +22,4 @@ val with_new_break_label : (string -> unit) -> unit
 val get_break_label : 'a -> string
 val with_new_continue_label : (string -> unit) -> unit
 val get_continue_label : 'a -> string
+val is_global : unit -> bool

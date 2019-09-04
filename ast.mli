@@ -106,6 +106,8 @@ and i_expr =
   | ICond of i_expr * i_expr * i_expr
   | I_block of stmt
   | IBitComplement of i_expr
+  | Error of error_r
+and error_r = { error_exn : exn }
 and expr_s = { expr : expr; mutable i_expr : i_expr option; }
 val pp_node :
   (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->

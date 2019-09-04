@@ -34,5 +34,6 @@ exception Incomplete
 val get_size : t -> int
 val get_alignment : t -> int
 val is_complete_type : t -> bool
+val is_simple : t -> bool
 val get_field : t -> string -> field
 val is_function : t -> bool

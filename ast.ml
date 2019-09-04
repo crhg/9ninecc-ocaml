@@ -159,6 +159,11 @@ and i_expr =
 | ICond of i_expr * i_expr * i_expr
 | I_block of stmt
 | IBitComplement of i_expr
+| Error of error_r
+
+and error_r = {
+    error_exn : exn [@opaque]
+}
 
 (* 文の中に置く式, 中間表現に変換した結果を格納できる *)
 and expr_s = { expr: expr; mutable i_expr: i_expr option }
@@ -209,6 +214,7 @@ and show_i_expr_short i_expr = match i_expr with
 | I_block _ -> "{...}"
 | ICond (c, t, e) -> Printf.sprintf "(%s)?(%s):(%s)" (show_i_expr_short c) (show_i_expr_short t) (show_i_expr_short e)
 | IBitComplement e -> Printf.sprintf "~(%s)" (show_i_expr_short e)
+| Error _ -> Printf.sprintf "Error(...)"
 
 and show_binop_short op = match op with
 | Add -> "+"

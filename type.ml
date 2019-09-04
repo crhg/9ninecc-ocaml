@@ -105,6 +105,20 @@ and is_complete_type ty = match ty with
 | Function _ ->
     false
 
+and is_simple ty = match ty with
+| Long
+| Int
+| Short
+| Char
+| Ptr _ ->
+    true
+| Struct _
+| Union _
+| Array _
+| Void 
+| Function _ ->
+    false
+
 and get_field ty field_name = match ty with
 | Struct { body = Some { fields = fields; _ }; _ } ->
     List.find (fun { field_name = name; _ } -> name = field_name) fields

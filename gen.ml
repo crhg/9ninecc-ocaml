@@ -371,6 +371,8 @@ and gen_i_expr' i_expr = match i_expr with
     Stack.pop "rax";
     gen_op op;
     Stack.push "rax"
+| Error { error_exn = e } ->
+    raise e
 
 and gen_op op = match op with
     | Add ->

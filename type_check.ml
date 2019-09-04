@@ -27,6 +27,7 @@ and check_decl decl = match decl.exp with
         Env.with_new_local_frame has_varargs (fun _ ->
         Env.with_new_scope (fun _ ->
             let register (name, ty) = 
+                check_simple ty loc;
                 check_complete ty loc;
 
                 let offset = try Env.register_local_var ty name with
@@ -239,8 +240,13 @@ and convert' expr = match expr.exp with
     | LocalVar _
     | GlobalVar _ ->
         let ty, pointer = convert_lval expr in
-        (* if not @@ simple_type ty then (raise(Misc.Error_at("cannot load "^(Type.show_type ty), expr.loc))); *)
-        (ty, Load(ty, pointer))
+        (
+            ty,
+            if simple_type ty then
+                Load(ty, pointer)
+            else
+                Error{ error_exn = Misc.Error_at("cannot load "^(Type.show_type ty), expr.loc) }
+        )
     | EnumConstant (value) ->
         (Type.Int, Const value)
     | TypeDef _ ->
@@ -649,6 +655,10 @@ and declare_enum_list l =
 and check_complete ty loc = 
         if not @@ Type.is_complete_type ty then
             raise(Misc.Error_at("incomplete type: " ^ (Type.show ty), loc))
+
+and check_simple ty loc = 
+    if not @@ Type.is_simple ty then
+        raise(Misc.Error_at("not simple type: " ^ (Type.show ty), loc))
 
 and typedef ts decl =
     let ty, name = type_and_var_ts ts decl in

@@ -1547,3 +1547,12 @@ int test186() {
     } while (0);
 }
 // @end
+
+// @try_out test187 2-3
+int test187() {
+    struct { int p; int q; int r; } x187 = { 2, 3 };
+
+    try_printf("%d-%d", x187.p, x187.q);
+}
+// @end
+

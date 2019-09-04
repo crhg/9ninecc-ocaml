@@ -10,7 +10,9 @@ let rec to_assign ty lhs init =
         [to_assign_scalar lhs init]
     | Type.Array _ ->
         to_assign_array ty lhs init
-    | _ -> raise (Misc.Error_at("cannot initialize", init.Ast.loc))
+    | Type.(Struct { body = Some { fields = fields; _ }; _ }) ->
+        to_assign_struct lhs fields init
+    | _ -> raise (Misc.Error_at("cannot initialize(to_assign): " ^ (Type.show ty), init.Ast.loc))
 
 and to_assign_scalar lhs init = Ast.(match init.exp with
     | ExprInitializer expr
@@ -44,6 +46,18 @@ and to_assign_array_by_list ty lhs l =
         let lhs_at_i = make_array_at lhs i in
         to_assign ty lhs_at_i x in
     List.concat @@ List.mapi make_assign l
+
+and to_assign_struct lhs fields init =
+    let open Ast in
+    match init.exp with
+    | ListInitializer inits ->
+        let to_assign_field (field, init) =
+            let p = { exp = Addr lhs; loc = lhs.loc } in
+            let p_arrow_field = { exp = Arrow (p, field.Type.field_name); loc = lhs.loc } in
+            to_assign field.Type.field_type p_arrow_field init in
+        List.concat @@ List.map to_assign_field @@ Misc.zip fields inits
+    | ExprInitializer _ ->
+        failwith "cannot initialize struct with scalar"
 
 and make_num n loc =
     Ast.({

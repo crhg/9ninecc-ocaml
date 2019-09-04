@@ -292,7 +292,7 @@ and convert' expr = match expr.exp with
     let ty, e = convert_lval e in
     (Ptr ty, e)
 | Deref e ->
-    Printf.fprintf stderr "Deref(lval): %s\n" (show_expr e);
+    (* Printf.fprintf stderr "Deref(lval): %s\n" (show_expr e); *)
     let ty, e = convert_normalized e in
     (match ty with
     | Type.Ptr t ->

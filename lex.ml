@@ -17,7 +17,7 @@ let insert_empty_buf = Buffering_wrapper.make()
 
 let rec token lexbuf =
     let t = token' lexbuf in
-    Printf.fprintf stderr "token=%s\n" (Token.show_token t);
+    (* Printf.fprintf stderr "token=%s\n" (Token.show_token t); *)
     t
 
 and token' lexbuf =

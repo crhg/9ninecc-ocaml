@@ -474,8 +474,13 @@ match d.exp with
     let n = Option.map eval_expr e in
     type_and_var_ty (Type.Array(ty, n)) d 
 | Func (d, params, _) ->
-    let tv = fun (ts, d) ->
+    let array_to_ptr ty = match ty with
+    | Type.Array(ty, _) -> Type.Ptr ty
+    | _ -> ty in
+    let tv (ts, d) =
         let ty, name = type_and_var_ts ts d in
+        let ty = array_to_ptr ty in
+        check_simple ty d.loc;
         (name, ty) in
     let params = List.map tv params in
     type_and_var_ty (Type.Function(ty, params)) d

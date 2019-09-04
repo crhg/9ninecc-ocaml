@@ -6,9 +6,9 @@ type entry =
 val pp_entry :
   Ppx_deriving_runtime.Format.formatter -> entry -> Ppx_deriving_runtime.unit
 val show_entry : entry -> Ppx_deriving_runtime.string
-val with_new_local_frame : bool -> (unit -> unit) -> int
-val with_new_scope : (unit -> unit) -> unit
-val register_local_var : Type.t -> string -> unit
+val with_new_local_frame : bool -> (unit -> 'a) -> (int * 'a)
+val with_new_scope : (unit -> 'a) -> 'a
+val register_local_var : Type.t -> string -> int
 val register_global_var : Type.t -> string -> string -> unit
 val register_typedef : Type.t -> string -> unit
 val register_enum : string -> int -> unit

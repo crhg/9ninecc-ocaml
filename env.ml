@@ -15,24 +15,26 @@ let offset = ref 0
 
 let with_new_local_frame has_varargs action =
     offset := (if has_varargs then Varargs.save_area_size else 0);
-    action();
-    !offset
+    let r = action() in
+    !offset, r
 
 let with_new_scope action = 
     let saved_map = !map in
     let saved_tag_map = !tag_map in
     let saved_current_tag_map = !current_tag_map in
     current_tag_map := Env.empty;
-    action();
+    let r = action() in
     map := saved_map;
     tag_map := saved_tag_map;
-    current_tag_map := saved_current_tag_map
+    current_tag_map := saved_current_tag_map;
+    r
 
 let register_local_var ty name =
     let size = Type.get_size ty in
     let alignment = Type.get_alignment ty in
     offset := Misc.round_up !offset alignment + size;
-    map := Env.add name (LocalVar (ty, !offset)) !map
+    map := Env.add name (LocalVar (ty, !offset)) !map;
+    !offset
 
 let register_global_var ty name label =
     map := Env.add name (GlobalVar (ty, label)) !map

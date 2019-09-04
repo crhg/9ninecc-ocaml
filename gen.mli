@@ -1,1 +1,1 @@
-val gen : Ast.decl list -> unit
+val gen : unit -> unit

@@ -1,10 +1,4 @@
 type 't node = { exp : 't; loc : Lexing.position; }
-and param = {
-  param_ty : Type.t;
-  param_name : string;
-  mutable param_entry : Env.entry option;
-  param_loc : Lexing.position;
-}
 and st_un = {
   su_tag : string option;
   su_fields : (type_spec * declarator) list option;
@@ -39,10 +33,10 @@ and function_decl_r = {
   func_decl : declarator;
   func_body : stmt;
   func_has_varargs : bool;
-  mutable func_ty : Type.t option;
-  mutable func_label : string option;
-  mutable func_params : param list option;
-  mutable func_frame_size : int option;
+  (* mutable func_ty : Type.t option; *)
+  (* mutable func_label : string option; *)
+  (* mutable func_params : param list option; *)
+  (* mutable func_frame_size : int option; *)
 }
 and decl_exp =
     FunctionDecl of function_decl_r
@@ -53,8 +47,7 @@ and decl = decl_exp node
 and decl_init = {
   di_decl : declarator;
   di_init : init option;
-  mutable di_entry : Env.entry option;
-  mutable di_init_assign : i_expr list;
+  mutable di_init_assign: i_expr list
 }
 and declarator_exp =
     DeclIdent of string
@@ -119,9 +112,6 @@ val pp_node :
 val show_node :
   (Ppx_deriving_runtime.Format.formatter -> 't -> Ppx_deriving_runtime.unit) ->
   't node -> Ppx_deriving_runtime.string
-val pp_param :
-  Ppx_deriving_runtime.Format.formatter -> param -> Ppx_deriving_runtime.unit
-val show_param : param -> Ppx_deriving_runtime.string
 val pp_st_un :
   Ppx_deriving_runtime.Format.formatter -> st_un -> Ppx_deriving_runtime.unit
 val show_st_un : st_un -> Ppx_deriving_runtime.string

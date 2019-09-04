@@ -9,42 +9,61 @@ let rec check decl_list =
     List.iter check_decl decl_list
 
 and check_decl decl = match decl.exp with
-| FunctionDecl ({
+| FunctionDecl {
     func_ds = {ds_type_spec = Some ts; _} as ds;
     func_decl = decl;
     func_has_varargs = has_varargs;
-    func_body={exp=Block stmt_list; _};
+    func_body={exp=Block stmt_list; _} as body;
     _ 
-} as fd ) ->
+} ->
     let ty, name = type_and_var_ts ts decl in
     let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
+    let loc = decl.loc in
 
     Env.register_global_var ty name label;
 
+    (* ローカル変数にオフセットを割り当てる *)
+    let prepare_func params has_varargs stmt_list =
+        Env.with_new_local_frame has_varargs (fun _ ->
+        Env.with_new_scope (fun _ ->
+            let register (name, ty) = 
+                check_complete ty loc;
+
+                let offset = try Env.register_local_var ty name with
+                    | Type.Incomplete -> raise(Misc.Error_at("incomplete: " ^ name, loc))
+                in
+                Function.{
+                    param_ty = ty;
+                    param_name = name;
+                    param_offset = offset
+                } in
+            let r = List.map register params in
+            List.iter check_stmt stmt_list;
+            r
+        )) in
+
     (match ty with
         | Type.Function (_, params) ->
-            fd.func_label <- Some label;
-            let params = params |> List.map (fun (pname, pty) ->
-                {
-                    param_ty = pty;
-                    param_name = pname;
-                    param_entry = None;
-                    param_loc = decl.loc
-                }
-            ) in
-            fd.func_params <- Some params;
-            let size = prepare_func params has_varargs stmt_list in
-            fd.func_frame_size <- Some size
+            let frame_size, params = prepare_func params has_varargs stmt_list in
+            let open Function in
+            register {
+                ty = ty;
+                label = label;
+                params = params;
+                frame_size = frame_size;
+                has_varargs = has_varargs;
+                body = body
+            }
         | _ -> failwith "not function"
     )
 
 | GlobalVarDecl { gv_ds = { ds_type_spec = Some ts; _ } as ds; gv_decl_inits = decl_inits } ->
     let ty = type_of_type_spec ts in
 
-    decl_inits |> List.iter (fun ({ di_decl = d; di_init = init; _ } as di) ->
+    decl_inits |> List.iter (fun { di_decl = d; di_init = init; _ } ->
         let ty, name = type_and_var_ty ty d in
 
-        let ty = (if Ast.is_extern ds || Type.is_function ty then (
+        let ty, is_extern = (if Ast.is_extern ds || Type.is_function ty then (
             (* externと関数型 *)
             (*   初期化があってはいけない *)
             (*   完全型かどうかのチェックは不要 *)
@@ -55,7 +74,7 @@ and check_decl decl = match decl.exp with
                 ()
             );
 
-            ty
+            ty, true
         ) else (
             (* 最上位の配列サイズが未定で初期化子があれば求める *)
             let ty = match ty, init with
@@ -69,15 +88,15 @@ and check_decl decl = match decl.exp with
 
             Option.may check_init init;
 
-            ty
+            ty, false
         )) in
 
         let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
-
         Env.register_global_var ty name label;
 
-        let entry = Env.get_entry name in
-        di.di_entry <- Some entry;
+        if not is_extern then
+            let open Global_var in
+            register  { ty = ty; label = label; init = init }
     )
 | TypedefDecl (ts, decls) ->
     List.iter (typedef ts) decls;
@@ -90,23 +109,6 @@ and check_init init = match init.exp with
 | ListInitializer l ->
     List.iter check_init l
 
-(* ローカル変数にオフセットを割り当てる *)
-and prepare_func params has_varargs stmt_list =
-    Env.with_new_local_frame has_varargs (fun _ ->
-    Env.with_new_scope (fun _ ->
-        let register param = match param with
-        | { param_ty = ty; param_name = name; param_loc = loc; _ } as p ->
-            check_complete ty loc;
-
-            (try Env.register_local_var ty name with
-                | Type.Incomplete -> raise(Misc.Error_at("incomplete", loc))
-            );
-            let entry = Env.get_entry name in
-            p.param_entry <- Some entry in
-        List.iter register params;
-
-        List.iter check_stmt stmt_list
-    ))
 
 and determine_array_size element_ty init =
     match element_ty, init.exp with
@@ -144,7 +146,7 @@ and check_stmt stmt = match stmt.exp with
 
         check_complete ty d.loc;
 
-        Env.register_local_var ty name;
+        ignore @@ Env.register_local_var ty name;
 
         init |> Option.may (fun init ->
             let ident = { exp = Ident name; loc=d.loc } in
@@ -156,7 +158,7 @@ and check_stmt stmt = match stmt.exp with
     failwith "var?"
 | TmpVar (name, expr) ->
     let ty, _ = convert_normalized expr in
-    Env.register_local_var ty name
+    ignore @@ Env.register_local_var ty name
 | TypedefStmt (ts, decls) ->
     List.iter (typedef ts) decls;
 | Expr expr ->

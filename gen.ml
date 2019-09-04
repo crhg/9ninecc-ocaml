@@ -3,45 +3,29 @@ open Ast
 let printf = Printf.printf
 
 (* コード生成 本体 *)
-let rec gen decl_list =
+let rec gen _ =
     printf ".intel_syntax noprefix\n";
 
     String_literal.gen();
+    Global_var.iter gen_global_var;
+    Function.iter gen_function
 
-    List.iter gen_decl decl_list
+and gen_global_var Global_var.{ ty = ty; label = label; init = init; _ } =
+    match init with
+    | None ->
+        printf "    .globl %s\n" label;
+        printf "    .bss\n";
+        printf "    .align %d\n" (Type.get_alignment ty);
+        printf "    .type %s, @object\n" label;
+        printf "    .size %s, %d\n" label (Type.get_size ty);
+        printf "%s:\n" label;
+        printf "    .zero %d\n" (Type.get_size ty);
+        printf "\n"
+    | Some init ->
+        Init_global.gen ty label init;
+        printf "\n"
 
-and gen_decl decl = match decl.exp with
-| GlobalVarDecl { gv_ds = { ds_storage_class_spec = Some { exp = Extern; _ }; _ }; _ } ->
-    ()
-| GlobalVarDecl { gv_decl_inits = decl_inits; _ } ->
-    decl_inits |> List.iter (fun di -> match di with
-        | { di_entry = Some (GlobalVar (ty, label)); di_init = None; _ } ->
-            if Type.is_function ty then ()
-            else (
-                printf "    .globl %s\n" label;
-                printf "    .bss\n";
-                printf "    .align %d\n" (Type.get_alignment ty);
-                printf "    .type %s, @object\n" label;
-                printf "    .size %s, %d\n" label (Type.get_size ty);
-                printf "%s:\n" label;
-                printf "    .zero %d\n" (Type.get_size ty);
-                printf "\n"
-            )
-        | { di_entry = Some (GlobalVar (ty, label)); di_init = Some init; _ } ->
-                Init_global.gen ty label init;
-            printf "\n"
-        | _ -> failwith "?"
-    )
-
-| FunctionDecl {
-    func_label=Some label;
-    func_params=Some params;
-    func_has_varargs = has_varargs;
-    func_body=body;
-    func_frame_size=Some size;
-    _
-} ->
-
+and gen_function Function.{ label = label; params = params; frame_size = frame_size; has_varargs = has_varargs; body = body; _ } =
     printf "    .text\n";
     printf "    .globl %s\n" label;
     printf "    .type %s, @function\n" label;
@@ -54,7 +38,7 @@ and gen_decl decl = match decl.exp with
     printf "    mov rbp, rsp\n";
 
     (* ローカル変数領域を確保, rspが8バイト境界になるように切り上げる *)
-    Stack.sub (Misc.round_up size 8);
+    Stack.sub (Misc.round_up frame_size 8);
 
     (* この時点ではスタックはこうなっているはず *)
     (* rsp = rbp - ローカル変数領域のサイズ: ここから先にローカル変数が割り付けられている *)
@@ -70,10 +54,10 @@ and gen_decl decl = match decl.exp with
 
     let copy_param i param =
         match param with
-        | {
+        | Function.{
             param_ty = ty;
             param_name = name;
-            param_entry = Some (LocalVar (_, lvar_offset));
+            param_offset = lvar_offset;
             _
         } ->
             printf "    mov rax, rbp\n";
@@ -98,7 +82,6 @@ and gen_decl decl = match decl.exp with
                 printf "    mov r10, [r10]\n";
                 store ty "[rax]" "r10"
             )
-        | _ -> failwith "?"
     in
     List.iteri copy_param params;
 
@@ -114,10 +97,6 @@ and gen_decl decl = match decl.exp with
     printf "    pop rbp\n";
     printf "    ret\n";
     printf "\n"
-| TypedefDecl _
-| DummyDecl ->
-    ()
-| _ -> failwith("gen_decl: "^(Ast.show_decl decl))
 
 and gen_stmt stmt =
 try Stack.check_no_change @@ fun _ -> gen_stmt' stmt with

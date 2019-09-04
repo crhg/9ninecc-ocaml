@@ -75,10 +75,10 @@ decl:
             func_decl = d;
             func_body = body;
             func_has_varargs = has_varargs;
-            func_ty = None;
-            func_label = None;
-            func_params = None;
-            func_frame_size = None
+            (* func_ty = None; *)
+            (* func_label = None; *)
+            (* func_params = None; *)
+            (* func_frame_size = None *)
         };
         loc = d.loc
     }
@@ -241,7 +241,7 @@ enumarator:
 
 decl_init:
 | decl=declarator init=option(ASSIGN i=init {i}) {
-    { di_decl = decl; di_init = init; di_entry = None; di_init_assign = [] }
+    { di_decl = decl; di_init = init; di_init_assign = [] }
 }
 
 declarator:

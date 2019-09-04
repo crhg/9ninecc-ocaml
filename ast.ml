@@ -3,17 +3,6 @@ type 't node = {
     loc: Lexing.position [@opaque]
 }
 
-and param = {
-    param_ty: Type.t;
-    param_name: string;
-    mutable param_entry: Env.entry option
-    [@priter fun fmt entry -> match entry with
-    | None -> fpriintf fmt "?"
-    | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
-    ];
-    param_loc: Lexing.position [@opaque]
-}
-
 and st_un = {
     su_tag: string option;
     su_fields: (type_spec * declarator) list option
@@ -65,10 +54,6 @@ and function_decl_r =
     func_decl: declarator;
     func_body: stmt;
     func_has_varargs: bool;
-    mutable func_ty: Type.t option;
-    mutable func_label: string option;
-    mutable func_params: param list option;
-    mutable func_frame_size: int option (* ローカル変数領域に必要なサイズ。type_check時に決まる *)
 }
 
 and decl_exp =
@@ -84,11 +69,6 @@ and decl = decl_exp node
 and decl_init = {
     di_decl: declarator;
     di_init: init option;
-    mutable di_entry : Env.entry option (* グローバル変数用。ここからラベルと型を知る *)
-    [@priter fun fmt entry -> match entry with
-    | None -> fpriintf fmt "?"
-    | Some entry -> fprintf fmt "%s" (Env.show_entry entry)
-    ];
     mutable di_init_assign: i_expr list (* ローカル変数用。初期化を行う代入式のリスト。型が決まってから設定 *)
 }
 

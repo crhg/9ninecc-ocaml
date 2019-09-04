@@ -67,7 +67,7 @@ and stmt_exp =
   | TmpVar of string * expr
   | TypedefStmt of type_spec * declarator list
   | Expr of expr_s
-  | Return of expr_s
+  | Return of expr_s option
   | If of expr_s * stmt * stmt option
   | While of expr_s * stmt
   | For of expr_s option * expr_s option * expr_s option * stmt

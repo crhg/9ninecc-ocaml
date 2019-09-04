@@ -127,9 +127,15 @@ match stmt.exp with
     printf "# expr end\n";
     printf "\n"
 | Return expr ->
-    printf "# return start %s\n" (Ast.show_expr_short expr.expr);
-    gen_expr expr;
-    Stack.pop "rax";
+    (match expr with
+    | Some expr ->
+        printf "# return start %s\n" (Ast.show_expr_short expr.expr);
+        gen_expr expr;
+        Stack.pop "rax";
+    | None ->
+        printf "# return start\n";
+        ()
+    );
     printf "    mov rsp, rbp\n";
     printf "    pop rbp\n";
     printf "    ret\n";

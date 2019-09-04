@@ -374,9 +374,9 @@ stmt:
     let es = make_expr_s e in
     { exp = Expr es; loc = e.loc }
 }
-| token=RETURN e=expression SEMI {
+| token=RETURN e=expression? SEMI {
     ignore token;
-    let e = make_expr_s e in
+    let e = Option.map make_expr_s e in
     { exp = Return e; loc = $startpos(token) } }
 | token=IF LPAR e=expression RPAR then_stmt=stmt else_stmt=option(ELSE s=stmt {s}) {
     ignore token;

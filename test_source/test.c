@@ -1532,3 +1532,10 @@ int test184() {
     try_printf("%d-%d-%d", p184->p, p184->q, p184->r);
 }
 // @end
+
+// @try_out test185 foo
+int test185() {
+    try_printf("foo");
+    return;
+}
+// @end

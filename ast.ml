@@ -98,7 +98,7 @@ and stmt_exp =
 | TmpVar of string * expr (* 内部での一時変数導入用, exprの型の値がはいる変数が宣言する *)
 | TypedefStmt of type_spec * declarator list
 | Expr of expr_s
-| Return of expr_s
+| Return of expr_s option
 | If of expr_s * stmt * stmt option
 | While of expr_s * stmt
 | For of expr_s option * expr_s option * expr_s option * stmt

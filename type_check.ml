@@ -164,7 +164,7 @@ and check_stmt stmt = match stmt.exp with
 | Expr expr ->
     convert_and_store expr
 | Return expr ->
-    convert_and_store expr
+    Option.may convert_and_store expr
 | If (expr, then_stmt, else_stmt_opt) ->
     convert_and_store expr;
     check_stmt then_stmt;
@@ -351,19 +351,19 @@ and convert' expr = match expr.exp with
     | BitXor
     | BitOr
     | LShift
-    | RShift
-    | LAnd
-    | LOr ->
+    | RShift ->
         (match (lty, rty) with
         | (Type.Int, Type.Int) ->
             (Type.Int, I_binop(op, l, r))
         | _ ->
-            raise (Misc.Error(Printf.sprintf "cannot %s %s %s" (Ast.show_binop op) (Type.show_type lty) (Type.show_type rty)))
+            raise (Misc.Error_at(Printf.sprintf "cannot %s %s %s" (Ast.show_binop op) (Type.show_type lty) (Type.show_type rty), expr.loc))
         )
     | Eq
     | Ne
     | Lt
-    | Le ->
+    | Le
+    | LAnd
+    | LOr ->
         (Type.Int, I_binop(op, l, r))
     | Comma ->
         (rty, I_binop(Comma, l, r))

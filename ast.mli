@@ -70,6 +70,7 @@ and stmt_exp =
   | Return of expr_s option
   | If of expr_s * stmt * stmt option
   | While of expr_s * stmt
+  | Do of stmt * expr_s
   | For of expr_s option * expr_s option * expr_s option * stmt
   | Switch of expr_s * stmt
   | Break

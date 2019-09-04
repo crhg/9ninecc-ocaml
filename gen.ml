@@ -182,6 +182,23 @@ match stmt.exp with
     ));
     printf "# while end\n";
     printf "\n"
+| Do (stmt, expr) ->
+    printf "# do\n";
+    Env.with_new_break_label (fun break_label ->
+    Env.with_new_continue_label (fun continue_label ->
+    let do_label = Unique_id.new_id ".Ldo" in
+    printf "%s:\n" do_label;
+    gen_stmt stmt;
+    printf "%s:\n" continue_label;
+    gen_expr expr;
+    Stack.pop "rax";
+    printf "    cmp rax, 0\n";
+    printf "    je %s\n" break_label;
+    printf "    jmp %s\n" do_label;
+    printf "%s:\n" break_label
+    ));
+    printf "# do end\n";
+    printf "\n"
 | For (init, cond, next, stmt) ->
     printf "# for\n";
     let begin_label = Unique_id.new_id ".Lbegin" in
@@ -236,6 +253,7 @@ match stmt.exp with
             gen_switch_branch stmt1;
             Option.may gen_switch_branch stmt2
         | While (_, stmt)
+        | Do (stmt, _)
         | For (_, _, _, stmt) ->
             gen_switch_branch stmt
         | Block stmts ->

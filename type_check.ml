@@ -172,6 +172,9 @@ and check_stmt stmt = match stmt.exp with
 | While (expr, stmt) ->
     convert_and_store expr;
     check_stmt stmt
+| Do (stmt, expr) ->
+    check_stmt stmt;
+    convert_and_store expr
 | For (init, cond, next, stmt) ->
     Option.may convert_and_store init;
     Option.may convert_and_store cond;

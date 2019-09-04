@@ -19,7 +19,7 @@
 
 %token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET
 
-%token RETURN IF ELSE WHILE FOR BREAK CONTINUE SWITCH CASE DEFAULT
+%token RETURN IF ELSE WHILE FOR BREAK CONTINUE SWITCH CASE DEFAULT DO
 
 %token SIZEOF
 
@@ -387,6 +387,11 @@ stmt:
     ignore token;
     let e = make_expr_s e in
     { exp = While (e, s); loc = $startpos(token) }
+}
+| token=DO s=stmt WHILE LPAR e=expression RPAR SEMI {
+    ignore token;
+    let e = make_expr_s e in
+    { exp = Do (s, e); loc = $startpos(token) }
 }
 | token=FOR LPAR init=expression? SEMI cond=expression? SEMI next=expression? RPAR s=stmt {
     ignore token;

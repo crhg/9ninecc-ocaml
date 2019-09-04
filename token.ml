@@ -13,6 +13,7 @@ type token =
   | COMMA
   | CONTINUE
   | DEFAULT
+  | DO
   | DOT
   | DOTS
   | DUMMY

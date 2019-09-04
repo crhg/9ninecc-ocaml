@@ -1539,3 +1539,11 @@ int test185() {
     return;
 }
 // @end
+
+// @try_out test186 foo
+int test186() {
+    do {
+        try_printf("foo");
+    } while (0);
+}
+// @end

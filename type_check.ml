@@ -268,16 +268,31 @@ and convert' expr = match expr.exp with
     | _ ->
         raise(Misc.Error_at("not function pointer: "^(Type.show_type ty), func.loc))
     )
-| BlockExpr block ->
-    check_stmt block;
+| BlockExpr ({exp=Block stmts;_} as block) ->
+    (* TODO: 本当はblockの最後に実行した式文の型になりそうだが
+     *       真面目に考えると分岐だのループだので面倒なので
+     *       当面blockの最後が式文ならその型, 式文でなければInt固定とする *)
 
-    (* TODO: 本当はblockの最後に実行した式文の型になりそうだが *)
-    (*       真面目に考えると分岐だのループだので面倒なので当面int固定 *)
-    (Type.Int, I_block block)
+    let rec check stmts = match stmts with
+    | [{exp = Expr e; _}] ->
+        let ty, i_expr = convert e.expr in
+        e.i_expr <- Some i_expr;
+        ty
+    | stmt::stmts ->
+        check_stmt stmt;
+        check stmts
+    | _ ->
+        Type.Int in
+
+    let ty = check stmts in
+    (ty, I_block block)
+| BlockExpr _ ->
+    failwith "BlockExpr?"
 | Addr e ->
     let ty, e = convert_lval e in
     (Ptr ty, e)
 | Deref e ->
+    Printf.fprintf stderr "Deref(lval): %s\n" (show_expr e);
     let ty, e = convert_normalized e in
     (match ty with
     | Type.Ptr t ->
@@ -401,7 +416,7 @@ and convert_lval expr = match expr.exp with
         (ty, e)
     | Type.Ptr t ->
         (t, e)
-    | _ -> raise(Misc.Error_at("not a pointer" ^ (Type.show_type ty), expr.loc))
+    | _ -> raise(Misc.Error_at("not a pointer(lval): " ^ (Type.show_type ty), expr.loc))
     )
 | Arrow (e, f) ->
     let ty, i_e = convert e in

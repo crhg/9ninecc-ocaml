@@ -1568,4 +1568,19 @@ int test188() {
 }
 // @end
 
+// @try_out test189 foo
+int test189() {
+    char src[] = "foo";
+    char dst[sizeof src];
+
+    char *p;
+    char *q;
+
+    p = src;
+    q = dst;
+    while (*q++ = *p++);
+
+    try_printf("%s", dst);
+}
+// @end
 

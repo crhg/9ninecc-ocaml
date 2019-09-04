@@ -1,6 +1,7 @@
 extern int pr_int();
 extern int try_printf();
 extern int vsprintf();
+extern int printf();
 
 // @try_ret test0 0
 int test0() { 0; }
@@ -1581,6 +1582,34 @@ int test189() {
     while (*q++ = *p++);
 
     try_printf("%s", dst);
+}
+// @end
+
+// @try_out test190 foo
+void f190(int n) {
+    for (int i = 0; i < n; i++) {
+        printf("i=%d n=%d i<n=%d n>i=%d\n", i, n, i<n, n>i);
+        try_printf("-%d", i);
+    }
+}
+int test190() {
+    try_printf("foo");
+    f190(-10);
+}
+// @end
+
+// @try_out test191 01111;00111;00011;00001;00000;
+int test191() {
+    for (int i = 0; i <= 4; i++) {
+        for (int j = 0; j <= 4; j++) {
+            int x = i - 2;
+            int y = j - 2;
+            int r;
+            r = x < y;
+            try_printf("%d", r);
+        }
+        try_printf(";");
+    }
 }
 // @end
 

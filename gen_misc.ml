@@ -47,6 +47,8 @@ let load ty dst src = Printf.(match ty with
     printf "    movsx %s, BYTE PTR [%s]\n" dst src
 | Type.Short ->
     printf "    movsx %s, WORD PTR [%s]\n" dst src
+| Type.Int ->
+    printf "    movsx %s, DWORD PTR [%s]\n" dst src
 | _ ->
     printf "    mov %s, %s\n" (select_reg ty dst) src
 )

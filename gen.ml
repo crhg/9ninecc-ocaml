@@ -116,8 +116,10 @@ match stmt.exp with
 | Var { var_decl_inits = decl_inits; _ } ->
     decl_inits |> List.iter (fun decl_init ->
         decl_init.di_init_assign |> List.iter (fun assign ->
+            printf "# Var\n";
             gen_i_expr assign;
-            Stack.pop "rax"
+            Stack.pop "rax";
+            printf "\n"
         )
     )
 | Expr expr ->
@@ -399,7 +401,7 @@ and gen_op op = match op with
     | Lt ->
         printf "    cmp rax, rdi\n";
         printf "    setl al\n";
-        printf "    movzb rax, al\n"
+        printf "    movzx rax, al\n"
     | Le ->
         printf "    cmp rax, rdi\n";
         printf "    setle al\n";

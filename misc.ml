@@ -24,3 +24,10 @@ let rec take n l = match n, l with
     []
 | n, x :: xs ->
     x :: take (n-1) xs
+
+let rec zip x y = match x, y with
+| [], _
+| _, [] ->
+    []
+| x::xs, y::ys ->
+    (x, y) :: zip xs ys

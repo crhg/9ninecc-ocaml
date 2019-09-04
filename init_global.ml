@@ -19,6 +19,8 @@ and init_data ty init =
         init_data_pointer init
     | Array (ty, Some n) ->
         init_data_array ty n init
+    | Struct { body = Some body; _ } -> 
+        init_data_struct body init
     | _ -> raise(Misc.Error_at("cannot initialize type: " ^ (Type.show ty), init.Ast.loc))
 
 and init_data_int ty init =
@@ -65,8 +67,7 @@ and init_data_by_list ty n inits =
 
     (* 初期化リストが足りなければ残りは0で埋める *)
     let n_rest = n - List.length inits in
-    if n_rest > 0 then
-        init_zero (Type.get_size ty * n_rest)
+    init_zero (Type.get_size ty * n_rest)
 
 (* 文字列sを使ってnバイトを初期化する *)
 and init_str n s =
@@ -78,11 +79,24 @@ and init_str n s =
             printf "    .string \"%s\"\n" s;
 
             (* 初期化すべきバイト数の残りの処理 *)
-            let n_rest = n - (l + 1) in
-            if n_rest > 0 then
-                init_zero n_rest
+            init_zero @@ n - (l + 1)
         end
 
 (* nバイトの0で初期化します *)
 and init_zero n =
-    printf "    .zero %d\n" n
+    if n > 0 then
+        printf "    .zero %d\n" n
+
+and init_data_struct { fields = fields; size = size; _ } init =
+    let open Ast in
+    match init.exp with
+    | ListInitializer inits ->
+        let open Type in
+        let init_field offset (init, {field_type = ty; field_offset = field_offset; _}) =
+            init_zero (field_offset - offset);
+            init_data ty init;
+            field_offset + Type.get_size ty in
+        let offset = List.fold_left init_field 0 @@ Misc.zip inits fields in
+        init_zero @@ size - offset
+    | ExprInitializer _ ->
+        raise(Misc.Error_at("cannot initialize struct with scalar", init.loc))

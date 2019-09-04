@@ -1515,3 +1515,11 @@ int test182() {
     try_printf("%s", buf);
 }
 // @end
+
+// @try_out test183 2-3-0
+struct { int p; int q; int r; } x182 = { 2, 3 };
+int test183() {
+
+    try_printf("%d-%d-%d", x182.p, x182.q, x182.r);
+}
+// @end

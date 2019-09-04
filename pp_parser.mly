@@ -14,6 +14,7 @@
 %token <string> ID
 %token <string> NUM
 %token <string> STR
+%token <string> CHAR
 %token <string> PUNCT
 %token <string> WSP
 
@@ -146,6 +147,7 @@ not_sharp:
 | p=PUNCT { Punct p }
 | id=ID { Id id }
 | str=STR { Str str }
+| c=CHAR { Char c }
 | num=NUM { Num num }
 | LPAR { Punct "(" }
 | RPAR { Punct ")" }

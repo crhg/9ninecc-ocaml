@@ -5,6 +5,7 @@ type pp_token =
 | Punct of string
 | Id of string
 | Str of string
+| Char of string
 | Num of string
 | NewLine
 | NewLines of int

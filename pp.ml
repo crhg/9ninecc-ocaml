@@ -51,6 +51,7 @@ and preprocess_with_env ast env =
         | Wsp s
         | Punct s
         | Str s
+        | Char s
         | Num s ->
             out s
         | NewLine ->

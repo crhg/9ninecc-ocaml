@@ -39,6 +39,10 @@
 let space = ['\t' ' ']
 let nl = [ '\n' ]
 
+let octal_digit = ['0' - '7']
+let octal_digit3 = octal_digit octal_digit octal_digit | octal_digit octal_digit | octal_digit
+let hexadecimal_digit = ['0' - '9' 'a' - 'f' 'A' - 'F']
+
 rule token = parse
 | space+ as wsp { WSP wsp }
 | nl     { L.new_line lexbuf; state := BeginOfLine; NL }
@@ -70,6 +74,14 @@ rule token = parse
     B.add_char buf '"';
     other(STR (string_literal buf lexbuf))
 }
+
+| "'" ([' ' - '\x7e'] # [ '\'' '\\']) "'"
+| "'\\" octal_digit3 "'"
+| "'\\x" hexadecimal_digit+ "'"
+| "'\\" [' ' - '\x7e'] "'"  { 
+    other(CHAR (get lexbuf))
+}
+
 | ['\x21'-'\x7e'] { other(PUNCT (get lexbuf)) }
 | eof { EOF }
 

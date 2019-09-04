@@ -2,6 +2,7 @@
 type token = 
   | WSP of (string)
   | STR of (string)
+  | CHAR of (string)
   | SHARP
   | LPAR
   | RPAR

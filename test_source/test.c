@@ -1556,3 +1556,16 @@ int test187() {
 }
 // @end
 
+// @try_out test188 2
+int test188() {
+    int count = 0;
+    char s[] = "hogehoge";
+
+    for (char *p = s; *p; p++)
+        if (*p == 'o') count++;
+
+    try_printf("%d", count);
+}
+// @end
+
+

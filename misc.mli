@@ -7,3 +7,4 @@ val id : 'a -> 'a
 val sum : int list -> int
 val take : int -> 'a list -> 'a list
 val zip : 'a list -> 'b list -> ('a * 'b) list
+val range : int -> int -> int list

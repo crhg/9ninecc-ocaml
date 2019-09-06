@@ -31,3 +31,8 @@ let rec zip x y = match x, y with
     []
 | x::xs, y::ys ->
     (x, y) :: zip xs ys
+
+(* sからeまでのリスト *)
+(* [s;s+1;...;e] *)
+let range s e =
+    List.init (e - s + 1) (fun x -> x + s)

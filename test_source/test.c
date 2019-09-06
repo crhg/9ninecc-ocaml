@@ -1638,3 +1638,27 @@ int test193() {
 
 }
 // @end
+
+// @try_out test194 1-2-0
+int test194() {
+    int a[3] = {1,2};
+
+    try_printf("%d-%d-%d", a[0], a[1], a[2]);
+}
+// @end
+
+// @try_out test195 97-0-0
+int test195() {
+    char s[3] = "a";
+
+    try_printf("%d-%d-%d", s[0], s[1], s[2]);
+}
+// @end
+
+// @try_out test196 1-2-0
+int test196() {
+    struct { int x; int y; int z; } s = { 1, 2 };
+
+    try_printf("%d-%d-%d", s.x, s.y, s.z);
+}
+// @end

@@ -1613,3 +1613,28 @@ int test191() {
 }
 // @end
 
+// @try_out test192 foo
+int f192() {
+    return 0;
+}
+int test192() {
+    int flag = 1;
+
+    if (flag && !f192())
+        try_printf("foo");
+}
+// @end
+
+
+// @try_out test193 100
+int test193() {
+    struct s1 { int x; } s1;
+    struct s2 { struct s1 *s1; } s2;
+
+    s1.x = 100;
+    s2.s1 = &s1;
+
+    try_printf("%d", s2.s1->x);
+
+}
+// @end

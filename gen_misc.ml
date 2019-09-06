@@ -46,11 +46,11 @@ let select_reg ty reg = match (select_size ty, reg) with
 
 let load ty dst src = Printf.(match select_size ty with
 | S8 ->
-    printf "    movsx %s, BYTE PTR [%s]\n" dst src
+    printf "    movsx %s, BYTE PTR %s\n" dst src
 | S16 ->
-    printf "    movsx %s, WORD PTR [%s]\n" dst src
+    printf "    movsx %s, WORD PTR %s\n" dst src
 | S32 ->
-    printf "    movsxd %s, DWORD PTR [%s]\n" dst src
+    printf "    movsxd %s, DWORD PTR %s\n" dst src
 | S64 ->
     printf "    mov %s, %s\n" (select_reg ty dst) src
 )

@@ -34,11 +34,6 @@
 
 %token EOF
 
-%nonassoc IF
-
-%nonassoc COMPOUND_LITERAL
-%nonassoc CAST
-
 %type <Ast.decl list> translation_unit
 %type <Ast.expr> expr_eof
 
@@ -491,7 +486,7 @@ postfix_expression:
         }
     )
 }
-| LPAR tn=type_name RPAR l=list_initializer %prec COMPOUND_LITERAL {
+| LPAR tn=type_name RPAR l=list_initializer {
     {
         exp = CompoundLiteral (tn, l);
         loc = l.loc
@@ -541,7 +536,7 @@ unary_expression:
 
 cast_expression:
 | e=unary_expression { e }
-| token=LPAR t=type_name RPAR e=cast_expression %prec CAST { ignore token; { exp = Cast(t, e); loc=$startpos(token) } }
+| token=LPAR t=type_name RPAR e=cast_expression { ignore token; { exp = Cast(t, e); loc=$startpos(token) } }
 
 multiplicative_expression:
 | e=cast_expression { e }

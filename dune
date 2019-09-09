@@ -1,6 +1,6 @@
 (executables
   (names main)
-  (libraries str)
+  (libraries str menhirLib)
   (preprocess (pps ppx_deriving.show))
   )
 
@@ -11,12 +11,19 @@
 (ocamllex lexer pp_lexer)
 
 (menhir
-  (flags (--external-tokens Token))
+  (flags
+      (--external-tokens Token)
+      (--table))
   (modules parser))
 
 (menhir
   (flags (--external-tokens Pp_token))
   (modules pp_parser))
+
+(rule
+  (targets parser_messages.ml)
+  (deps parser.messages parser.mly)
+  (action (with-stdout-to %{targets} (run menhir --compile-errors %{deps}))))
 
 (env
  (dev

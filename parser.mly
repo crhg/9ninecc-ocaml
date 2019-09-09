@@ -161,14 +161,6 @@ function_decl_tail:
       l
 }
 
-typedef:
-| token=TYPEDEF ts=type_spec decl=declarator SEMI {
-    ignore token;
-    let _, name = Type_check.type_and_var_ty Type.Int decl in
-    Typedef_env.add name;
-    (ts, decl, $startpos(token))
-}
-
 type_spec:
 | token=VOID  { ignore token; { exp = Ast.Void;  loc = $startpos(token) } }
 | token=LONG  { ignore token; { exp = Ast.Long;  loc = $startpos(token) } }

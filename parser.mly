@@ -321,17 +321,6 @@ label:
     (Default, label, $startpos(token))
 }
 
-label_empty:
-| label = label {
-    let kind, label, loc = label in
-    let empty = { exp = Empty; loc = loc } in
-    { exp = LabeledStmt(kind, label, empty); loc = loc }
-}
-| label=label stmt=label_empty {
-    let kind, label, loc = label in
-    { exp = LabeledStmt(kind, label, stmt); loc = loc }
-}
-
 stmt:
 | label=label stmt=stmt {
     let (kind, label, loc) = label in

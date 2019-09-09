@@ -3,6 +3,17 @@ extern int try_printf();
 extern int vsprintf();
 extern int printf();
 
+typedef struct {
+  int gp_offset;
+  int fp_offset;
+  void *overflow_arg_area;
+  void *reg_save_area;
+} __va_elem;
+
+typedef __va_elem va_list[1];
+
+#define va_start(ap) __builtin_va_start(ap)
+
 // @try_ret test0 0
 int test0() { 0; }
 // @end
@@ -1662,3 +1673,25 @@ int test196() {
     try_printf("%d-%d-%d", s.x, s.y, s.z);
 }
 // @end
+
+// @try_out test197 8,0,16,-56
+void f197(char *format, ...) {
+    void *rbp = (void*)&format + 72;
+
+    va_list ap;
+    va_start(ap);
+
+    try_printf("%d,%d,%ld,%ld", 
+            ap[0].gp_offset,
+            ap[0].fp_offset,
+            (long)((void*)ap[0].overflow_arg_area - rbp),
+            (long)((void*)ap[0].reg_save_area - rbp)
+            );
+}
+
+
+int test197() {
+    f197("foo", 10, 20, 30, 40, 50, 60, 70);
+}
+// @end
+

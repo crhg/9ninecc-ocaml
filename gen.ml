@@ -60,6 +60,7 @@ and gen_function Function.{ label = label; params = params; frame_size = frame_s
             param_offset = lvar_offset;
             _
         } ->
+            printf "# copy param %d\n" i;
             printf "    mov rax, rbp\n";
             printf "    sub rax, %d\n" lvar_offset;
             Gen_misc.(match i with

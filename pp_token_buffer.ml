@@ -1,5 +1,7 @@
 (* token buffer といいながら各種 # xx の処理もほぼここでやっている *)
 
+open Extension
+
 let rec token buf =
     let open Pp_token_buffer_data in
     match buf with
@@ -60,7 +62,7 @@ and do_if conds buf =
         )
 
 and line_count_of_groups gs =
-    Misc.sum @@ List.map line_count_of_group gs
+    List.sum @@ List.map line_count_of_group gs
 
 and line_count_of_group g = match g with
 | Pp_ast.If conds -> line_count_of_conds conds
@@ -70,7 +72,7 @@ and line_count_of_conds conds =
     let line_count_of_cond cond = line_count_of_groups cond.Pp_ast.cond_groups in
     1 (* #endifの分 *)
     + List.length conds (* #if, #elif, #elseの分 *)
-    + Misc.sum (List.map line_count_of_cond conds) (* その他の行 *)
+    + List.sum (List.map line_count_of_cond conds) (* その他の行 *)
 
 and find_include_file filename from_current =
     if filename.[0] = '/' then

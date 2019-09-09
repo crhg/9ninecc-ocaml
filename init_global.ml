@@ -65,7 +65,7 @@ and init_data_array ty n init =
     | _ -> raise(Misc.Error_at("cannot initialize", init.loc))
 
 and init_data_by_list ty n inits = 
-    List.iter (init_data ty) @@ Misc.take n inits;
+    List.iter (init_data ty) @@ List.take n inits;
 
     (* 初期化リストが足りなければ残りは0で埋める *)
     let n_rest = n - List.length inits in
@@ -98,7 +98,7 @@ and init_data_struct { fields = fields; size = size; _ } init =
             init_zero (field_offset - offset);
             init_data ty init;
             field_offset + Type.get_size ty in
-        let offset = List.fold_left init_field 0 @@ Misc.zip inits fields in
+        let offset = List.fold_left init_field 0 @@ List.zip inits fields in
         init_zero @@ size - offset
     | ExprInitializer _ ->
         raise(Misc.Error_at("cannot initialize struct with scalar", init.loc))

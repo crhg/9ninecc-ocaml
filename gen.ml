@@ -307,7 +307,7 @@ and gen_i_expr' i_expr = match i_expr with
         let stack_param_size = n_stack * 8 in
         let pop_register_params n =
             let regs = ["rdi";"rsi";"rdx";"rcx";"r8";"r9"] in
-            Misc.take n regs |> List.iter Stack.pop in
+            List.take n regs |> List.iter Stack.pop in
         Stack.with_adjust stack_param_size (fun _ ->
             List.rev i_expr_list |> List.iter gen_i_expr;
             prepare();

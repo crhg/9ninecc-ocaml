@@ -1,5 +1,7 @@
 (* ローカル変数の初期化のために代入式のリストを作る *)
 
+open Extension
+
 let rec to_assign ty lhs init =
     match ty with
     | Type.Char
@@ -36,7 +38,7 @@ and to_assign_array ty lhs init = Ast.(match ty, init.exp with
 (* XXX: とりあえず1文字ずつの文字コードの代入文列に変換 *)
 and to_assign_char_array_by_string lhs size s s_loc =
     let l = String.length s in
-    Misc.range 0 (size - 1) |> List.map (fun i ->
+    List.range 0 (size - 1) |> List.map (fun i ->
         let lhs_at_i = make_array_at lhs i in
         let c = if i < l then Char.code s.[i] else 0 in
         let rhs = make_num c s_loc in
@@ -44,7 +46,7 @@ and to_assign_char_array_by_string lhs size s s_loc =
     )
 
 and to_assign_array_by_list ty lhs size l =
-    Misc.range 0 (size - 1) |> List.map (fun i ->
+    List.range 0 (size - 1) |> List.map (fun i ->
         to_assign_opt ty (make_array_at lhs i) (List.nth_opt l i)
     ) 
     |> List.concat
@@ -79,7 +81,7 @@ and to_assign_default_scalar lhs =
     make_assign lhs @@ make_num 0 lhs.loc
 
 and to_assign_default_array ty lhs size = 
-    Misc.range 0 (size - 1)
+    List.range 0 (size - 1)
         |> List.map @@ (fun i -> to_assign_default ty @@ make_array_at lhs i)
         |> List.concat
 

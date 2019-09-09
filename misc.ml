@@ -14,25 +14,3 @@ let compose f g x = f (g x)
 (* 恒等関数 *)
 let id x = x
 
-(* 総和 *)
-let sum = List.fold_left (+) 0
-
-(* listの先頭n要素のリスト *)
-let rec take n l = match n, l with
-| 0, _
-| _, [] ->
-    []
-| n, x :: xs ->
-    x :: take (n-1) xs
-
-let rec zip x y = match x, y with
-| [], _
-| _, [] ->
-    []
-| x::xs, y::ys ->
-    (x, y) :: zip xs ys
-
-(* sからeまでのリスト *)
-(* [s;s+1;...;e] *)
-let range s e =
-    List.init (e - s + 1) (fun x -> x + s)

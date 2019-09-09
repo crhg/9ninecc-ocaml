@@ -129,14 +129,6 @@ storage_class_spec:
 | token=EXTERN { ignore token; { exp = Extern; loc = $startpos(token) } }
 | token=STATIC { ignore token; { exp = Static; loc = $startpos(token) } }
 
-decl_type_spec:
-| ts = type_spec {
-    (* Printf.fprintf stderr "function_type_spec\n"; *)
-    Typedef_env.new_scope();
-    ts
-}
-
-(*  *)
 function_decl_head:
 | ds=decl_spec d=declarator token=LBRACE {
     ignore token;

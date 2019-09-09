@@ -1,5 +1,7 @@
 (* 読み込んだソースコードを管理する *)
 
+open Extension
+
 module StringMap = Map.Make(String)
 
 let contents_map = ref StringMap.empty

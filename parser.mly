@@ -1,5 +1,6 @@
 %{
     open Ast
+    open Extension
 %}
 
 %token PLUS MINUS AST SLASH MOD AMP XOR OR LAND LOR LSHIFT RSHIFT NOT TILDA

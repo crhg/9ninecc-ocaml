@@ -3,7 +3,9 @@
 (* - 変数宣言をみて変数に型を付ける *)
 (*    - 配列のサイズが省略されていたら決定する *)
 (* - 式に型を付ける *)
+
 open Ast
+open Extension
 
 let rec check decl_list =
     List.iter check_decl decl_list

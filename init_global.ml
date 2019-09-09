@@ -1,3 +1,5 @@
+open Extension
+
 let printf = Printf.printf
 
 let rec gen ty label init =

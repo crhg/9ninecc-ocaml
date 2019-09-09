@@ -1,4 +1,5 @@
 open Ast
+open Extension
 
 let printf = Printf.printf
 

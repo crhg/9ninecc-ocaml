@@ -13,4 +13,3 @@ let compose f g x = f (g x)
 
 (* 恒等関数 *)
 let id x = x
-

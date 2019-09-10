@@ -7,9 +7,9 @@ let get_parse_error env =
         try (Parser_messages.message (I.number state)) with
         | Not_found -> "invalid syntax (no message)"
 
-let translation_unit lexer lexbuf =
+let parse start lexer lexbuf =
     let open Lexing in
-    let checkpoint = Parser.Incremental.translation_unit lexbuf.lex_curr_p in
+    let checkpoint = start lexbuf.lex_curr_p in
     let rec parse lexbuf checkpoint =
         match checkpoint with
         | I.InputNeeded _env ->

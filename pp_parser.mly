@@ -5,6 +5,7 @@
 %token SHARP
 %token SHARP_DEFINE SHARP_INCLUDE
 %token SHARP_IF SHARP_IFDEF SHARP_IFNDEF SHARP_ELIF SHARP_ELSE SHARP_ENDIF
+%token DEFINE INCLUDE IF IFDEF IFNDEF ELIF ELSE ENDIF
 %token <Pp_token.token> SHARP_NON_DIRECTIVE
 
 %token LPAR RPAR COMMA
@@ -21,8 +22,10 @@
 %token EOF
 
 %type <Pp_ast.group_part list> preprocessing_file
+%type <unit> dummy
 
 %start preprocessing_file
+%start dummy
 
 %%
 
@@ -155,3 +158,6 @@ not_sharp:
 
 wsp:
 | wsp=WSP { Wsp wsp }
+
+dummy:
+|DEFINE|INCLUDE|IF|IFDEF|IFNDEF|ELIF|ELSE|ENDIF {()}

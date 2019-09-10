@@ -11,7 +11,7 @@ let rec ast_of filename contents =
         (* Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t); *)
         t in
 
-    let ast = try Pp_parser.preprocessing_file token lexbuf with
+    let ast = try (Pp_parse.parse Pp_parser.Incremental.preprocessing_file) token lexbuf with
         | e ->
             let pos = lexbuf.lex_curr_p in
             Printf.fprintf stderr "%s:error\n" @@ Source.show_pos pos;

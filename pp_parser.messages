@@ -1,0 +1,484 @@
+preprocessing_file: LINE SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 57.
+##
+## line -> LINE . wsp_or_pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## LINE
+##
+
+0
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: LINE STR SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 63.
+##
+## wsp_or_pp_tokens -> pp_token . wsp_or_pp_tokens [ NL ]
+##
+## The known suffix of the stack is as follows:
+## pp_token
+##
+
+1
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: LINE WSP SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 61.
+##
+## wsp_or_pp_tokens -> wsp . wsp_or_pp_tokens [ NL ]
+##
+## The known suffix of the stack is as follows:
+## wsp
+##
+
+2
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID LPAR ID COMMA STR
+##
+## Ends in an error in state: 42.
+##
+## separated_nonempty_list(COMMA,__anonymous_0) -> param COMMA . separated_nonempty_list(COMMA,__anonymous_0) [ RPAR ]
+##
+## The known suffix of the stack is as follows:
+## param COMMA
+##
+
+3
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID LPAR ID STR
+##
+## Ends in an error in state: 45.
+##
+## param -> list(WSP) ID . list(WSP) [ RPAR COMMA ]
+##
+## The known suffix of the stack is as follows:
+## list(WSP) ID
+##
+
+4
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID LPAR ID WSP STR
+##
+## Ends in an error in state: 41.
+##
+## separated_nonempty_list(COMMA,__anonymous_0) -> param . [ RPAR ]
+## separated_nonempty_list(COMMA,__anonymous_0) -> param . COMMA separated_nonempty_list(COMMA,__anonymous_0) [ RPAR ]
+##
+## The known suffix of the stack is as follows:
+## param
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 21, spurious reduction of production list(WSP) -> 
+## In state 22, spurious reduction of production list(WSP) -> WSP list(WSP) 
+## In state 46, spurious reduction of production param -> list(WSP) ID list(WSP) 
+##
+
+5
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID LPAR RPAR SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 48.
+##
+## define_function -> SHARP_DEFINE ID LPAR loption(separated_nonempty_list(COMMA,__anonymous_0)) RPAR . list(WSP) pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_DEFINE ID LPAR loption(separated_nonempty_list(COMMA,__anonymous_0)) RPAR
+##
+
+6
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID LPAR STR
+##
+## Ends in an error in state: 39.
+##
+## define_function -> SHARP_DEFINE ID LPAR . loption(separated_nonempty_list(COMMA,__anonymous_0)) RPAR list(WSP) pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_DEFINE ID LPAR
+##
+
+7
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID LPAR WSP COMMA
+##
+## Ends in an error in state: 44.
+##
+## param -> list(WSP) . ID list(WSP) [ RPAR COMMA ]
+##
+## The known suffix of the stack is as follows:
+## list(WSP)
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 21, spurious reduction of production list(WSP) -> 
+## In state 22, spurious reduction of production list(WSP) -> WSP list(WSP) 
+##
+
+8
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID STR
+##
+## Ends in an error in state: 36.
+##
+## define_function -> SHARP_DEFINE ID . LPAR loption(separated_nonempty_list(COMMA,__anonymous_0)) RPAR list(WSP) pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+## define_object -> SHARP_DEFINE ID . nonempty_list(WSP) pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+## define_object -> SHARP_DEFINE ID . list(WSP) NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_DEFINE ID
+##
+
+9
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE ID WSP SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 37.
+##
+## list(WSP) -> WSP . list(WSP) [ NL ]
+## nonempty_list(WSP) -> WSP . [ STR SHARP RPAR PUNCT NUM NL LPAR ID COMMA CHAR ]
+## nonempty_list(WSP) -> WSP . nonempty_list(WSP) [ STR SHARP RPAR PUNCT NUM NL LPAR ID COMMA CHAR ]
+##
+## The known suffix of the stack is as follows:
+## WSP
+##
+
+10
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_DEFINE WSP
+##
+## Ends in an error in state: 35.
+##
+## define_function -> SHARP_DEFINE . ID LPAR loption(separated_nonempty_list(COMMA,__anonymous_0)) RPAR list(WSP) pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+## define_object -> SHARP_DEFINE . ID nonempty_list(WSP) pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+## define_object -> SHARP_DEFINE . ID list(WSP) NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_DEFINE
+##
+
+11
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL SHARP_ELIF NL WSP
+##
+## Ends in an error in state: 96.
+##
+## elif_part -> elif_line . group_parts elif_part [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## elif_line
+##
+
+12
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL SHARP_ELIF WSP
+##
+## Ends in an error in state: 82.
+##
+## elif_line -> SHARP_ELIF . pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_ELIF
+##
+
+13
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL SHARP_ELSE NL SHARP_NON_DIRECTIVE NL SHARP_ELSE
+##
+## Ends in an error in state: 89.
+##
+## else_part -> else_line group_parts . endif_part [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## else_line group_parts
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 91, spurious reduction of production group_parts -> 
+## In state 92, spurious reduction of production group_parts -> group_part group_parts 
+##
+
+14
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL SHARP_ELSE NL WSP
+##
+## Ends in an error in state: 88.
+##
+## else_part -> else_line . group_parts endif_part [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## else_line
+##
+
+15
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL SHARP_ELSE WSP
+##
+## Ends in an error in state: 80.
+##
+## else_line -> SHARP_ELSE . NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_DEFINE LINE ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_ELSE
+##
+
+16
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL SHARP_ENDIF WSP
+##
+## Ends in an error in state: 78.
+##
+## endif_line -> SHARP_ENDIF . NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_ENDIF
+##
+
+17
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL SHARP_NON_DIRECTIVE NL WSP
+##
+## Ends in an error in state: 91.
+##
+## group_parts -> group_part . group_parts [ SHARP_ENDIF SHARP_ELSE SHARP_ELIF ]
+##
+## The known suffix of the stack is as follows:
+## group_part
+##
+
+18
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF NL WSP
+##
+## Ends in an error in state: 76.
+##
+## if_part -> if_line . group_parts elif_part [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## if_line
+##
+
+19
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IF WSP
+##
+## Ends in an error in state: 32.
+##
+## if_line -> SHARP_IF . pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_IF
+##
+
+20
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IFDEF ID NL WSP
+##
+## Ends in an error in state: 74.
+##
+## ifdef_part -> ifdef_line . group_parts elif_part [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## ifdef_line
+##
+
+21
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IFDEF ID WSP
+##
+## Ends in an error in state: 30.
+##
+## ifdef_line -> SHARP_IFDEF ID . NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_IFDEF ID
+##
+
+22
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IFDEF WSP
+##
+## Ends in an error in state: 29.
+##
+## ifdef_line -> SHARP_IFDEF . ID NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_IFDEF
+##
+
+23
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IFNDEF ID NL WSP
+##
+## Ends in an error in state: 72.
+##
+## ifndef_part -> ifndef_line . group_parts elif_part [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## ifndef_line
+##
+
+24
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IFNDEF ID WSP
+##
+## Ends in an error in state: 27.
+##
+## ifndef_line -> SHARP_IFNDEF ID . NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_IFNDEF ID
+##
+
+25
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_IFNDEF WSP
+##
+## Ends in an error in state: 26.
+##
+## ifndef_line -> SHARP_IFNDEF . ID NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_IFNDEF
+##
+
+26
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_INCLUDE SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 20.
+##
+## include_file -> SHARP_INCLUDE . list(WSP) pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_INCLUDE
+##
+
+27
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_INCLUDE WSP SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 21.
+##
+## list(WSP) -> WSP . list(WSP) [ STR SHARP RPAR PUNCT NUM NL LPAR ID COMMA CHAR ]
+##
+## The known suffix of the stack is as follows:
+## WSP
+##
+
+28
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_NON_DIRECTIVE NL WSP
+##
+## Ends in an error in state: 103.
+##
+## list(group_part) -> group_part . list(group_part) [ EOF ]
+##
+## The known suffix of the stack is as follows:
+## group_part
+##
+
+29
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_NON_DIRECTIVE STR SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 13.
+##
+## pp_tokens -> pp_token . pp_tokens_rest [ NL ]
+##
+## The known suffix of the stack is as follows:
+## pp_token
+##
+
+30
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_NON_DIRECTIVE STR STR SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 16.
+##
+## pp_tokens_rest -> pp_token . pp_tokens_rest [ NL ]
+##
+## The known suffix of the stack is as follows:
+## pp_token
+##
+
+31
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_NON_DIRECTIVE STR WSP SHARP_NON_DIRECTIVE
+##
+## Ends in an error in state: 14.
+##
+## pp_tokens_rest -> WSP . pp_tokens_rest [ NL ]
+##
+## The known suffix of the stack is as follows:
+## WSP
+##
+
+32
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: SHARP_NON_DIRECTIVE WSP
+##
+## Ends in an error in state: 1.
+##
+## non_directive -> SHARP_NON_DIRECTIVE . pp_tokens NL [ SHARP_NON_DIRECTIVE SHARP_INCLUDE SHARP_IFNDEF SHARP_IFDEF SHARP_IF SHARP_ENDIF SHARP_ELSE SHARP_ELIF SHARP_DEFINE LINE EOF ]
+##
+## The known suffix of the stack is as follows:
+## SHARP_NON_DIRECTIVE
+##
+
+33
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+preprocessing_file: WSP
+##
+## Ends in an error in state: 0.
+##
+## preprocessing_file' -> . preprocessing_file [ # ]
+##
+## The known suffix of the stack is as follows:
+##
+##
+
+34
+<YOUR SYNTAX ERROR MESSAGE HERE>
+

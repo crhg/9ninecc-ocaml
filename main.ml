@@ -3,7 +3,7 @@ let preprocess filename source =
         let t = Pp_lex.token lexbuf in
         (* Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t); *)
         t in
-    Compiler.process filename source Pp_parser.preprocessing_file token (fun ast ->
+    Compiler.process filename source (Pp_parse.parse Pp_parser.Incremental.preprocessing_file) token (fun ast ->
         Pp.preprocess ast
     )
 

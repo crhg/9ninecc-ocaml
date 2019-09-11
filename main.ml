@@ -1,11 +1,12 @@
-let preprocess filename source =
-    let token lexbuf =
-        let t = Pp_lex.token lexbuf in
-        (* Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t); *)
-        t in
-    Compiler.process filename source (Pp_parse.parse Pp_parser.Incremental.preprocessing_file) token (fun ast ->
-        Pp.preprocess ast
-    )
+(* let preprocess filename source = *)
+(*     let token lexbuf = *)
+(*         let t = Pp_lex.token lexbuf in *)
+(*         (* Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t); *) *)
+(*         t in *)
+(*     Compiler.process filename source (Pp_parse.parse Pp_parser.Incremental.preprocessing_file) token (fun ast -> *)
+(*         let pp_ast = Pp.ast_of filename source in *)
+(*         Pp.preprocess pp_ast *)
+(*     ) *)
 
 let compile filename source =
     Compiler.process filename source (Parse.parse Parser.Incremental.translation_unit) Lex.token (fun ast ->
@@ -17,8 +18,7 @@ let compile filename source =
 let preprocess_only = ref false
 
 let compile_source filename source =
-    let pp_ast = Pp.ast_of filename source in
-    let preprocessed_source = Pp.preprocess pp_ast in
+    let preprocessed_source = Pp.preprocess filename source in
     if !preprocess_only then
         Printf.printf "%s" preprocessed_source
     else 

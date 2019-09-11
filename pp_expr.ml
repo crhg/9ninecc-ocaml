@@ -18,7 +18,7 @@ let rec eval expr buf =
 and remove_white_space tokens = 
     tokens |> List.filter_map (fun token ->
         match token with
-        | Pp_ast.Wsp _ -> None
+        | Pp_ast.{exp=Wsp _;_} -> None
         | _ -> Some token
     )
 
@@ -26,9 +26,9 @@ and eval_defined expr env =
     let open Pp_ast in
     match expr with
     | [] -> []
-    | Id "defined" :: Id id :: rest
-    | Id "defined" :: Punct "(" :: Id id :: Punct ")" :: rest ->
-        (if Pp_env.mem id env then Num "1" else Num "0") :: eval_defined rest env
+    | {exp=Id "defined";loc=loc} :: {exp=Id id;_} :: rest
+    | {exp=Id "defined";loc=loc} :: {exp=Punct "(";_} :: {exp=Id id;_} :: {exp=Punct ")";_} :: rest ->
+            (if Pp_env.mem id env then {exp=Num "1";loc=loc} else {exp=Num "0";loc=loc}) :: eval_defined rest env
     | token :: rest ->
         token :: eval_defined rest env
 

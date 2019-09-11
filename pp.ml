@@ -1,8 +1,24 @@
 module StringMap = Map.Make(String)
 
-let rec ast_of filename contents =
-    let lexbuf = Lexing.from_string contents in
+let fprintf = Printf.fprintf
 
+let rec preprocess filename contents =
+    try
+        let ast = ast_of filename contents in
+        let env = Pp_env.make() in
+        preprocess_with_env ast env
+    with
+    | Misc.Error_at (message, pos) ->
+        fprintf stderr "%s:%s\n" (Source.show_pos pos) message;
+        fprintf stderr "%s\n" (Source.line_at pos);
+        fprintf stderr "%s\n" (Source.marker_of pos);
+        exit(-1)
+    | Misc.Error (message) ->
+        fprintf stderr "%s\n" message;
+        exit(-1)
+
+and ast_of filename contents =
+    let lexbuf = Lexing.from_string contents in
     lexbuf.lex_curr_p <- { lexbuf.lex_curr_p with pos_fname = filename };
 
     (* デバッグ用 *)
@@ -11,21 +27,9 @@ let rec ast_of filename contents =
         (* Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t); *)
         t in
 
-    let ast = try (Pp_parse.parse Pp_parser.Incremental.preprocessing_file) token lexbuf with
-        | e ->
-            let pos = lexbuf.lex_curr_p in
-            Printf.fprintf stderr "%s:error\n" @@ Source.show_pos pos;
-            Printf.fprintf stderr "%s\n" @@ Source.line_at pos;
-            Printf.fprintf stderr "%s\n" @@ Source.marker_of pos;
-
-            raise e in
-    let line_marker = Pp_ast.(Line [LineMarker(1, filename, None)]) in
+    let ast = (Pp_parse.parse Pp_parser.Incremental.preprocessing_file) token lexbuf in
+    let line_marker = Pp_ast.(Line [{exp=LineMarker(1, filename, None); loc=Lexing.dummy_pos}]) in
     line_marker :: ast
-
-
-and preprocess ast =
-    let env = Pp_env.make() in
-    preprocess_with_env ast env
 
 and preprocess_with_env ast env =
     let buffer = Buffer.create 1000 in
@@ -42,12 +46,12 @@ and preprocess_with_env ast env =
 
     let rec process _ =
         match token() with
-        | Pp_ast.Eof -> Buffer.contents buffer
+        | {exp=Pp_ast.Eof;_} -> Buffer.contents buffer
         | t -> process_token t; process()
 
     and process_token pp_token =
         let open Pp_ast in
-        match pp_token with
+        match pp_token.exp with
         | Wsp s
         | Punct s
         | Str s
@@ -86,27 +90,29 @@ and preprocess_with_env ast env =
     and expand_function params tokens =
         let param_map = make_param_map params in
 
-        let expand_param token = match token with
-        | Pp_ast.Id name when StringMap.mem name param_map ->
-            StringMap.find name param_map
-        | _ -> [token] in
+        let open Pp_ast in
+        let expand_param token = match token.exp with
+            | Id name when StringMap.mem name param_map ->
+                StringMap.find name param_map
+            | _ -> [token] in
 
         List.concat @@ List.map expand_param tokens
 
     and make_param_map params =
         let open Pp_ast in
-        check_token (Punct "(");
-        Pp_token_buffer.back_token (Punct ",") token_buffer;
+        let {loc=loc;_} = check_token (Punct "(") in
+        (* "("を","に置き換えて残りの処理 *)
+        Pp_token_buffer.back_token {exp=Punct ",";loc=loc} token_buffer;
         make_param_map_rest params
 
     and make_param_map_rest params =
         let open Pp_ast in
         match params with
         | [] -> 
-            check_token (Punct ")");
+            ignore @@ check_token (Punct ")");
             StringMap.empty
         | p::rest ->
-            check_token (Punct ",");
+            ignore @@ check_token (Punct ",");
             let tokens = get_param () in
             let map = make_param_map_rest rest in
             StringMap.add p tokens map
@@ -114,7 +120,7 @@ and preprocess_with_env ast env =
     and get_param _ =
         let open Pp_ast in
         let token = Pp_token_buffer.token token_buffer in
-        match token with
+        match token.exp with
         | Eof -> failwith "unexpected eof"
         | Punct ")"
         | Punct "," ->
@@ -130,24 +136,29 @@ and preprocess_with_env ast env =
     and get_paren_rest _ =
         let open Pp_ast in
         let token = Pp_token_buffer.token token_buffer in
-        match token with
+        match token.exp with
         | Eof -> failwith "unexpected eof"
         | Punct ")" -> [token]
         | Punct "(" -> token :: (get_paren_rest() @ get_paren_rest())
         | _ -> token :: get_paren_rest()
 
-    and check_token token = 
-        if skip_sp() <> token then
-            failwith ("not found: " ^ (Pp_ast.show_pp_token token))
+    and check_token expected = 
+        let open Pp_ast in
+        let actual = skip_sp() in
+        if actual.exp = expected then
+            actual
+        else
+            raise(Misc.Error_at("not found: " ^ (Pp_ast.show_pp_token_exp expected), actual.loc))
 
     and skip_sp _ =
-        match Pp_token_buffer.token token_buffer with
+        let open Pp_ast in
+        let token = Pp_token_buffer.token token_buffer in
+        match token.exp with
         | Eof -> failwith "unexpected eof"
         | Wsp _
         | NewLine ->
             skip_sp()
-        | token -> token
-
+        | _ -> token
     in
 
     Pp_token_buffer.push_group_parts ast token_buffer;

@@ -33,7 +33,7 @@ let contents filename =
 let line filename lno =
     let s = contents filename in
     let s = s ^ "<<<EOF>>>\n" in
-    Printf.fprintf stderr "line %d\n---\n%s---\n\n" lno s;
+    (* Printf.fprintf stderr "line %d\n---\n%s---\n\n" lno s; *)
     let open String in
     let rec find_line lno pos =
         if lno = 1 then sub s pos (index_from s pos '\n' - pos)

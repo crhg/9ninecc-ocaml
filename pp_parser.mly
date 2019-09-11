@@ -88,16 +88,34 @@ if_line:
 | SHARP_IF l=pp_tokens NL { l }
 
 ifdef_line:
-| SHARP_IFDEF id=ID NL { [Punct "("; Id "defined"; Id id; Punct ")"] }
+| token=SHARP_IFDEF id=ID NL {
+    ignore token;
+    [
+        { exp=Punct "("; loc=$startpos(token) };
+        { exp=Id "defined"; loc=$startpos(token) };
+        { exp=Id id; loc=$startpos(id) };
+        { exp=Punct ")"; loc=$startpos(token) }
+    ] 
+}
 
 ifndef_line:
-| SHARP_IFNDEF id=ID NL { [Punct "("; Num "0"; Punct "=="; Id "defined"; Id id; Punct ")"] }
+| token=SHARP_IFNDEF id=ID NL {
+    ignore token;
+    [
+        { exp=Punct "("; loc=$startpos(token) };
+        { exp=Num "0"; loc=$startpos(token) };
+        { exp=Punct "=="; loc=$startpos(token) };
+        { exp=Id "defined"; loc=$startpos(token) };
+        { exp=Id id; loc=$startpos(id) };
+        { exp=Punct ")"; loc=$startpos(token) }
+    ]
+}
 
 elif_line:
 | SHARP_ELIF l=pp_tokens NL { l }
 
 else_line:
-| SHARP_ELSE NL { [Num "1"] }
+| token=SHARP_ELSE NL { ignore token; [{exp=Num "1"; loc=$startpos(token)}] }
 
 endif_line:
 | SHARP_ENDIF NL {
@@ -116,14 +134,14 @@ define_function:
 include_file:
 | token=SHARP_INCLUDE WSP* l=pp_tokens NL {
     ignore token;
-    Include { pp_tokens = l; loc = $startpos(token)}
+    Include { include_pp_tokens = l; include_loc = $startpos(token)}
 }
 
 non_directive:
 | SHARP_NON_DIRECTIVE l=pp_tokens NL { NonDirective(l) }
 
 line:
-| LINE l=wsp_or_pp_tokens NL { Line(l @ [NewLine]) }
+| LINE l=wsp_or_pp_tokens nl=NL { ignore nl; Line(l @ [{exp=NewLine;loc=$startpos(nl)}]) }
 
 param:
 | WSP* id=ID WSP* { id }
@@ -139,25 +157,25 @@ pp_tokens:
 
 pp_tokens_rest:
 | { [] }
-| wsp=WSP l=pp_tokens_rest { (Wsp wsp)::l }
+| wsp=WSP l=pp_tokens_rest { ({ exp=Wsp wsp; loc=$startpos(wsp)})::l }
 | t=pp_token l=pp_tokens_rest { t::l }
 
 pp_token:
 | t=not_sharp { t }
-| SHARP { Punct "#" }
+| token=SHARP { ignore token; { exp=Punct "#"; loc=$startpos(token) } }
 
 not_sharp:
-| p=PUNCT { Punct p }
-| id=ID { Id id }
-| str=STR { Str str }
-| c=CHAR { Char c }
-| num=NUM { Num num }
-| LPAR { Punct "(" }
-| RPAR { Punct ")" }
-| COMMA { Punct "," }
+| p=PUNCT { { exp=Punct p; loc=$startpos(p) } }
+| id=ID { { exp=Id id; loc=$startpos(id) } }
+| str=STR { { exp=Str str; loc=$startpos(str) } }
+| c=CHAR { { exp=Char c; loc=$startpos(c) } }
+| num=NUM { { exp=Num num; loc=$startpos(num) } }
+| token=LPAR { ignore token; { exp=Punct "("; loc=$startpos(token) } }
+| token=RPAR { ignore token; { exp=Punct ")"; loc=$startpos(token) } }
+| token=COMMA { ignore token; { exp=Punct ","; loc=$startpos(token) } }
 
 wsp:
-| wsp=WSP { Wsp wsp }
+| wsp=WSP { { exp=Wsp wsp; loc=$startpos(wsp) } }
 
 dummy:
 |DEFINE|INCLUDE|IF|IFDEF|IFNDEF|ELIF|ELSE|ENDIF {()}

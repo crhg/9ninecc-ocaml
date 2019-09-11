@@ -1,6 +1,11 @@
 (** プリプロセッサ用の抽象構文木 *)
 
-type pp_token =
+type 't node = {
+    exp: 't;
+    loc: Lexing.position [@opaque]
+}
+
+and pp_token_exp =
 | Wsp of string
 | Punct of string
 | Id of string
@@ -15,6 +20,7 @@ type pp_token =
 (* | Comma *)
 | LineMarker of int * string * int option (* linemarker表示用 *)
 
+and pp_token = pp_token_exp node
 and pp_token_list = pp_token list
 
 and group_part = 
@@ -28,8 +34,8 @@ and group_part =
 (* | Undef of string *)
 
 and include_r = {
-    pp_tokens: pp_token list;
-    loc: Lexing.position [@opaque]
+    include_pp_tokens: pp_token list;
+    include_loc: Lexing.position [@opaque]
 }
 
 and cond_r = {

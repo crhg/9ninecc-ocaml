@@ -13,7 +13,7 @@ let rec token buf =
         do_group_part g buf ;
         token buf
     | {tokens = []; group_parts = []; _} ->
-        Pp_ast.Eof
+        Pp_ast.{exp=Eof;loc=Lexing.dummy_pos}
 
 and do_group_part g buf =
     let open Pp_ast in
@@ -26,7 +26,7 @@ and do_group_part g buf =
     | DefineFunction (name, params, pp_tokens) ->
         let open Pp_env in
         add name (FunctionMacro (params, pp_tokens)) buf.env
-    | Include { pp_tokens = pp_tokens; loc = loc } ->
+    | Include { include_pp_tokens = pp_tokens; include_loc = loc } ->
 
         let s = buf.expand_tokens pp_tokens buf.env in
         let filename, from_current = pickup_filename s in
@@ -36,9 +36,9 @@ and do_group_part g buf =
         let ast = buf.ast_of filename contents in
         (* Printf.fprintf stderr "include ast=%s\n" (Pp_ast.show_ast ast); *)
 
-        push_group_part (Line [LineMarker(loc.pos_lnum + 1, loc.pos_fname, Some 2)]) buf;
+        push_group_part (Line [{exp=LineMarker(loc.pos_lnum + 1, loc.pos_fname, Some 2); loc=Lexing.dummy_pos}]) buf;
         push_group_parts ast buf;
-        push_group_part (Line [LineMarker(1, filename, Some 1)]) buf
+        push_group_part (Line [{exp=LineMarker(1, filename, Some 1); loc=Lexing.dummy_pos}]) buf
     | NonDirective _ ->
         ()
     | Line line ->
@@ -48,17 +48,17 @@ and do_if conds buf =
     (* Printf.fprintf stderr "do_if\n"; *)
     let open Pp_ast in
     match conds with
-    | [] -> push_group_part (Line [NewLine]) buf
+    | [] -> push_group_part (Line [{exp=NewLine;loc=Lexing.dummy_pos}]) buf
     | {cond_expr = expr; cond_groups = gs} :: rest ->
         if Pp_expr.eval expr buf then (
             let rest_lines = line_count_of_conds rest in
-            push_group_part (Line [NewLines rest_lines]) buf;
+            push_group_part (Line [{exp=NewLines rest_lines;loc=Lexing.dummy_pos}]) buf;
             push_group_parts gs buf;
-            push_group_part (Line [NewLine]) buf
+            push_group_part (Line [{exp=NewLine;loc=Lexing.dummy_pos}]) buf
         ) else (
             do_if rest buf;
             let n = 1 + line_count_of_groups gs in
-            push_group_part (Line [NewLines n]) buf
+            push_group_part (Line [{exp=NewLines n;loc=Lexing.dummy_pos}]) buf
         )
 
 and line_count_of_groups gs =

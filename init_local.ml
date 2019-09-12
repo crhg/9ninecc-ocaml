@@ -3,18 +3,27 @@
 open Extension
 
 let rec to_assign ty lhs init =
+    let open Type in
     match ty with
-    | Type.Char
-    | Type.Short
-    | Type.Int
-    | Type.Long
-    | Type.Ptr _ ->
+    | Bool
+    | Char
+    | Short
+    | Int
+    | Long
+    | Ptr _ ->
         [to_assign_scalar lhs init]
-    | Type.Array _ ->
+    | Array _ ->
         to_assign_array ty lhs init
-    | Type.(Struct { body = Some { fields = fields; _ }; _ }) ->
+    | (Struct { body = Some { fields = fields; _ }; _ }) ->
         to_assign_struct lhs fields init
-    | _ -> raise (Misc.Error_at("cannot initialize(to_assign): " ^ (Type.show ty), init.Ast.loc))
+    | (Union { body = Some { fields = fields; _ }; _ }) ->
+        ignore fields;
+        failwith "initalization of union is not implemented"
+    | Void
+    | Function _
+    | Struct _
+    | Union _ ->
+        raise (Misc.Error_at("cannot initialize(to_assign): " ^ (Type.show ty), init.Ast.loc))
 
 and to_assign_opt ty lhs init = match init with
 | Some init -> to_assign ty lhs init

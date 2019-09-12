@@ -1709,3 +1709,10 @@ int test199() {
     try_printf("%d", x);
 }
 // @end
+
+// @try_out test200 1
+_Bool x200 = 256;
+int test200() {
+    try_printf("%d", x200);
+}
+// @end

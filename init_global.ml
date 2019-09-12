@@ -15,6 +15,8 @@ let rec gen ty label init =
 and init_data ty init =
     let open Type in
     match ty with
+    | Bool ->
+        init_data_bool init
     | Char | Short | Int | Long ->
         init_data_int ty init
     | Ptr _ ->
@@ -23,7 +25,22 @@ and init_data ty init =
         init_data_array ty n init
     | Struct { body = Some body; _ } -> 
         init_data_struct body init
-    | _ -> raise(Misc.Error_at("cannot initialize type: " ^ (Type.show ty), init.Ast.loc))
+    | Union { body = Some body; _ } -> 
+        ignore body;
+        failwith "initialization of union is not implemented"
+    | Void
+    | Function _
+    | Array _
+    | Struct _
+    | Union _ ->
+         raise(Misc.Error_at("cannot initialize type: " ^ (Type.show ty), init.Ast.loc))
+
+and init_data_bool init =
+    let value = match scalar_init_value init with
+        | (None, value) -> value
+        | _ -> raise(Misc.Error("not a number")) in
+    let bool_value = if value = 0 then 0 else 1 in
+    printf "    .byte %d\n" bool_value
 
 and init_data_int ty init =
     let value = match scalar_init_value init with

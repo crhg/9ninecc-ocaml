@@ -60,54 +60,61 @@ and check_decl decl = match decl.exp with
         | _ -> failwith "not function"
     )
 
-| GlobalVarDecl { gv_ds = { ds_type_spec = Some ts; _ } as ds; gv_decl_inits = decl_inits } ->
-    let ty = type_of_type_spec ts in
-
-    decl_inits |> List.iter (fun { di_decl = d; di_init = init; _ } ->
-        let ty, name = type_and_var_ty ty d in
-
-        let ty, is_extern = (if Ast.is_extern ds || Type.is_function ty then (
-            (* externと関数型 *)
-            (*   初期化があってはいけない *)
-            (*   完全型かどうかのチェックは不要 *)
-            (match init with
-            | Some init ->
-                raise(Misc.Error_at("extern with init?", init.loc))
-            | _ ->
-                ()
-            );
-
-            ty, true
-        ) else (
-            (* 最上位の配列サイズが未定で初期化子があれば求める *)
-            let ty = match ty, init with
-                | Type.Array (t, None), Some init ->
-                    let size = determine_array_size t init in
-                    Type.Array(t, Some size)
-                | _, _ -> ty in
-
-            (* 変数の実体を割り付けるので完全型でなければならない *)
-            check_complete ty d.loc;
-
-            Option.may check_init init;
-
-            ty, false
-        )) in
-
-        let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
-        Env.register_global_var ty name label;
-
-        if not is_extern then
-            let open Global_var in
-            register  { ty = ty; label = label; init = init }
-    )
+| GlobalVarDecl { gv_ds = ds; gv_decl_inits = decl_inits } ->
+    declare_global_var ds decl_inits
 | TypedefDecl (ts, decls) ->
     List.iter (typedef ts) decls;
 | DummyDecl -> ()
 | _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
 
-and check_init init = match init.exp with
-| ExprInitializer expr ->
+and declare_global_var ds decl_inits =
+    match ds with
+    | { ds_type_spec = Some ts; _} ->
+        let ty = type_of_type_spec ts in
+
+        decl_inits |> List.iter (fun { di_decl = d; di_init = init; _ } ->
+            let ty, name = type_and_var_ty ty d in
+
+            let ty, is_extern = (if Ast.is_extern ds || Type.is_function ty then (
+                (* externと関数型 *)
+                (*   初期化があってはいけない *)
+                (*   完全型かどうかのチェックは不要 *)
+                (match init with
+                | Some init ->
+                    raise(Misc.Error_at("extern with init?", init.loc))
+                | _ ->
+                    ()
+                );
+
+                ty, true
+            ) else (
+                (* 最上位の配列サイズが未定で初期化子があれば求める *)
+                let ty = match ty, init with
+                    | Type.Array (t, None), Some init ->
+                        let size = determine_array_size t init in
+                    Type.Array(t, Some size)
+                    | _, _ -> ty in
+
+                (* 変数の実体を割り付けるので完全型でなければならない *)
+                check_complete ty d.loc;
+
+                Option.may check_init init;
+
+                ty, false
+            )) in
+
+            let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
+            Env.register_global_var ty name label;
+
+            if not is_extern then
+                let open Global_var in
+                register  { ty = ty; label = label; init = init }
+        )
+    | _ ->
+        failwith "no type spec"
+
+    and check_init init = match init.exp with
+    | ExprInitializer expr ->
     ignore @@ convert_and_store expr
 | ListInitializer l ->
     List.iter check_init l
@@ -134,7 +141,9 @@ and check_stmt stmt = match stmt.exp with
         | Default -> ()
     );
     check_stmt stmt
-| Var {var_ds = { ds_type_spec=Some ts; _ }; var_decl_inits = decl_inits} ->
+| Var {var_ds = ({ ds_storage_class_spec = Some _; _ } as ds); var_decl_inits = decl_inits} ->
+    declare_global_var ds decl_inits
+| Var {var_ds = { ds_type_spec=Some ts; ds_storage_class_spec = None }; var_decl_inits = decl_inits} ->
     let ty = type_of_type_spec ts in
 
     decl_inits |> List.iter (fun decl_init -> match decl_init with

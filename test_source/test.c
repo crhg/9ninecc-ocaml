@@ -1725,3 +1725,15 @@ int test201() {
     try_printf("%d", f201());
 }
 // @end
+
+// @try_out test202 0,1,2,
+void f202() {
+    static int x = 0;
+    try_printf("%d,", x++);
+}
+int test202() {
+    f202();
+    f202();
+    f202();
+}
+// @end

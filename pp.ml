@@ -1,4 +1,5 @@
 module StringMap = Map.Make(String)
+module Pp_parse = Parse.Make(Pp_parser.MenhirInterpreter)
 
 let fprintf = Printf.fprintf
 
@@ -27,7 +28,7 @@ and ast_of filename contents =
         (* Printf.fprintf stderr "pp_token=%s\n" (Pp_token.show_token t); *)
         t in
 
-    let ast = (Pp_parse.parse Pp_parser.Incremental.preprocessing_file) token lexbuf in
+    let ast = (Pp_parse.parse Pp_parser.Incremental.preprocessing_file Pp_parser_messages.message) token lexbuf in
     let line_marker = Pp_ast.(Line [{exp=LineMarker(1, filename, None); loc=Lexing.dummy_pos}]) in
     line_marker :: ast
 

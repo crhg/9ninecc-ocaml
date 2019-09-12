@@ -8,6 +8,8 @@
 (*         Pp.preprocess pp_ast *)
 (*     ) *)
 
+module Parse = Parse.Make(Parser.MenhirInterpreter)
+
 let compile filename source =
     Compiler.process filename source (Parse.parse Parser.Incremental.translation_unit Parser_messages.message) Lex.token (fun ast ->
         Builtin.register();

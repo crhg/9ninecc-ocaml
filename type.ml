@@ -14,7 +14,7 @@ type t =
     [@printer fun fmt (ty, size) -> match size with
         | None      -> fprintf fmt "Array(%s)[?]" (show ty)
         | Some size -> fprintf fmt "Array(%s)[%d]" (show ty) size ]
-| Function of t * (string * t) list (* 戻り値とパラメタ *)
+| Function of function_r
 | Struct of aggregate 
     [@printer fun fmt aggregate -> match aggregate with
         | {id=id;_} when SS.mem id !shown ->
@@ -31,6 +31,12 @@ type t =
             shown := SS.add id !shown;
             fprintf fmt "Union ";
             pp_aggregate fmt  aggregate ]
+
+and function_r = {
+    function_ret_type: t;
+    function_params: (string * t) list;
+    function_has_varargs: bool
+}
 
 and aggregate = {
     id: string; (* 識別用 *)

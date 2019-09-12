@@ -14,7 +14,6 @@ and check_decl decl = match decl.exp with
 | FunctionDecl {
     func_ds = {ds_type_spec = Some ts; _} as ds;
     func_decl = decl;
-    func_has_varargs = has_varargs;
     func_body={exp=Block stmt_list; _} as body;
     _ 
 } ->
@@ -25,36 +24,37 @@ and check_decl decl = match decl.exp with
     Env.register_global_var ty name label;
 
     (* ローカル変数にオフセットを割り当てる *)
-    let prepare_func params has_varargs stmt_list =
-        Env.with_new_local_frame has_varargs (fun _ ->
+    let prepare_func function_r stmt_list =
+        Env.with_new_local_frame function_r (fun _ ->
         Env.with_new_scope (fun _ ->
+            let open Type in
             let register (name, ty) = 
                 check_simple ty loc;
                 check_complete ty loc;
 
                 let offset = try Env.register_local_var ty name with
-                    | Type.Incomplete -> raise(Misc.Error_at("incomplete: " ^ name, loc))
+                    | Incomplete -> raise(Misc.Error_at("incomplete: " ^ name, loc))
                 in
                 Function.{
                     param_ty = ty;
                     param_name = name;
                     param_offset = offset
                 } in
-            let r = List.map register params in
+            let r = List.map register function_r.function_params in
             List.iter check_stmt stmt_list;
             r
         )) in
 
     (match ty with
-        | Type.Function (_, params) ->
-            let frame_size, params = prepare_func params has_varargs stmt_list in
+        | Type.Function function_r ->
+            let frame_size, params = prepare_func function_r stmt_list in
             let open Function in
             register {
                 ty = ty;
                 label = label;
                 params = params;
                 frame_size = frame_size;
-                has_varargs = has_varargs;
+                has_varargs = function_r.Type.function_has_varargs;
                 body = body
             }
         | _ -> failwith "not function"
@@ -167,7 +167,8 @@ and check_stmt stmt = match stmt.exp with
 | Expr expr ->
     convert_and_store expr
 | Return expr ->
-    Option.may convert_and_store expr
+    let as_bool = Env.get_function_ret_type() = Type.Bool in
+    Option.may (convert_and_store ~as_bool:as_bool) expr
 | If (expr, then_stmt, else_stmt_opt) ->
     convert_and_store expr;
     check_stmt then_stmt;
@@ -195,9 +196,10 @@ and check_stmt stmt = match stmt.exp with
 | Continue ->
     ()
 
-and convert_and_store (expr_s:Ast.expr_s) =
+and convert_and_store ?(as_bool=false) (expr_s:Ast.expr_s) =
     (* Printf.fprintf stderr "convert_and_store start %s\n" (Ast.show_expr_short expr_s.expr); *)
     let _, i_expr = convert expr_s.expr in
+    let i_expr = if as_bool then IBoolOfInt i_expr else i_expr in
     expr_s.i_expr <- Some i_expr
     (* ;Printf.fprintf stderr "convert_and_store end %s\n" (Ast.show_i_expr i_expr); *)
 
@@ -275,7 +277,7 @@ and convert' expr = match expr.exp with
             let ty, f = convert_lval func in Type.Ptr ty, f
         | _ -> ty, f in
     (match ty with
-    | Ptr (Function (ty, _)) ->
+    | Ptr (Function {function_ret_type = ty; _}) ->
         let call = ICall(f, List.map (Misc.compose snd convert) expr_list) in
         if ty = Type.Bool then
             (ty, IBoolOfRetval call)
@@ -486,7 +488,7 @@ match d.exp with
 | Array (d, e) ->
     let n = Option.map eval_expr e in
     type_and_var_ty (Type.Array(ty, n)) d 
-| Func (d, params, _) ->
+| Func (d, params, has_varargs) ->
     let array_to_ptr ty = match ty with
     | Type.Array(ty, _) -> Type.Ptr ty
     | _ -> ty in
@@ -496,7 +498,12 @@ match d.exp with
         check_simple ty d.loc;
         (name, ty) in
     let params = List.map tv params in
-    type_and_var_ty (Type.Function(ty, params)) d
+    let func_type = Type.(Function {
+        function_ret_type = ty;
+        function_params = params;
+        function_has_varargs = has_varargs
+    }) in
+    type_and_var_ty func_type d
 
 and type_of_type_spec ts = match ts.exp with
 | Void -> Type.Void

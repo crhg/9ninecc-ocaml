@@ -17,9 +17,15 @@ let is_global_flag = ref true
 
 let is_global _ = !is_global_flag
 
-let with_new_local_frame has_varargs action =
-    offset := (if has_varargs then Varargs.save_area_size else 0);
+let function_ret_type = ref Type.Int
+
+let get_function_ret_type _ = !function_ret_type
+
+let with_new_local_frame function_r action =
+    let open Type in
+    offset := (if function_r.function_has_varargs then Varargs.save_area_size else 0);
     is_global_flag := false;
+    function_ret_type := function_r.function_ret_type;
     let r = action() in
     is_global_flag := true;
     !offset, r

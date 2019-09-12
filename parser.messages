@@ -240,7 +240,7 @@ translation_unit: STRUCT XOR_ASSIGN
 
 translation_unit: TYPEDEF XOR_ASSIGN
 ##
-## Ends in an error in state: 211.
+## Ends in an error in state: 214.
 ##
 ## decl_spec -> storage_class_spec . type_spec [ TYPEDEF_ID SEMI LPAR IDENT AST ]
 ##
@@ -253,7 +253,7 @@ translation_unit: TYPEDEF XOR_ASSIGN
 
 translation_unit: UNION LBRACE DUMMY SEMI DUMMY XOR_ASSIGN
 ##
-## Ends in an error in state: 179.
+## Ends in an error in state: 182.
 ##
 ## su_body -> LBRACE DUMMY list(su_field) SEMI DUMMY . RBRACE [ TYPEDEF_ID TYPEDEF STATIC SEMI RPAR LPAR LBRACKET IDENT EXTERN AST ]
 ##
@@ -266,7 +266,7 @@ translation_unit: UNION LBRACE DUMMY SEMI DUMMY XOR_ASSIGN
 
 translation_unit: UNION LBRACE DUMMY SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 178.
+## Ends in an error in state: 181.
 ##
 ## su_body -> LBRACE DUMMY list(su_field) SEMI . DUMMY RBRACE [ TYPEDEF_ID TYPEDEF STATIC SEMI RPAR LPAR LBRACKET IDENT EXTERN AST ]
 ##
@@ -279,7 +279,7 @@ translation_unit: UNION LBRACE DUMMY SEMI XOR_ASSIGN
 
 translation_unit: UNION LBRACE DUMMY VOID IDENT SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 175.
+## Ends in an error in state: 178.
 ##
 ## list(su_field) -> su_field . list(su_field) [ SEMI ]
 ##
@@ -292,9 +292,9 @@ translation_unit: UNION LBRACE DUMMY VOID IDENT SEMI XOR_ASSIGN
 
 translation_unit: UNION LBRACE DUMMY VOID TYPEDEF_ID TYPEDEF_ID
 ##
-## Ends in an error in state: 173.
+## Ends in an error in state: 176.
 ##
-## su_field -> type_spec declarator . SEMI [ VOID UNION TYPEDEF_ID STRUCT SHORT SEMI LONG INT ENUM CHAR ]
+## su_field -> type_spec declarator . SEMI [ VOID UNION TYPEDEF_ID STRUCT SHORT SEMI LONG INT ENUM CHAR BOOL ]
 ##
 ## The known suffix of the stack is as follows:
 ## type_spec declarator
@@ -303,7 +303,7 @@ translation_unit: UNION LBRACE DUMMY VOID TYPEDEF_ID TYPEDEF_ID
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 156, spurious reduction of production declarator -> direct_declarator 
+## In state 157, spurious reduction of production declarator -> direct_declarator 
 ##
 
 19
@@ -311,9 +311,9 @@ translation_unit: UNION LBRACE DUMMY VOID TYPEDEF_ID TYPEDEF_ID
 
 translation_unit: UNION LBRACE DUMMY VOID XOR_ASSIGN
 ##
-## Ends in an error in state: 149.
+## Ends in an error in state: 150.
 ##
-## su_field -> type_spec . declarator SEMI [ VOID UNION TYPEDEF_ID STRUCT SHORT SEMI LONG INT ENUM CHAR ]
+## su_field -> type_spec . declarator SEMI [ VOID UNION TYPEDEF_ID STRUCT SHORT SEMI LONG INT ENUM CHAR BOOL ]
 ##
 ## The known suffix of the stack is as follows:
 ## type_spec
@@ -350,7 +350,7 @@ translation_unit: UNION LBRACE XOR_ASSIGN
 
 translation_unit: UNION TYPEDEF_ID XOR_ASSIGN
 ##
-## Ends in an error in state: 182.
+## Ends in an error in state: 185.
 ##
 ## type_spec -> UNION id . option(su_body) [ TYPEDEF_ID TYPEDEF STATIC SEMI RPAR LPAR LBRACKET IDENT EXTERN AST ]
 ##
@@ -377,7 +377,7 @@ translation_unit: UNION XOR_ASSIGN
 
 translation_unit: VOID AST XOR_ASSIGN
 ##
-## Ends in an error in state: 151.
+## Ends in an error in state: 152.
 ##
 ## declarator -> AST . declarator [ TYPEDEF_ID SEMI RPAR LPAR LBRACE IDENT COMMA AST ASSIGN ]
 ##
@@ -390,9 +390,9 @@ translation_unit: VOID AST XOR_ASSIGN
 
 translation_unit: VOID IDENT LBRACE DUMMY DUMMY XOR_ASSIGN
 ##
-## Ends in an error in state: 343.
+## Ends in an error in state: 346.
 ##
-## function_decl_tail -> DUMMY list(stmt) midrule(__anonymous_0) DUMMY . RBRACE [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR ]
+## function_decl_tail -> DUMMY list(stmt) midrule(__anonymous_0) DUMMY . RBRACE [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR BOOL ]
 ##
 ## The known suffix of the stack is as follows:
 ## DUMMY list(stmt) midrule(__anonymous_0) DUMMY
@@ -403,9 +403,9 @@ translation_unit: VOID IDENT LBRACE DUMMY DUMMY XOR_ASSIGN
 
 translation_unit: VOID IDENT LBRACE DUMMY XOR_ASSIGN
 ##
-## Ends in an error in state: 340.
+## Ends in an error in state: 343.
 ##
-## function_decl_tail -> DUMMY . list(stmt) midrule(__anonymous_0) DUMMY RBRACE [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR ]
+## function_decl_tail -> DUMMY . list(stmt) midrule(__anonymous_0) DUMMY RBRACE [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR BOOL ]
 ##
 ## The known suffix of the stack is as follows:
 ## DUMMY
@@ -416,9 +416,9 @@ translation_unit: VOID IDENT LBRACE DUMMY XOR_ASSIGN
 
 translation_unit: VOID IDENT LBRACE XOR_ASSIGN
 ##
-## Ends in an error in state: 339.
+## Ends in an error in state: 342.
 ##
-## decl -> function_decl_head . function_decl_tail [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR ]
+## decl -> function_decl_head . function_decl_tail [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR BOOL ]
 ##
 ## The known suffix of the stack is as follows:
 ## function_decl_head
@@ -429,7 +429,7 @@ translation_unit: VOID IDENT LBRACE XOR_ASSIGN
 
 translation_unit: VOID LPAR TYPEDEF_ID TYPEDEF_ID
 ##
-## Ends in an error in state: 171.
+## Ends in an error in state: 174.
 ##
 ## direct_declarator -> LPAR declarator . RPAR [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
@@ -440,7 +440,7 @@ translation_unit: VOID LPAR TYPEDEF_ID TYPEDEF_ID
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 156, spurious reduction of production declarator -> direct_declarator 
+## In state 157, spurious reduction of production declarator -> direct_declarator 
 ##
 
 29
@@ -448,7 +448,7 @@ translation_unit: VOID LPAR TYPEDEF_ID TYPEDEF_ID
 
 translation_unit: VOID LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 150.
+## Ends in an error in state: 151.
 ##
 ## direct_declarator -> LPAR . declarator RPAR [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
@@ -461,7 +461,7 @@ translation_unit: VOID LPAR XOR_ASSIGN
 
 translation_unit: VOID SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 355.
+## Ends in an error in state: 358.
 ##
 ## list(decl) -> decl . list(decl) [ EOF ]
 ##
@@ -474,9 +474,9 @@ translation_unit: VOID SEMI XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF XOR_ASSIGN
 ##
-## Ends in an error in state: 346.
+## Ends in an error in state: 349.
 ##
-## decl -> decl_spec . loption(separated_nonempty_list(COMMA,decl_init)) SEMI [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR ]
+## decl -> decl_spec . loption(separated_nonempty_list(COMMA,decl_init)) SEMI [ VOID UNION TYPEDEF_ID TYPEDEF STRUCT STATIC SHORT LONG INT EXTERN EOF ENUM CHAR BOOL ]
 ## function_decl_head -> decl_spec . declarator LBRACE [ DUMMY ]
 ##
 ## The known suffix of the stack is as follows:
@@ -488,7 +488,7 @@ translation_unit: VOID TYPEDEF XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID ASSIGN IDENT TYPEDEF_ID
 ##
-## Ends in an error in state: 352.
+## Ends in an error in state: 355.
 ##
 ## separated_nonempty_list(COMMA,decl_init) -> decl_init . [ SEMI ]
 ## separated_nonempty_list(COMMA,decl_init) -> decl_init . COMMA separated_nonempty_list(COMMA,decl_init) [ SEMI ]
@@ -514,9 +514,9 @@ translation_unit: VOID TYPEDEF_ID ASSIGN IDENT TYPEDEF_ID
 ## In state 84, spurious reduction of production logical_or_expression -> logical_and_expression 
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
-## In state 257, spurious reduction of production init -> assignment_expression 
-## In state 258, spurious reduction of production option(__anonymous_2) -> ASSIGN init 
-## In state 259, spurious reduction of production decl_init -> declarator option(__anonymous_2) 
+## In state 260, spurious reduction of production init -> assignment_expression 
+## In state 261, spurious reduction of production option(__anonymous_2) -> ASSIGN init 
+## In state 262, spurious reduction of production decl_init -> declarator option(__anonymous_2) 
 ##
 
 33
@@ -524,7 +524,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN IDENT TYPEDEF_ID
 
 translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY COMMA XOR_ASSIGN
 ##
-## Ends in an error in state: 249.
+## Ends in an error in state: 252.
 ##
 ## list_initializer -> LBRACE DUMMY loption(separated_nonempty_list(COMMA,init)) option(COMMA) . SEMI DUMMY RBRACE [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ##
@@ -537,7 +537,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY COMMA XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY SEMI DUMMY XOR_ASSIGN
 ##
-## Ends in an error in state: 251.
+## Ends in an error in state: 254.
 ##
 ## list_initializer -> LBRACE DUMMY loption(separated_nonempty_list(COMMA,init)) option(COMMA) SEMI DUMMY . RBRACE [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ##
@@ -550,7 +550,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY SEMI DUMMY XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 250.
+## Ends in an error in state: 253.
 ##
 ## list_initializer -> LBRACE DUMMY loption(separated_nonempty_list(COMMA,init)) option(COMMA) SEMI . DUMMY RBRACE [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ##
@@ -563,7 +563,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY SEMI XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY STR COMMA XOR_ASSIGN
 ##
-## Ends in an error in state: 255.
+## Ends in an error in state: 258.
 ##
 ## separated_nonempty_list(COMMA,init) -> init COMMA . separated_nonempty_list(COMMA,init) [ SEMI COMMA ]
 ##
@@ -576,7 +576,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY STR COMMA XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY STR TYPEDEF_ID
 ##
-## Ends in an error in state: 254.
+## Ends in an error in state: 257.
 ##
 ## separated_nonempty_list(COMMA,init) -> init . [ SEMI COMMA ]
 ## separated_nonempty_list(COMMA,init) -> init . COMMA separated_nonempty_list(COMMA,init) [ SEMI COMMA ]
@@ -602,7 +602,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY STR TYPEDEF_ID
 ## In state 84, spurious reduction of production logical_or_expression -> logical_and_expression 
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
-## In state 257, spurious reduction of production init -> assignment_expression 
+## In state 260, spurious reduction of production init -> assignment_expression 
 ##
 
 38
@@ -610,7 +610,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY STR TYPEDEF_ID
 
 translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY XOR_ASSIGN
 ##
-## Ends in an error in state: 245.
+## Ends in an error in state: 248.
 ##
 ## list_initializer -> LBRACE DUMMY . loption(separated_nonempty_list(COMMA,init)) option(COMMA) SEMI DUMMY RBRACE [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ##
@@ -623,7 +623,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE DUMMY XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE XOR_ASSIGN
 ##
-## Ends in an error in state: 244.
+## Ends in an error in state: 247.
 ##
 ## list_initializer -> LBRACE . DUMMY loption(separated_nonempty_list(COMMA,init)) option(COMMA) SEMI DUMMY RBRACE [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ##
@@ -636,7 +636,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN LBRACE XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID ASSIGN XOR_ASSIGN
 ##
-## Ends in an error in state: 243.
+## Ends in an error in state: 246.
 ##
 ## option(__anonymous_2) -> ASSIGN . init [ TYPEDEF_ID SEMI LPAR IDENT COMMA AST ]
 ##
@@ -649,7 +649,7 @@ translation_unit: VOID TYPEDEF_ID ASSIGN XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID COMMA TYPEDEF_ID RPAR
 ##
-## Ends in an error in state: 242.
+## Ends in an error in state: 245.
 ##
 ## decl_init -> declarator . option(__anonymous_2) [ TYPEDEF_ID SEMI LPAR IDENT COMMA AST ]
 ##
@@ -660,7 +660,7 @@ translation_unit: VOID TYPEDEF_ID COMMA TYPEDEF_ID RPAR
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 156, spurious reduction of production declarator -> direct_declarator 
+## In state 157, spurious reduction of production declarator -> direct_declarator 
 ##
 
 42
@@ -668,7 +668,7 @@ translation_unit: VOID TYPEDEF_ID COMMA TYPEDEF_ID RPAR
 
 translation_unit: VOID TYPEDEF_ID COMMA XOR_ASSIGN
 ##
-## Ends in an error in state: 353.
+## Ends in an error in state: 356.
 ##
 ## separated_nonempty_list(COMMA,decl_init) -> decl_init COMMA . separated_nonempty_list(COMMA,decl_init) [ SEMI ]
 ##
@@ -681,7 +681,7 @@ translation_unit: VOID TYPEDEF_ID COMMA XOR_ASSIGN
 
 translation_unit: VOID TYPEDEF_ID LBRACKET STR IDENT
 ##
-## Ends in an error in state: 159.
+## Ends in an error in state: 160.
 ##
 ## direct_declarator -> direct_declarator LBRACKET option(assignment_expression) . RBRACKET [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
@@ -706,7 +706,7 @@ translation_unit: VOID TYPEDEF_ID LBRACKET STR IDENT
 ## In state 84, spurious reduction of production logical_or_expression -> logical_and_expression 
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
-## In state 161, spurious reduction of production option(assignment_expression) -> assignment_expression 
+## In state 162, spurious reduction of production option(assignment_expression) -> assignment_expression 
 ##
 
 44
@@ -714,7 +714,7 @@ translation_unit: VOID TYPEDEF_ID LBRACKET STR IDENT
 
 translation_unit: VOID TYPEDEF_ID LBRACKET XOR_ASSIGN
 ##
-## Ends in an error in state: 158.
+## Ends in an error in state: 159.
 ##
 ## direct_declarator -> direct_declarator LBRACKET . option(assignment_expression) RBRACKET [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
@@ -725,62 +725,113 @@ translation_unit: VOID TYPEDEF_ID LBRACKET XOR_ASSIGN
 45
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-translation_unit: VOID TYPEDEF_ID LPAR DOTS COMMA XOR_ASSIGN
+translation_unit: VOID TYPEDEF_ID LPAR VOID TYPEDEF_ID COMMA DOTS XOR_ASSIGN
 ##
-## Ends in an error in state: 165.
+## Ends in an error in state: 166.
 ##
-## separated_nonempty_list(COMMA,param) -> param COMMA . separated_nonempty_list(COMMA,param) [ RPAR ]
+## function_declarator_params_rest -> COMMA DOTS . RPAR [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
 ## The known suffix of the stack is as follows:
-## param COMMA
+## COMMA DOTS
 ##
 
 46
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-translation_unit: VOID TYPEDEF_ID LPAR DOTS XOR_ASSIGN
+translation_unit: VOID TYPEDEF_ID LPAR VOID TYPEDEF_ID COMMA VOID TYPEDEF_ID TYPEDEF_ID
 ##
-## Ends in an error in state: 164.
+## Ends in an error in state: 169.
 ##
-## separated_nonempty_list(COMMA,param) -> param . [ RPAR ]
-## separated_nonempty_list(COMMA,param) -> param . COMMA separated_nonempty_list(COMMA,param) [ RPAR ]
+## function_declarator_params_rest -> COMMA type_spec declarator . function_declarator_params_rest [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
 ## The known suffix of the stack is as follows:
-## param
+## COMMA type_spec declarator
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 157, spurious reduction of production declarator -> direct_declarator 
 ##
 
 47
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-translation_unit: VOID TYPEDEF_ID LPAR VOID XOR_ASSIGN
+translation_unit: VOID TYPEDEF_ID LPAR VOID TYPEDEF_ID COMMA VOID XOR_ASSIGN
 ##
-## Ends in an error in state: 155.
+## Ends in an error in state: 168.
 ##
-## param -> type_spec . declarator [ RPAR COMMA ]
+## function_declarator_params_rest -> COMMA type_spec . declarator function_declarator_params_rest [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
 ## The known suffix of the stack is as follows:
-## type_spec
+## COMMA type_spec
 ##
 
 48
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-translation_unit: VOID TYPEDEF_ID LPAR XOR_ASSIGN
+translation_unit: VOID TYPEDEF_ID LPAR VOID TYPEDEF_ID COMMA XOR_ASSIGN
 ##
-## Ends in an error in state: 153.
+## Ends in an error in state: 165.
 ##
-## direct_declarator -> function_declarator_head . function_declarator_rest [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
+## function_declarator_params_rest -> COMMA . DOTS RPAR [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
+## function_declarator_params_rest -> COMMA . type_spec declarator function_declarator_params_rest [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
 ##
 ## The known suffix of the stack is as follows:
-## function_declarator_head
+## COMMA
 ##
 
 49
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
+translation_unit: VOID TYPEDEF_ID LPAR VOID TYPEDEF_ID TYPEDEF_ID
+##
+## Ends in an error in state: 163.
+##
+## function_declarator_params -> type_spec declarator . function_declarator_params_rest [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
+##
+## The known suffix of the stack is as follows:
+## type_spec declarator
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 157, spurious reduction of production declarator -> direct_declarator 
+##
+
+50
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+translation_unit: VOID TYPEDEF_ID LPAR VOID XOR_ASSIGN
+##
+## Ends in an error in state: 156.
+##
+## function_declarator_params -> type_spec . declarator function_declarator_params_rest [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
+##
+## The known suffix of the stack is as follows:
+## type_spec
+##
+
+51
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+translation_unit: VOID TYPEDEF_ID LPAR XOR_ASSIGN
+##
+## Ends in an error in state: 154.
+##
+## direct_declarator -> function_declarator_head . function_declarator_params [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
+##
+## The known suffix of the stack is as follows:
+## function_declarator_head
+##
+
+52
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
 translation_unit: VOID TYPEDEF_ID TYPEDEF_ID
 ##
-## Ends in an error in state: 350.
+## Ends in an error in state: 353.
 ##
 ## decl_init -> declarator . option(__anonymous_2) [ SEMI COMMA ]
 ## function_decl_head -> decl_spec declarator . LBRACE [ DUMMY ]
@@ -792,30 +843,30 @@ translation_unit: VOID TYPEDEF_ID TYPEDEF_ID
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 156, spurious reduction of production declarator -> direct_declarator 
+## In state 157, spurious reduction of production declarator -> direct_declarator 
 ##
 
-50
+53
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 translation_unit: VOID TYPEDEF_ID XOR_ASSIGN
 ##
-## Ends in an error in state: 156.
+## Ends in an error in state: 157.
 ##
 ## declarator -> direct_declarator . [ TYPEDEF_ID SEMI RPAR LPAR LBRACE IDENT COMMA AST ASSIGN ]
 ## direct_declarator -> direct_declarator . LBRACKET option(assignment_expression) RBRACKET [ TYPEDEF_ID SEMI RPAR LPAR LBRACKET LBRACE IDENT COMMA AST ASSIGN ]
-## function_declarator_head -> direct_declarator . LPAR [ VOID UNION TYPEDEF_ID STRUCT SHORT RPAR LONG INT ENUM DOTS CHAR ]
+## function_declarator_head -> direct_declarator . LPAR [ VOID UNION TYPEDEF_ID STRUCT SHORT RPAR LONG INT ENUM CHAR BOOL ]
 ##
 ## The known suffix of the stack is as follows:
 ## direct_declarator
 ##
 
-51
+54
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 translation_unit: VOID XOR_ASSIGN
 ##
-## Ends in an error in state: 209.
+## Ends in an error in state: 212.
 ##
 ## decl_spec -> type_spec . [ TYPEDEF_ID SEMI LPAR IDENT AST ]
 ## decl_spec -> type_spec . storage_class_spec [ TYPEDEF_ID SEMI LPAR IDENT AST ]
@@ -824,12 +875,12 @@ translation_unit: VOID XOR_ASSIGN
 ## type_spec
 ##
 
-52
+55
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 translation_unit: XOR_ASSIGN
 ##
-## Ends in an error in state: 335.
+## Ends in an error in state: 338.
 ##
 ## translation_unit' -> . translation_unit [ # ]
 ##
@@ -837,7 +888,7 @@ translation_unit: XOR_ASSIGN
 ##
 ##
 
-53
+56
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: AMP XOR_ASSIGN
@@ -850,7 +901,7 @@ expr_eof: AMP XOR_ASSIGN
 ## AMP
 ##
 
-54
+57
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: AST XOR_ASSIGN
@@ -863,27 +914,27 @@ expr_eof: AST XOR_ASSIGN
 ## AST
 ##
 
-55
+58
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY BREAK XOR_ASSIGN
 ##
-## Ends in an error in state: 227.
+## Ends in an error in state: 230.
 ##
-## stmt -> BREAK . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> BREAK . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## BREAK
 ##
 
-56
+59
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY CASE STR TYPEDEF_ID
 ##
-## Ends in an error in state: 225.
+## Ends in an error in state: 228.
 ##
-## label -> CASE constant_expression . COLON [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## label -> CASE constant_expression . COLON [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## CASE constant_expression
@@ -908,80 +959,80 @@ expr_eof: LPAR LBRACE DUMMY CASE STR TYPEDEF_ID
 ## In state 130, spurious reduction of production constant_expression -> conditional_expression 
 ##
 
-57
+60
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY CASE XOR_ASSIGN
 ##
-## Ends in an error in state: 224.
+## Ends in an error in state: 227.
 ##
-## label -> CASE . constant_expression COLON [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## label -> CASE . constant_expression COLON [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## CASE
 ##
 
-58
+61
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY CONTINUE XOR_ASSIGN
 ##
-## Ends in an error in state: 222.
+## Ends in an error in state: 225.
 ##
-## stmt -> CONTINUE . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> CONTINUE . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## CONTINUE
 ##
 
-59
+62
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DEFAULT COLON XOR_ASSIGN
 ##
-## Ends in an error in state: 235.
+## Ends in an error in state: 238.
 ##
-## stmt -> label . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> label . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## label
 ##
 
-60
+63
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DEFAULT XOR_ASSIGN
 ##
-## Ends in an error in state: 220.
+## Ends in an error in state: 223.
 ##
-## label -> DEFAULT . COLON [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## label -> DEFAULT . COLON [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## DEFAULT
 ##
 
-61
+64
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DO SEMI WHILE LPAR STR RPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 233.
+## Ends in an error in state: 236.
 ##
-## stmt -> DO stmt WHILE LPAR expression RPAR . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> DO stmt WHILE LPAR expression RPAR . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## DO stmt WHILE LPAR expression RPAR
 ##
 
-62
+65
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DO SEMI WHILE LPAR STR TYPEDEF_ID
 ##
-## Ends in an error in state: 232.
+## Ends in an error in state: 235.
 ##
 ## expression -> expression . COMMA assignment_expression [ RPAR COMMA ]
-## stmt -> DO stmt WHILE LPAR expression . RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> DO stmt WHILE LPAR expression . RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## DO stmt WHILE LPAR expression
@@ -1007,64 +1058,64 @@ expr_eof: LPAR LBRACE DUMMY DO SEMI WHILE LPAR STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-63
+66
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DO SEMI WHILE LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 231.
+## Ends in an error in state: 234.
 ##
-## stmt -> DO stmt WHILE LPAR . expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> DO stmt WHILE LPAR . expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## DO stmt WHILE LPAR
 ##
 
-64
+67
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DO SEMI WHILE XOR_ASSIGN
 ##
-## Ends in an error in state: 230.
+## Ends in an error in state: 233.
 ##
-## stmt -> DO stmt WHILE . LPAR expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> DO stmt WHILE . LPAR expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## DO stmt WHILE
 ##
 
-65
+68
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DO SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 229.
+## Ends in an error in state: 232.
 ##
-## stmt -> DO stmt . WHILE LPAR expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> DO stmt . WHILE LPAR expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## DO stmt
 ##
 
-66
+69
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DO XOR_ASSIGN
 ##
-## Ends in an error in state: 219.
+## Ends in an error in state: 222.
 ##
-## stmt -> DO . stmt WHILE LPAR expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> DO . stmt WHILE LPAR expression RPAR SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## DO
 ##
 
-67
+70
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DUMMY RBRACE XOR_ASSIGN
 ##
-## Ends in an error in state: 317.
+## Ends in an error in state: 320.
 ##
 ## primary_expression -> LPAR block . RPAR [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ##
@@ -1072,40 +1123,40 @@ expr_eof: LPAR LBRACE DUMMY DUMMY RBRACE XOR_ASSIGN
 ## LPAR block
 ##
 
-68
+71
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY DUMMY XOR_ASSIGN
 ##
-## Ends in an error in state: 282.
+## Ends in an error in state: 285.
 ##
-## block -> LBRACE midrule(__anonymous_4) DUMMY list(stmt) midrule(__anonymous_5) DUMMY . RBRACE [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RPAR RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## block -> LBRACE midrule(__anonymous_4) DUMMY list(stmt) midrule(__anonymous_5) DUMMY . RBRACE [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RPAR RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## LBRACE midrule(__anonymous_4) DUMMY list(stmt) midrule(__anonymous_5) DUMMY
 ##
 
-69
+72
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR SEMI SEMI RPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 218.
+## Ends in an error in state: 221.
 ##
-## stmt -> FOR LPAR option(expression) SEMI option(expression) SEMI option(expression) RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR option(expression) SEMI option(expression) SEMI option(expression) RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR option(expression) SEMI option(expression) SEMI option(expression) RPAR
 ##
 
-70
+73
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR SEMI SEMI STR SEMI
 ##
-## Ends in an error in state: 217.
+## Ends in an error in state: 220.
 ##
-## stmt -> FOR LPAR option(expression) SEMI option(expression) SEMI option(expression) . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR option(expression) SEMI option(expression) SEMI option(expression) . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR option(expression) SEMI option(expression) SEMI option(expression)
@@ -1129,30 +1180,30 @@ expr_eof: LPAR LBRACE DUMMY FOR LPAR SEMI SEMI STR SEMI
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
 ## In state 107, spurious reduction of production expression -> assignment_expression 
-## In state 201, spurious reduction of production option(expression) -> expression 
+## In state 204, spurious reduction of production option(expression) -> expression 
 ##
 
-71
+74
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR SEMI SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 216.
+## Ends in an error in state: 219.
 ##
-## stmt -> FOR LPAR option(expression) SEMI option(expression) SEMI . option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR option(expression) SEMI option(expression) SEMI . option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR option(expression) SEMI option(expression) SEMI
 ##
 
-72
+75
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR SEMI STR RPAR
 ##
-## Ends in an error in state: 215.
+## Ends in an error in state: 218.
 ##
-## stmt -> FOR LPAR option(expression) SEMI option(expression) . SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR option(expression) SEMI option(expression) . SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR option(expression) SEMI option(expression)
@@ -1176,30 +1227,30 @@ expr_eof: LPAR LBRACE DUMMY FOR LPAR SEMI STR RPAR
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
 ## In state 107, spurious reduction of production expression -> assignment_expression 
-## In state 201, spurious reduction of production option(expression) -> expression 
+## In state 204, spurious reduction of production option(expression) -> expression 
 ##
 
-73
+76
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 214.
+## Ends in an error in state: 217.
 ##
-## stmt -> FOR LPAR option(expression) SEMI . option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR option(expression) SEMI . option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR option(expression) SEMI
 ##
 
-74
+77
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR STR RPAR
 ##
-## Ends in an error in state: 213.
+## Ends in an error in state: 216.
 ##
-## stmt -> FOR LPAR option(expression) . SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR option(expression) . SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR option(expression)
@@ -1223,43 +1274,43 @@ expr_eof: LPAR LBRACE DUMMY FOR LPAR STR RPAR
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
 ## In state 107, spurious reduction of production expression -> assignment_expression 
-## In state 201, spurious reduction of production option(expression) -> expression 
+## In state 204, spurious reduction of production option(expression) -> expression 
 ##
 
-75
+78
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID EXTERN XOR_ASSIGN
 ##
-## Ends in an error in state: 264.
+## Ends in an error in state: 267.
 ##
-## stmt -> FOR LPAR decl_spec . list(decl_init) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR decl_spec . list(decl_init) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR decl_spec
 ##
 
-76
+79
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI SEMI RPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 270.
+## Ends in an error in state: 273.
 ##
-## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) RPAR
 ##
 
-77
+80
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI SEMI STR SEMI
 ##
-## Ends in an error in state: 269.
+## Ends in an error in state: 272.
 ##
-## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression)
@@ -1283,30 +1334,30 @@ expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI SEMI STR SEMI
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
 ## In state 107, spurious reduction of production expression -> assignment_expression 
-## In state 201, spurious reduction of production option(expression) -> expression 
+## In state 204, spurious reduction of production option(expression) -> expression 
 ##
 
-78
+81
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 268.
+## Ends in an error in state: 271.
 ##
-## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI . option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI . option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR decl_spec list(decl_init) SEMI option(expression) SEMI
 ##
 
-79
+82
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI STR RPAR
 ##
-## Ends in an error in state: 267.
+## Ends in an error in state: 270.
 ##
-## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) . SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR decl_spec list(decl_init) SEMI option(expression) . SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## FOR LPAR decl_spec list(decl_init) SEMI option(expression)
@@ -1330,98 +1381,98 @@ expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI STR RPAR
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
 ## In state 107, spurious reduction of production expression -> assignment_expression 
-## In state 201, spurious reduction of production option(expression) -> expression 
-##
-
-80
-<YOUR SYNTAX ERROR MESSAGE HERE>
-
-expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI XOR_ASSIGN
-##
-## Ends in an error in state: 266.
-##
-## stmt -> FOR LPAR decl_spec list(decl_init) SEMI . option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
-##
-## The known suffix of the stack is as follows:
-## FOR LPAR decl_spec list(decl_init) SEMI
-##
-
-81
-<YOUR SYNTAX ERROR MESSAGE HERE>
-
-expr_eof: LPAR LBRACE DUMMY FOR LPAR XOR_ASSIGN
-##
-## Ends in an error in state: 207.
-##
-## stmt -> FOR LPAR . option(expression) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
-## stmt -> FOR LPAR . decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
-##
-## The known suffix of the stack is as follows:
-## FOR LPAR
-##
-
-82
-<YOUR SYNTAX ERROR MESSAGE HERE>
-
-expr_eof: LPAR LBRACE DUMMY FOR XOR_ASSIGN
-##
-## Ends in an error in state: 206.
-##
-## stmt -> FOR . LPAR option(expression) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
-## stmt -> FOR . LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
-##
-## The known suffix of the stack is as follows:
-## FOR
+## In state 204, spurious reduction of production option(expression) -> expression 
 ##
 
 83
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-expr_eof: LPAR LBRACE DUMMY IF LPAR STR RPAR SEMI ELSE XOR_ASSIGN
+expr_eof: LPAR LBRACE DUMMY FOR LPAR VOID SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 273.
+## Ends in an error in state: 269.
 ##
-## option(__anonymous_3) -> ELSE . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR decl_spec list(decl_init) SEMI . option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
-## ELSE
+## FOR LPAR decl_spec list(decl_init) SEMI
 ##
 
 84
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-expr_eof: LPAR LBRACE DUMMY IF LPAR STR RPAR SEMI XOR_ASSIGN
+expr_eof: LPAR LBRACE DUMMY FOR LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 272.
+## Ends in an error in state: 210.
 ##
-## stmt -> IF LPAR expression RPAR stmt . option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR LPAR . option(expression) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
+## stmt -> FOR LPAR . decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
-## IF LPAR expression RPAR stmt
+## FOR LPAR
 ##
 
 85
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
-expr_eof: LPAR LBRACE DUMMY IF LPAR STR RPAR XOR_ASSIGN
+expr_eof: LPAR LBRACE DUMMY FOR XOR_ASSIGN
 ##
-## Ends in an error in state: 205.
+## Ends in an error in state: 209.
 ##
-## stmt -> IF LPAR expression RPAR . stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> FOR . LPAR option(expression) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
+## stmt -> FOR . LPAR decl_spec list(decl_init) SEMI option(expression) SEMI option(expression) RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
-## IF LPAR expression RPAR
+## FOR
 ##
 
 86
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
+expr_eof: LPAR LBRACE DUMMY IF LPAR STR RPAR SEMI ELSE XOR_ASSIGN
+##
+## Ends in an error in state: 276.
+##
+## option(__anonymous_3) -> ELSE . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
+##
+## The known suffix of the stack is as follows:
+## ELSE
+##
+
+87
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+expr_eof: LPAR LBRACE DUMMY IF LPAR STR RPAR SEMI XOR_ASSIGN
+##
+## Ends in an error in state: 275.
+##
+## stmt -> IF LPAR expression RPAR stmt . option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
+##
+## The known suffix of the stack is as follows:
+## IF LPAR expression RPAR stmt
+##
+
+88
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
+expr_eof: LPAR LBRACE DUMMY IF LPAR STR RPAR XOR_ASSIGN
+##
+## Ends in an error in state: 208.
+##
+## stmt -> IF LPAR expression RPAR . stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
+##
+## The known suffix of the stack is as follows:
+## IF LPAR expression RPAR
+##
+
+89
+<YOUR SYNTAX ERROR MESSAGE HERE>
+
 expr_eof: LPAR LBRACE DUMMY IF LPAR STR TYPEDEF_ID
 ##
-## Ends in an error in state: 204.
+## Ends in an error in state: 207.
 ##
 ## expression -> expression . COMMA assignment_expression [ RPAR COMMA ]
-## stmt -> IF LPAR expression . RPAR stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> IF LPAR expression . RPAR stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## IF LPAR expression
@@ -1447,40 +1498,40 @@ expr_eof: LPAR LBRACE DUMMY IF LPAR STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-87
+90
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY IF LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 203.
+## Ends in an error in state: 206.
 ##
-## stmt -> IF LPAR . expression RPAR stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> IF LPAR . expression RPAR stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## IF LPAR
 ##
 
-88
+91
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY IF XOR_ASSIGN
 ##
-## Ends in an error in state: 202.
+## Ends in an error in state: 205.
 ##
-## stmt -> IF . LPAR expression RPAR stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> IF . LPAR expression RPAR stmt option(__anonymous_3) [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## IF
 ##
 
-89
+92
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY RETURN STR RPAR
 ##
-## Ends in an error in state: 199.
+## Ends in an error in state: 202.
 ##
-## stmt -> RETURN option(expression) . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> RETURN option(expression) . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## RETURN option(expression)
@@ -1504,15 +1555,15 @@ expr_eof: LPAR LBRACE DUMMY RETURN STR RPAR
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
 ## In state 107, spurious reduction of production expression -> assignment_expression 
-## In state 201, spurious reduction of production option(expression) -> expression 
+## In state 204, spurious reduction of production option(expression) -> expression 
 ##
 
-90
+93
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY RETURN STR TYPEDEF_ID
 ##
-## Ends in an error in state: 201.
+## Ends in an error in state: 204.
 ##
 ## expression -> expression . COMMA assignment_expression [ SEMI RPAR COMMA ]
 ## option(expression) -> expression . [ SEMI RPAR ]
@@ -1541,25 +1592,25 @@ expr_eof: LPAR LBRACE DUMMY RETURN STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-91
+94
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY RETURN XOR_ASSIGN
 ##
-## Ends in an error in state: 198.
+## Ends in an error in state: 201.
 ##
-## stmt -> RETURN . option(expression) SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> RETURN . option(expression) SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## RETURN
 ##
 
-92
+95
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY SEMI XOR_ASSIGN
 ##
-## Ends in an error in state: 278.
+## Ends in an error in state: 281.
 ##
 ## list(stmt) -> stmt . list(stmt) [ DUMMY ]
 ##
@@ -1567,15 +1618,15 @@ expr_eof: LPAR LBRACE DUMMY SEMI XOR_ASSIGN
 ## stmt
 ##
 
-93
+96
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY STR TYPEDEF_ID
 ##
-## Ends in an error in state: 237.
+## Ends in an error in state: 240.
 ##
 ## expression -> expression . COMMA assignment_expression [ SEMI COMMA ]
-## stmt -> expression . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> expression . SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## expression
@@ -1601,28 +1652,28 @@ expr_eof: LPAR LBRACE DUMMY STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-94
+97
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY SWITCH LPAR STR RPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 195.
+## Ends in an error in state: 198.
 ##
-## stmt -> SWITCH LPAR expression RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> SWITCH LPAR expression RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## SWITCH LPAR expression RPAR
 ##
 
-95
+98
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY SWITCH LPAR STR TYPEDEF_ID
 ##
-## Ends in an error in state: 194.
+## Ends in an error in state: 197.
 ##
 ## expression -> expression . COMMA assignment_expression [ RPAR COMMA ]
-## stmt -> SWITCH LPAR expression . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> SWITCH LPAR expression . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## SWITCH LPAR expression
@@ -1648,51 +1699,51 @@ expr_eof: LPAR LBRACE DUMMY SWITCH LPAR STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-96
+99
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY SWITCH LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 193.
+## Ends in an error in state: 196.
 ##
-## stmt -> SWITCH LPAR . expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> SWITCH LPAR . expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## SWITCH LPAR
 ##
 
-97
+100
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY SWITCH XOR_ASSIGN
 ##
-## Ends in an error in state: 192.
+## Ends in an error in state: 195.
 ##
-## stmt -> SWITCH . LPAR expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> SWITCH . LPAR expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## SWITCH
 ##
 
-98
+101
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY VOID EXTERN XOR_ASSIGN
 ##
-## Ends in an error in state: 239.
+## Ends in an error in state: 242.
 ##
-## stmt -> decl_spec . list(decl_init) SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> decl_spec . list(decl_init) SEMI [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## decl_spec
 ##
 
-99
+102
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY VOID TYPEDEF_ID COMMA
 ##
-## Ends in an error in state: 260.
+## Ends in an error in state: 263.
 ##
 ## list(decl_init) -> decl_init . list(decl_init) [ SEMI ]
 ##
@@ -1703,33 +1754,33 @@ expr_eof: LPAR LBRACE DUMMY VOID TYPEDEF_ID COMMA
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 156, spurious reduction of production declarator -> direct_declarator 
-## In state 242, spurious reduction of production option(__anonymous_2) -> 
-## In state 259, spurious reduction of production decl_init -> declarator option(__anonymous_2) 
+## In state 157, spurious reduction of production declarator -> direct_declarator 
+## In state 245, spurious reduction of production option(__anonymous_2) -> 
+## In state 262, spurious reduction of production decl_init -> declarator option(__anonymous_2) 
 ##
 
-100
+103
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY WHILE LPAR STR RPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 190.
+## Ends in an error in state: 193.
 ##
-## stmt -> WHILE LPAR expression RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> WHILE LPAR expression RPAR . stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## WHILE LPAR expression RPAR
 ##
 
-101
+104
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY WHILE LPAR STR TYPEDEF_ID
 ##
-## Ends in an error in state: 189.
+## Ends in an error in state: 192.
 ##
 ## expression -> expression . COMMA assignment_expression [ RPAR COMMA ]
-## stmt -> WHILE LPAR expression . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> WHILE LPAR expression . RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## WHILE LPAR expression
@@ -1755,64 +1806,64 @@ expr_eof: LPAR LBRACE DUMMY WHILE LPAR STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-102
+105
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY WHILE LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 188.
+## Ends in an error in state: 191.
 ##
-## stmt -> WHILE LPAR . expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> WHILE LPAR . expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## WHILE LPAR
 ##
 
-103
+106
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY WHILE XOR_ASSIGN
 ##
-## Ends in an error in state: 187.
+## Ends in an error in state: 190.
 ##
-## stmt -> WHILE . LPAR expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## stmt -> WHILE . LPAR expression RPAR stmt [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## WHILE
 ##
 
-104
+107
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE DUMMY XOR_ASSIGN
 ##
-## Ends in an error in state: 186.
+## Ends in an error in state: 189.
 ##
-## block -> LBRACE midrule(__anonymous_4) DUMMY . list(stmt) midrule(__anonymous_5) DUMMY RBRACE [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RPAR RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## block -> LBRACE midrule(__anonymous_4) DUMMY . list(stmt) midrule(__anonymous_5) DUMMY RBRACE [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RPAR RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## LBRACE midrule(__anonymous_4) DUMMY
 ##
 
-105
+108
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR LBRACE XOR_ASSIGN
 ##
-## Ends in an error in state: 185.
+## Ends in an error in state: 188.
 ##
-## block -> LBRACE midrule(__anonymous_4) . DUMMY list(stmt) midrule(__anonymous_5) DUMMY RBRACE [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RPAR RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK AST AMP ]
+## block -> LBRACE midrule(__anonymous_4) . DUMMY list(stmt) midrule(__anonymous_5) DUMMY RBRACE [ WHILE VOID UNION TYPEDEF_ID TYPEDEF TILDA SWITCH STRUCT STR STATIC SIZEOF SHORT SEMI RPAR RETURN PLUSPLUS PLUS NUM NOT MINUSMINUS MINUS LPAR LONG LBRACE INT IF IDENT FOR EXTERN ENUM ELSE DUMMY DO DEFAULT CONTINUE CHAR CASE BREAK BOOL AST AMP ]
 ##
 ## The known suffix of the stack is as follows:
 ## LBRACE midrule(__anonymous_4)
 ##
 
-106
+109
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR STR TYPEDEF_ID
 ##
-## Ends in an error in state: 315.
+## Ends in an error in state: 318.
 ##
 ## expression -> expression . COMMA assignment_expression [ RPAR COMMA ]
 ## primary_expression -> LPAR expression . RPAR [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
@@ -1841,12 +1892,12 @@ expr_eof: LPAR STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-107
+110
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID AST LBRACKET RBRACKET XOR_ASSIGN
 ##
-## Ends in an error in state: 309.
+## Ends in an error in state: 312.
 ##
 ## abstract_declarator -> pointer direct_abstract_declarator . [ RPAR ]
 ## option(direct_abstract_declarator) -> direct_abstract_declarator . [ LPAR LBRACKET ]
@@ -1855,12 +1906,12 @@ expr_eof: LPAR VOID AST LBRACKET RBRACKET XOR_ASSIGN
 ## pointer direct_abstract_declarator
 ##
 
-108
+111
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID AST XOR_ASSIGN
 ##
-## Ends in an error in state: 291.
+## Ends in an error in state: 294.
 ##
 ## pointer -> AST . option(pointer) [ RPAR LPAR LBRACKET ]
 ##
@@ -1868,12 +1919,12 @@ expr_eof: LPAR VOID AST XOR_ASSIGN
 ## AST
 ##
 
-109
+112
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LBRACKET RBRACKET LPAR VOID TYPEDEF_ID COMMA XOR_ASSIGN
 ##
-## Ends in an error in state: 300.
+## Ends in an error in state: 303.
 ##
 ## separated_nonempty_list(COMMA,__anonymous_8) -> type_spec declarator COMMA . separated_nonempty_list(COMMA,__anonymous_8) [ RPAR ]
 ##
@@ -1881,12 +1932,12 @@ expr_eof: LPAR VOID LBRACKET RBRACKET LPAR VOID TYPEDEF_ID COMMA XOR_ASSIGN
 ## type_spec declarator COMMA
 ##
 
-110
+113
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LBRACKET RBRACKET LPAR VOID TYPEDEF_ID TYPEDEF_ID
 ##
-## Ends in an error in state: 299.
+## Ends in an error in state: 302.
 ##
 ## separated_nonempty_list(COMMA,__anonymous_8) -> type_spec declarator . [ RPAR ]
 ## separated_nonempty_list(COMMA,__anonymous_8) -> type_spec declarator . COMMA separated_nonempty_list(COMMA,__anonymous_8) [ RPAR ]
@@ -1898,15 +1949,15 @@ expr_eof: LPAR VOID LBRACKET RBRACKET LPAR VOID TYPEDEF_ID TYPEDEF_ID
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 156, spurious reduction of production declarator -> direct_declarator 
+## In state 157, spurious reduction of production declarator -> direct_declarator 
 ##
 
-111
+114
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LBRACKET RBRACKET LPAR VOID XOR_ASSIGN
 ##
-## Ends in an error in state: 298.
+## Ends in an error in state: 301.
 ##
 ## separated_nonempty_list(COMMA,__anonymous_8) -> type_spec . declarator [ RPAR ]
 ## separated_nonempty_list(COMMA,__anonymous_8) -> type_spec . declarator COMMA separated_nonempty_list(COMMA,__anonymous_8) [ RPAR ]
@@ -1915,12 +1966,12 @@ expr_eof: LPAR VOID LBRACKET RBRACKET LPAR VOID XOR_ASSIGN
 ## type_spec
 ##
 
-112
+115
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LBRACKET RBRACKET LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 297.
+## Ends in an error in state: 300.
 ##
 ## direct_abstract_declarator -> option(direct_abstract_declarator) LPAR midrule(__anonymous_7) . loption(separated_nonempty_list(COMMA,__anonymous_8)) midrule(__anonymous_9) RPAR [ RPAR LPAR LBRACKET ]
 ##
@@ -1928,12 +1979,12 @@ expr_eof: LPAR VOID LBRACKET RBRACKET LPAR XOR_ASSIGN
 ## option(direct_abstract_declarator) LPAR midrule(__anonymous_7)
 ##
 
-113
+116
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LBRACKET RBRACKET XOR_ASSIGN
 ##
-## Ends in an error in state: 310.
+## Ends in an error in state: 313.
 ##
 ## abstract_declarator -> direct_abstract_declarator . [ RPAR ]
 ## option(direct_abstract_declarator) -> direct_abstract_declarator . [ LPAR LBRACKET ]
@@ -1942,12 +1993,12 @@ expr_eof: LPAR VOID LBRACKET RBRACKET XOR_ASSIGN
 ## direct_abstract_declarator
 ##
 
-114
+117
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LBRACKET STR IDENT
 ##
-## Ends in an error in state: 307.
+## Ends in an error in state: 310.
 ##
 ## direct_abstract_declarator -> option(direct_abstract_declarator) LBRACKET option(assignment_expression) . RBRACKET [ RPAR LPAR LBRACKET ]
 ##
@@ -1972,15 +2023,15 @@ expr_eof: LPAR VOID LBRACKET STR IDENT
 ## In state 84, spurious reduction of production logical_or_expression -> logical_and_expression 
 ## In state 82, spurious reduction of production conditional_expression -> logical_or_expression 
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
-## In state 161, spurious reduction of production option(assignment_expression) -> assignment_expression 
+## In state 162, spurious reduction of production option(assignment_expression) -> assignment_expression 
 ##
 
-115
+118
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LBRACKET XOR_ASSIGN
 ##
-## Ends in an error in state: 306.
+## Ends in an error in state: 309.
 ##
 ## direct_abstract_declarator -> option(direct_abstract_declarator) LBRACKET . option(assignment_expression) RBRACKET [ RPAR LPAR LBRACKET ]
 ##
@@ -1988,12 +2039,12 @@ expr_eof: LPAR VOID LBRACKET XOR_ASSIGN
 ## option(direct_abstract_declarator) LBRACKET
 ##
 
-116
+119
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 290.
+## Ends in an error in state: 293.
 ##
 ## direct_abstract_declarator -> LPAR . abstract_declarator RPAR [ RPAR LPAR LBRACKET ]
 ##
@@ -2001,12 +2052,12 @@ expr_eof: LPAR VOID LPAR XOR_ASSIGN
 ## LPAR
 ##
 
-117
+120
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID RPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 286.
+## Ends in an error in state: 289.
 ##
 ## cast_expression -> LPAR type_name RPAR . cast_expression [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LAND IDENT GT GE EQ EOF COMMA COLON AST_ASSIGN AST ASSIGN AMP_ASSIGN AMP ]
 ## postfix_expression -> LPAR type_name RPAR . list_initializer [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
@@ -2015,12 +2066,12 @@ expr_eof: LPAR VOID RPAR XOR_ASSIGN
 ## LPAR type_name RPAR
 ##
 
-118
+121
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR VOID XOR_ASSIGN
 ##
-## Ends in an error in state: 289.
+## Ends in an error in state: 292.
 ##
 ## type_name -> specifier_qualifier_list . option(abstract_declarator) [ RPAR ]
 ##
@@ -2028,7 +2079,7 @@ expr_eof: LPAR VOID XOR_ASSIGN
 ## specifier_qualifier_list
 ##
 
-119
+122
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: LPAR XOR_ASSIGN
@@ -2044,7 +2095,7 @@ expr_eof: LPAR XOR_ASSIGN
 ## LPAR
 ##
 
-120
+123
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: MINUS XOR_ASSIGN
@@ -2057,7 +2108,7 @@ expr_eof: MINUS XOR_ASSIGN
 ## MINUS
 ##
 
-121
+124
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: MINUSMINUS XOR_ASSIGN
@@ -2070,7 +2121,7 @@ expr_eof: MINUSMINUS XOR_ASSIGN
 ## MINUSMINUS
 ##
 
-122
+125
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: NOT XOR_ASSIGN
@@ -2083,7 +2134,7 @@ expr_eof: NOT XOR_ASSIGN
 ## NOT
 ##
 
-123
+126
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: PLUS XOR_ASSIGN
@@ -2096,12 +2147,12 @@ expr_eof: PLUS XOR_ASSIGN
 ## PLUS
 ##
 
-124
+127
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: PLUSPLUS LPAR VOID RPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 322.
+## Ends in an error in state: 325.
 ##
 ## postfix_expression -> LPAR type_name RPAR . list_initializer [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ##
@@ -2109,12 +2160,12 @@ expr_eof: PLUSPLUS LPAR VOID RPAR XOR_ASSIGN
 ## LPAR type_name RPAR
 ##
 
-125
+128
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: PLUSPLUS LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 320.
+## Ends in an error in state: 323.
 ##
 ## postfix_expression -> LPAR . type_name RPAR list_initializer [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ## primary_expression -> LPAR . expression RPAR [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
@@ -2124,7 +2175,7 @@ expr_eof: PLUSPLUS LPAR XOR_ASSIGN
 ## LPAR
 ##
 
-126
+129
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: PLUSPLUS XOR_ASSIGN
@@ -2137,12 +2188,12 @@ expr_eof: PLUSPLUS XOR_ASSIGN
 ## PLUSPLUS
 ##
 
-127
+130
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: SIZEOF LPAR VOID RPAR WHILE
 ##
-## Ends in an error in state: 329.
+## Ends in an error in state: 332.
 ##
 ## postfix_expression -> LPAR type_name RPAR . list_initializer [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ## unary_expression -> SIZEOF LPAR type_name RPAR . [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LAND IDENT GT GE EQ EOF COMMA COLON AST_ASSIGN AST ASSIGN AMP_ASSIGN AMP ]
@@ -2151,12 +2202,12 @@ expr_eof: SIZEOF LPAR VOID RPAR WHILE
 ## SIZEOF LPAR type_name RPAR
 ##
 
-128
+131
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: SIZEOF LPAR XOR_ASSIGN
 ##
-## Ends in an error in state: 327.
+## Ends in an error in state: 330.
 ##
 ## postfix_expression -> LPAR . type_name RPAR list_initializer [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
 ## primary_expression -> LPAR . expression RPAR [ XOR_ASSIGN XOR TYPEDEF_ID SLASH_ASSIGN SLASH SEMI RSHIFT_ASSIGN RSHIFT RPAR RBRACKET QUESTION PLUS_ASSIGN PLUSPLUS PLUS OR_ASSIGN OR NE MOD_ASSIGN MOD MINUS_ASSIGN MINUSMINUS MINUS LT LSHIFT_ASSIGN LSHIFT LPAR LOR LE LBRACKET LAND IDENT GT GE EQ EOF DOT COMMA COLON AST_ASSIGN AST ASSIGN ARROW AMP_ASSIGN AMP ]
@@ -2167,7 +2218,7 @@ expr_eof: SIZEOF LPAR XOR_ASSIGN
 ## SIZEOF LPAR
 ##
 
-129
+132
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: SIZEOF XOR_ASSIGN
@@ -2181,7 +2232,7 @@ expr_eof: SIZEOF XOR_ASSIGN
 ## SIZEOF
 ##
 
-130
+133
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR AMP XOR_ASSIGN
@@ -2194,7 +2245,7 @@ expr_eof: STR AMP XOR_ASSIGN
 ## and_expression AMP
 ##
 
-131
+134
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR ARROW XOR_ASSIGN
@@ -2207,7 +2258,7 @@ expr_eof: STR ARROW XOR_ASSIGN
 ## postfix_expression ARROW
 ##
 
-132
+135
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR ASSIGN XOR_ASSIGN
@@ -2220,7 +2271,7 @@ expr_eof: STR ASSIGN XOR_ASSIGN
 ## unary_expression ASSIGN
 ##
 
-133
+136
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR AST IDENT XOR_ASSIGN
@@ -2244,7 +2295,7 @@ expr_eof: STR AST IDENT XOR_ASSIGN
 ## In state 63, spurious reduction of production multiplicative_expression -> multiplicative_expression AST cast_expression 
 ##
 
-134
+137
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR AST XOR_ASSIGN
@@ -2257,7 +2308,7 @@ expr_eof: STR AST XOR_ASSIGN
 ## multiplicative_expression AST
 ##
 
-135
+138
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR COMMA XOR_ASSIGN
@@ -2270,7 +2321,7 @@ expr_eof: STR COMMA XOR_ASSIGN
 ## expression COMMA
 ##
 
-136
+139
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR DOT XOR_ASSIGN
@@ -2283,7 +2334,7 @@ expr_eof: STR DOT XOR_ASSIGN
 ## postfix_expression DOT
 ##
 
-137
+140
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR EQ XOR_ASSIGN
@@ -2296,7 +2347,7 @@ expr_eof: STR EQ XOR_ASSIGN
 ## equality_expression EQ
 ##
 
-138
+141
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR GE XOR_ASSIGN
@@ -2309,7 +2360,7 @@ expr_eof: STR GE XOR_ASSIGN
 ## relational_expression GE
 ##
 
-139
+142
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR GT XOR_ASSIGN
@@ -2322,7 +2373,7 @@ expr_eof: STR GT XOR_ASSIGN
 ## relational_expression GT
 ##
 
-140
+143
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LAND XOR_ASSIGN
@@ -2335,7 +2386,7 @@ expr_eof: STR LAND XOR_ASSIGN
 ## logical_and_expression LAND
 ##
 
-141
+144
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LBRACKET STR TYPEDEF_ID
@@ -2369,7 +2420,7 @@ expr_eof: STR LBRACKET STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-142
+145
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LBRACKET XOR_ASSIGN
@@ -2382,7 +2433,7 @@ expr_eof: STR LBRACKET XOR_ASSIGN
 ## postfix_expression LBRACKET
 ##
 
-143
+146
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LE XOR_ASSIGN
@@ -2395,7 +2446,7 @@ expr_eof: STR LE XOR_ASSIGN
 ## relational_expression LE
 ##
 
-144
+147
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LOR XOR_ASSIGN
@@ -2408,7 +2459,7 @@ expr_eof: STR LOR XOR_ASSIGN
 ## logical_or_expression LOR
 ##
 
-145
+148
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LPAR STR COMMA XOR_ASSIGN
@@ -2421,7 +2472,7 @@ expr_eof: STR LPAR STR COMMA XOR_ASSIGN
 ## assignment_expression COMMA
 ##
 
-146
+149
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LPAR STR TYPEDEF_ID
@@ -2454,7 +2505,7 @@ expr_eof: STR LPAR STR TYPEDEF_ID
 ## In state 103, spurious reduction of production assignment_expression -> conditional_expression 
 ##
 
-147
+150
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LPAR XOR_ASSIGN
@@ -2467,7 +2518,7 @@ expr_eof: STR LPAR XOR_ASSIGN
 ## postfix_expression LPAR
 ##
 
-148
+151
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LSHIFT XOR_ASSIGN
@@ -2480,7 +2531,7 @@ expr_eof: STR LSHIFT XOR_ASSIGN
 ## shift_expression LSHIFT
 ##
 
-149
+152
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR LT XOR_ASSIGN
@@ -2493,7 +2544,7 @@ expr_eof: STR LT XOR_ASSIGN
 ## relational_expression LT
 ##
 
-150
+153
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR MINUS STR XOR_ASSIGN
@@ -2517,7 +2568,7 @@ expr_eof: STR MINUS STR XOR_ASSIGN
 ## In state 64, spurious reduction of production multiplicative_expression -> cast_expression 
 ##
 
-151
+154
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR MINUS XOR_ASSIGN
@@ -2530,7 +2581,7 @@ expr_eof: STR MINUS XOR_ASSIGN
 ## additive_expression MINUS
 ##
 
-152
+155
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR MOD XOR_ASSIGN
@@ -2543,7 +2594,7 @@ expr_eof: STR MOD XOR_ASSIGN
 ## multiplicative_expression MOD
 ##
 
-153
+156
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR NE XOR_ASSIGN
@@ -2556,7 +2607,7 @@ expr_eof: STR NE XOR_ASSIGN
 ## equality_expression NE
 ##
 
-154
+157
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR OR XOR_ASSIGN
@@ -2569,7 +2620,7 @@ expr_eof: STR OR XOR_ASSIGN
 ## inclusive_or_expression OR
 ##
 
-155
+158
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR PLUS STR XOR_ASSIGN
@@ -2593,7 +2644,7 @@ expr_eof: STR PLUS STR XOR_ASSIGN
 ## In state 64, spurious reduction of production multiplicative_expression -> cast_expression 
 ##
 
-156
+159
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR PLUS XOR_ASSIGN
@@ -2606,7 +2657,7 @@ expr_eof: STR PLUS XOR_ASSIGN
 ## additive_expression PLUS
 ##
 
-157
+160
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR QUESTION STR COLON XOR_ASSIGN
@@ -2619,7 +2670,7 @@ expr_eof: STR QUESTION STR COLON XOR_ASSIGN
 ## logical_or_expression QUESTION expression COLON
 ##
 
-158
+161
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR QUESTION STR TYPEDEF_ID
@@ -2653,7 +2704,7 @@ expr_eof: STR QUESTION STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-159
+162
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR QUESTION XOR_ASSIGN
@@ -2666,7 +2717,7 @@ expr_eof: STR QUESTION XOR_ASSIGN
 ## logical_or_expression QUESTION
 ##
 
-160
+163
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR RSHIFT XOR_ASSIGN
@@ -2679,7 +2730,7 @@ expr_eof: STR RSHIFT XOR_ASSIGN
 ## shift_expression RSHIFT
 ##
 
-161
+164
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR SLASH XOR_ASSIGN
@@ -2692,12 +2743,12 @@ expr_eof: STR SLASH XOR_ASSIGN
 ## multiplicative_expression SLASH
 ##
 
-162
+165
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR TYPEDEF_ID
 ##
-## Ends in an error in state: 332.
+## Ends in an error in state: 335.
 ##
 ## expr_eof -> expression . EOF [ # ]
 ## expression -> expression . COMMA assignment_expression [ EOF COMMA ]
@@ -2726,7 +2777,7 @@ expr_eof: STR TYPEDEF_ID
 ## In state 107, spurious reduction of production expression -> assignment_expression 
 ##
 
-163
+166
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR WHILE
@@ -2745,7 +2796,7 @@ expr_eof: STR WHILE
 ## postfix_expression
 ##
 
-164
+167
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR XOR XOR_ASSIGN
@@ -2758,7 +2809,7 @@ expr_eof: STR XOR XOR_ASSIGN
 ## exclusive_or_expression XOR
 ##
 
-165
+168
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: STR XOR_ASSIGN XOR_ASSIGN
@@ -2771,7 +2822,7 @@ expr_eof: STR XOR_ASSIGN XOR_ASSIGN
 ## unary_expression binop_assign
 ##
 
-166
+169
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: TILDA XOR_ASSIGN
@@ -2784,7 +2835,7 @@ expr_eof: TILDA XOR_ASSIGN
 ## TILDA
 ##
 
-167
+170
 <YOUR SYNTAX ERROR MESSAGE HERE>
 
 expr_eof: XOR_ASSIGN
@@ -2797,6 +2848,6 @@ expr_eof: XOR_ASSIGN
 ##
 ##
 
-168
+171
 <YOUR SYNTAX ERROR MESSAGE HERE>
 

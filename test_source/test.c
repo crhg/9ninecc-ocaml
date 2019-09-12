@@ -1716,3 +1716,12 @@ int test200() {
     try_printf("%d", x200);
 }
 // @end
+
+// @try_out test201 1
+_Bool f201() {
+    return 256;
+}
+int test201() {
+    try_printf("%d", f201());
+}
+// @end

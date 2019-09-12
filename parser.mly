@@ -251,7 +251,7 @@ direct_declarator:
     }
 }
 (* | d=direct_declarator LPAR params=separated_list(COMMA, ts=type_spec d=declarator{ (ts, d) }) RPAR { *)
-| d=function_declarator_head params=function_declarator_rest {
+| d=function_declarator_head params=function_declarator_params {
     let params, has_varargs = params in
     {
         exp = Func (d, params, has_varargs);
@@ -259,31 +259,27 @@ direct_declarator:
     }
 }
 
+
 function_declarator_head:
 | d=direct_declarator LPAR {
     Typedef_env.new_scope();
     d
 }
 
-function_declarator_rest:
-| params=separated_list(COMMA, param) RPAR {
-    Typedef_env.restore_scope();
-
-    let (params, has_varargs) =
-        if not @@ List.mem None params then
-            (params, false)
-        else (
-            let params = List.rev @@ List.tl @@ List.rev params in
-            (if List.mem None params then failwith "invalid ...");
-            (params, true)
-        ) in
-
-    (List.map Option.get params, has_varargs)
+function_declarator_params:
+| RPAR { ([], false) }
+| ts=type_spec d=declarator rest=function_declarator_params_rest {
+    let rest, has_varargs = rest in
+    ((ts, d) :: rest, has_varargs)
 }
 
-param:
-| ts=type_spec d=declarator { Some (ts, d) }
-| DOTS { None }
+function_declarator_params_rest:
+| RPAR { ([], false) }
+| COMMA DOTS RPAR { ([], true) }
+| COMMA ts=type_spec d=declarator rest=function_declarator_params_rest {
+    let rest, has_varargs = rest in
+    ((ts, d) :: rest, has_varargs)
+}
 
 init:
 | e=assignment_expression {

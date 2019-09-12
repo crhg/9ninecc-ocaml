@@ -74,6 +74,7 @@ and to_assign_struct lhs fields init =
 
 and to_assign_default ty lhs =
     match ty with
+    | Type.Bool
     | Type.Char
     | Type.Short
     | Type.Int

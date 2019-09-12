@@ -350,6 +350,17 @@ and gen_i_expr' i_expr = match i_expr with
     Stack.pop "rax";
     printf "    not rax\n";
     Stack.push "rax";
+| IBoolOfRetval e ->
+    gen_i_expr e;
+    Stack.pop "rax";
+    printf "    movzx eax, al\n";
+    Stack.push "rax"
+| IBoolOfInt e ->
+    gen_i_expr e;
+    Stack.pop "rax";
+    printf "    cmp rax, 0\n";
+    printf "    setne al\n";
+    Stack.push "rax"
 | I_binop (LAnd, l, r) ->
     let label = Unique_id.new_id ".Land" in
     gen_i_expr l;

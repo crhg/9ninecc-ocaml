@@ -24,7 +24,7 @@
 
 %token SIZEOF
 
-%token VOID LONG INT SHORT CHAR STRUCT UNION ENUM TYPEDEF EXTERN STATIC
+%token VOID LONG INT SHORT CHAR BOOL STRUCT UNION ENUM TYPEDEF EXTERN STATIC
 
 %token DUMMY // typedefで使うダミーのトークン
 
@@ -163,6 +163,7 @@ type_spec:
 | token=INT   { ignore token; { exp = Ast.Int;   loc = $startpos(token) } }
 | token=SHORT { ignore token; { exp = Ast.Short; loc = $startpos(token) } }
 | token=CHAR  { ignore token; { exp = Ast.Char;  loc = $startpos(token) } }
+| token=BOOL  { ignore token; { exp = Ast.Bool;  loc = $startpos(token) } }
 | token=STRUCT fields=su_body {
     ignore token; 
     { exp = Struct { su_tag = None; su_fields = Some fields }; loc = $startpos(token) }

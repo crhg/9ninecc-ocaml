@@ -203,6 +203,7 @@ and convert_and_store (expr_s:Ast.expr_s) =
 
 (* 型の正規化 *)
 and normalize_type ty = match ty with
+    | Type.Bool
     | Type.Char
     | Type.Short
     | Type.Long -> Type.Int (* 式中ではcharもintも同一視してintとみなす。 *)
@@ -263,7 +264,10 @@ and convert' expr = match expr.exp with
 
     if not @@ simple_type lty then (raise(Misc.Error_at("cannot assign "^(Type.show_type lty), expr.loc)));
 
-    (lty, I_binop(Store lty, l, r))
+    if lty = Type.Bool then
+        (lty, I_binop(Store lty, l, IBoolOfInt r))
+    else
+        (lty, I_binop(Store lty, l, r))
 | Call (func, expr_list) ->
     let ty, f = convert func in
     let ty, f = match ty with
@@ -272,7 +276,11 @@ and convert' expr = match expr.exp with
         | _ -> ty, f in
     (match ty with
     | Ptr (Function (ty, _)) ->
-        (ty, ICall(f, List.map (Misc.compose snd convert) expr_list))
+        let call = ICall(f, List.map (Misc.compose snd convert) expr_list) in
+        if ty = Type.Bool then
+            (ty, IBoolOfRetval call)
+        else
+            (ty, call)
     | _ ->
         raise(Misc.Error_at("not function pointer: "^(Type.show_type ty), func.loc))
     )
@@ -325,7 +333,10 @@ and convert' expr = match expr.exp with
 | Cast (type_name, e) ->
     let _, e = convert e in
     let ty = type_of_type_name type_name in
-    (ty, e)
+    if ty = Type.Bool then
+        (ty, IBoolOfInt e)
+    else
+        (ty, e)
 | BitComplement e ->
     let _, e = convert e in
     (Type.Int, IBitComplement e)
@@ -493,6 +504,7 @@ and type_of_type_spec ts = match ts.exp with
 | Int -> Type.Int
 | Short -> Type.Short
 | Char -> Type.Char
+| Bool -> Type.Bool
 | Struct { su_tag = None; su_fields = Some fields } ->
     let body = body_of_struct fields in
     Type.Struct {
@@ -676,7 +688,7 @@ and eval_expr expr = Const.eval_int (snd (convert expr))
 and simple_type ty =
     let open Type in
     match ty with
-    | Char | Short | Int | Long | Ptr _ ->
+    | Bool | Char | Short | Int | Long | Ptr _ ->
         true
     | _ ->
         false

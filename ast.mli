@@ -23,6 +23,7 @@ and type_spec_exp =
   | Int
   | Short
   | Char
+  | Bool
   | Struct of st_un
   | Union of st_un
   | Enum of enum
@@ -106,6 +107,8 @@ and i_expr =
   | ICond of i_expr * i_expr * i_expr
   | I_block of stmt
   | IBitComplement of i_expr
+  | IBoolOfRetval of i_expr
+  | IBoolOfInt of i_expr
   | Error of error_r
 and error_r = { error_exn : exn }
 and expr_s = { expr : expr; mutable i_expr : i_expr option; }

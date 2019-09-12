@@ -4,6 +4,7 @@ type t =
   | Int
   | Short
   | Char
+  | Bool
   | Ptr of t
   | Array of t * int option
   | Function of t * (string * t) list

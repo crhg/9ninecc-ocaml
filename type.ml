@@ -8,6 +8,7 @@ type t =
 | Int
 | Short
 | Char
+| Bool
 | Ptr of t
 | Array of t * int option
     [@printer fun fmt (ty, size) -> match size with
@@ -64,6 +65,7 @@ let rec get_size ty = match ty with
 | Int -> 4
 | Short -> 2
 | Char -> 1
+| Bool -> 1
 | Ptr _ -> 8
 | Array (t, Some n) -> get_size t * n
 | Array (_, None) -> raise Incomplete
@@ -78,6 +80,7 @@ and get_alignment ty = match ty with
 | Int -> 4
 | Short -> 2
 | Char -> 1
+| Bool -> 1
 | Ptr _ -> 8
 | Array (t, _) -> get_alignment t
 | Struct {body=Some{alignment=alignment;_};_} -> alignment
@@ -92,6 +95,7 @@ and is_complete_type ty = match ty with
 | Int
 | Short
 | Char
+| Bool
 | Ptr _
 | Struct {body=Some _; _}
 | Union {body=Some _; _} ->
@@ -110,6 +114,7 @@ and is_simple ty = match ty with
 | Int
 | Short
 | Char
+| Bool
 | Ptr _ ->
     true
 | Struct _

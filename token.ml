@@ -6,6 +6,7 @@ type token =
   | ASSIGN
   | AST
   | AST_ASSIGN
+  | BOOL
   | BREAK
   | CASE
   | CHAR

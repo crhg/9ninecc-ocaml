@@ -108,6 +108,7 @@ rule token = parse
 | "int"     { INT }
 | "short"   { SHORT }
 | "char"    { CHAR }
+| "_Bool"   { BOOL }
 | "sizeof"  { SIZEOF }
 | "struct"  { STRUCT }
 | "union"   { UNION }

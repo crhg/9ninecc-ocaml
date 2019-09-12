@@ -11,6 +11,7 @@ let select_size ty = match ty with
 | Type.Int -> S32
 | Type.Short -> S16
 | Type.Char -> S8
+| Type.Bool -> S8
 | _ -> raise(Misc.Error("gen_misc.ml:select_size: " ^ (Type.show_type ty)))
 
 let select_reg ty reg = match (select_size ty, reg) with

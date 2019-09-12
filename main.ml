@@ -9,7 +9,7 @@
 (*     ) *)
 
 let compile filename source =
-    Compiler.process filename source (Parse.parse Parser.Incremental.translation_unit) Lex.token (fun ast ->
+    Compiler.process filename source (Parse.parse Parser.Incremental.translation_unit Parser_messages.message) Lex.token (fun ast ->
         Builtin.register();
         Type_check.check ast;
         Gen.gen() 

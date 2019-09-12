@@ -1,13 +1,15 @@
 module I = Parser.MenhirInterpreter
 
-let get_parse_error env = 
-    match I.stack env with
-    | lazy Nil -> "Invalid syntax"
-    | lazy (Cons (I.Element (state, _, _, _), _)) ->
-        try (Parser_messages.message (I.number state)) with
-        | Not_found -> "invalid syntax (no message)"
 
-let parse start lexer lexbuf =
+let parse start message lexer lexbuf =
+
+    let get_parse_error env = 
+        match I.stack env with
+        | lazy Nil -> "Invalid syntax"
+        | lazy (Cons (I.Element (state, _, _, _), _)) ->
+            try (message (I.number state)) with
+            | Not_found -> "invalid syntax (no message)" in
+
     let open Lexing in
     let checkpoint = start lexbuf.lex_curr_p in
     let rec parse lexbuf checkpoint =

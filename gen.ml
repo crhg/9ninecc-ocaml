@@ -286,7 +286,12 @@ and gen_i_expr i_expr =
 
 and gen_i_expr' i_expr = match i_expr with
 | Const n ->
-    Stack.push @@ string_of_int n
+    if n <= 0xffffffff && n >= -0x80000000 then
+        Stack.push @@ string_of_int n
+    else (
+        printf "mov rax, %d\n" n;
+        Stack.push "rax"
+    )
 | Label label ->
     printf "    mov rax, OFFSET FLAT:%s\n" label;
     Stack.push "rax"
@@ -360,6 +365,21 @@ and gen_i_expr' i_expr = match i_expr with
     Stack.pop "rax";
     printf "    cmp rax, 0\n";
     printf "    setne al\n";
+    Stack.push "rax"
+| ICharOfInt e ->
+    gen_i_expr e;
+    Stack.pop "rax";
+    printf "    movsx rax,al\n";
+    Stack.push "rax"
+| IShortOfInt e ->
+    gen_i_expr e;
+    Stack.pop "rax";
+    printf "    movsx rax,ax\n";
+    Stack.push "rax"
+| IIntOfInt e ->
+    gen_i_expr e;
+    Stack.pop "rax";
+    printf "    cdqe\n";
     Stack.push "rax"
 | I_binop (LAnd, l, r) ->
     let label = Unique_id.new_id ".Land" in

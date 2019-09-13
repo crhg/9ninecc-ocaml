@@ -1737,3 +1737,10 @@ int test202() {
     f202();
 }
 // @end
+
+// @try_out test203 ffffffef,ffffcdef,89abcdef
+int test203() {
+    long x = 81985529216486895; // 0x123456789abcdef
+    try_printf("%x,%x,%x", (char)x, (short)x, (int)x);
+}
+// @end

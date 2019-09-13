@@ -109,6 +109,9 @@ and i_expr =
   | IBitComplement of i_expr
   | IBoolOfRetval of i_expr
   | IBoolOfInt of i_expr
+  | ICharOfInt of i_expr
+  | IShortOfInt of i_expr
+  | IIntOfInt of i_expr
   | Error of error_r
 and error_r = { error_exn : exn }
 and expr_s = { expr : expr; mutable i_expr : i_expr option; }

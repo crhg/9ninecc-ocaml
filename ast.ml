@@ -162,6 +162,9 @@ and i_expr =
 | IBitComplement of i_expr
 | IBoolOfRetval of i_expr
 | IBoolOfInt of i_expr
+| ICharOfInt of i_expr
+| IShortOfInt of i_expr
+| IIntOfInt of i_expr
 | Error of error_r
 
 and error_r = {
@@ -219,6 +222,9 @@ and show_i_expr_short i_expr = match i_expr with
 | IBitComplement e -> Printf.sprintf "~(%s)" (show_i_expr_short e)
 | IBoolOfRetval e -> Printf.sprintf "BoolOfRetval(%s)" (show_i_expr_short e)
 | IBoolOfInt e -> Printf.sprintf "BoolOfInt(%s)" (show_i_expr_short e)
+| ICharOfInt e -> Printf.sprintf "CharOfInt(%s)" (show_i_expr_short e)
+| IShortOfInt e -> Printf.sprintf "ShortOfInt(%s)" (show_i_expr_short e)
+| IIntOfInt e -> Printf.sprintf "IntOfInt(%s)" (show_i_expr_short e)
 | Error _ -> Printf.sprintf "Error(...)"
 
 and show_binop_short op = match op with

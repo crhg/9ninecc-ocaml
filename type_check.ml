@@ -344,10 +344,19 @@ and convert' expr = match expr.exp with
 | Cast (type_name, e) ->
     let _, e = convert e in
     let ty = type_of_type_name type_name in
-    if ty = Type.Bool then
+    let open Type in
+    (match ty with
+    | Bool ->
         (ty, IBoolOfInt e)
-    else
+    | Char ->
+        (ty, ICharOfInt e)
+    | Short ->
+        (ty, IShortOfInt e)
+    | Int ->
+        (ty, IIntOfInt e)
+    | _ ->
         (ty, e)
+    )
 | BitComplement e ->
     let _, e = convert e in
     (Type.Int, IBitComplement e)

@@ -1,5 +1,4 @@
 module Make(I: MenhirLib.IncrementalEngine.INCREMENTAL_ENGINE) = struct
-    (* module I = Parser.MenhirInterpreter *)
 
     let parse start message lexer lexbuf =
 

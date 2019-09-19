@@ -115,10 +115,9 @@ and declare_global_var ds decl_inits =
 
     and check_init init = match init.exp with
     | ExprInitializer expr ->
-    ignore @@ convert_and_store expr
-| ListInitializer l ->
-    List.iter check_init l
-
+        ignore @@ convert_and_store expr
+    | ListInitializer l ->
+        List.iter check_init l
 
 and determine_array_size element_ty init =
     match element_ty, init.exp with

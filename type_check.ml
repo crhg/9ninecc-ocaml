@@ -11,13 +11,27 @@ let rec check decl_list =
     List.iter check_decl decl_list
 
 and check_decl decl = match decl.exp with
-| FunctionDecl {
-    func_ds = {ds_type_spec = Some ts; _} as ds;
-    func_decl = decl;
-    func_body={exp=Block stmt_list; _} as body;
-    _ 
-} ->
+| FunctionDecl function_r ->
+    declare_function function_r decl.loc
+| GlobalVarDecl { gv_ds = ds; gv_decl_inits = decl_inits } ->
+    declare_global_var ds decl_inits
+| TypedefDecl (ts, decls) ->
+    List.iter (typedef ts) decls;
+| DummyDecl -> ()
+
+and declare_function function_r loc =
+    let { func_ds = ds; func_decl = decl; func_body = body; func_has_varargs = has_varargs } = function_r in
+
+    let ts = match ds with
+        | {ds_type_spec = Some ts; _} -> ts
+        | _ -> raise(Misc.Error_at("no type spec", loc)) in
+
     let ty, name = type_and_var_ts ts decl in
+
+    let stmt_list = match body.exp with 
+        | Block stmt_list -> stmt_list
+        | _ -> raise(Misc.Error_at("not block", body.loc)) in
+
     let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
     let loc = decl.loc in
 
@@ -45,27 +59,20 @@ and check_decl decl = match decl.exp with
             r
         )) in
 
-    (match ty with
-        | Type.Function function_r ->
-            let frame_size, params = prepare_func function_r stmt_list in
-            let open Function in
-            register {
-                ty = ty;
-                label = label;
-                params = params;
-                frame_size = frame_size;
-                has_varargs = function_r.Type.function_has_varargs;
-                body = body
-            }
-        | _ -> failwith "not function"
-    )
+    let function_r = match ty with
+        | Type.Function function_r -> function_r
+        | _ -> raise (Misc.Error_at("not function type", loc)) in
 
-| GlobalVarDecl { gv_ds = ds; gv_decl_inits = decl_inits } ->
-    declare_global_var ds decl_inits
-| TypedefDecl (ts, decls) ->
-    List.iter (typedef ts) decls;
-| DummyDecl -> ()
-| _ -> failwith ("not yet:" ^ (Ast.show_decl decl))
+    let frame_size, params = prepare_func function_r stmt_list in
+    let open Function in
+    register {
+        ty = ty;
+        label = label;
+        params = params;
+        frame_size = frame_size;
+        has_varargs = has_varargs;
+        body = body
+    }
 
 and declare_global_var ds decl_inits =
     match ds with

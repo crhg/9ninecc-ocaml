@@ -311,14 +311,8 @@ and convert' expr = match expr.exp with
         check_stmt stmt;
         Type.Int
 
-    and type_of_last stmts = match stmts with
-    | [] ->
-        Type.Int
-    | [stmt] ->
-        type_of stmt;
-    | stmt::stmts ->
-        check_stmt stmt;
-        type_of_last stmts in
+    and type_of_last stmts =
+        List.fold_left (fun _ stmt -> type_of stmt) Type.Int stmts in
 
     let ty = type_of stmt in
     (ty, I_block stmt)

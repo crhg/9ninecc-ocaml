@@ -29,9 +29,6 @@ and declare_function function_r loc =
     let ty, name = type_and_var_ts ts decl in
     let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
 
-    let stmt_list = match body.exp with 
-        | Block stmt_list -> stmt_list
-        | _ -> raise(Misc.Error_at("not block", body.loc)) in
 
     let loc = decl.loc in
 
@@ -62,6 +59,10 @@ and declare_function function_r loc =
     let function_r = match ty with
         | Type.Function function_r -> function_r
         | _ -> raise (Misc.Error_at("not function type", loc)) in
+
+    let stmt_list = match body.exp with 
+        | Block stmt_list -> stmt_list
+        | _ -> raise(Misc.Error_at("not block", body.loc)) in
 
     let frame_size, params = prepare_func function_r stmt_list in
     let open Function in

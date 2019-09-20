@@ -27,12 +27,12 @@ and declare_function function_r loc =
         | _ -> raise(Misc.Error_at("no type spec", loc)) in
 
     let ty, name = type_and_var_ts ts decl in
+    let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
 
     let stmt_list = match body.exp with 
         | Block stmt_list -> stmt_list
         | _ -> raise(Misc.Error_at("not block", body.loc)) in
 
-    let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
     let loc = decl.loc in
 
     Env.register_global_var ty name label;

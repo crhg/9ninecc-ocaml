@@ -12,21 +12,15 @@ let rec check decl_list =
 
 and check_decl decl = match decl.exp with
 | FunctionDecl function_r ->
-    declare_function function_r decl.loc
+    declare_function function_r
 | GlobalVarDecl { gv_ds = ds; gv_decl_inits = decl_inits } ->
     declare_global_var ds decl_inits
 | TypedefDecl (ts, decls) ->
     List.iter (typedef ts) decls;
 | DummyDecl -> ()
 
-and declare_function function_r loc =
-    let { func_ds = ds; func_decl = decl; func_body = body; func_has_varargs = has_varargs } = function_r in
-
-    let ts = match ds with
-        | {ds_type_spec = Some ts; _} -> ts
-        | _ -> raise(Misc.Error_at("no type spec", loc)) in
-
-    let ty, name = type_and_var_ts ts decl in
+and declare_function { func_ds = ds; func_decl = decl; func_body = body; func_has_varargs = has_varargs } =
+    let ty, name = type_and_var_ds ds decl in
     let label = if Ast.is_static ds then Unique_id.new_id (".L" ^ name ^ "$") else name in
 
     let loc = decl.loc in
@@ -498,6 +492,11 @@ and type_of_type_name type_name =
     let decl = tn.type_name_decl in
     let ty, _ = type_and_var_ts ts decl in
     ty
+
+and type_and_var_ds ds d =
+    match ds with
+    | { ds_type_spec = Some ts; _} -> type_and_var_ts ts d
+    | _ -> raise(Misc.Error("no type spec"))
 
 and type_and_var_ts ts d =
 let ty = type_of_type_spec ts in

@@ -258,9 +258,10 @@ match stmt.exp with
             Option.may gen_switch_branch stmt2
         | While (_, stmt)
         | Do (stmt, _)
-        | For (_, _, _, stmt) ->
+        | For (_, _, _, stmt)
+        | Block stmt ->
             gen_switch_branch stmt
-        | Block stmts ->
+        | StmtList stmts ->
             List.iter gen_switch_branch stmts
         | Empty | Var _ | TmpVar _ | TypedefStmt _ | Expr _ | Return _ | Switch _ | Break | Continue ->
             ()
@@ -272,10 +273,15 @@ match stmt.exp with
     ));
     printf "# switch end\n";
     printf "\n"
-| Block stmt_list ->
+| Block stmt ->
     printf "# block\n";
-    List.iter gen_stmt stmt_list;
+    gen_stmt stmt;
     printf "# block end\n";
+    printf "\n"
+| StmtList stmt_list ->
+    printf "# stmt list\n";
+    List.iter gen_stmt stmt_list;
+    printf "# stmt list end\n";
     printf "\n"
 
 and gen_i_expr i_expr =

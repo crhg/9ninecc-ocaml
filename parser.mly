@@ -60,7 +60,7 @@ translation_unit:
 decl:
 | h=function_decl_head l=function_decl_tail {
     let (ds, d, has_varargs, loc) = h in
-    let body = { exp = Block l; loc = loc } in
+    let body = { exp = StmtList l; loc = loc } in
 
     (match ds with
     | { ds_storage_class_spec = Some { exp=Typedef; _ }; _ } ->
@@ -380,7 +380,8 @@ stmt:
     let cond = Option.map make_expr_s cond in
     let next = Option.map make_expr_s next in
     let for_stmt = { exp = For (None, cond, next, s); loc = loc } in
-    { exp = Block [var; for_stmt]; loc=loc }
+    let stmt_list = { exp = StmtList [var; for_stmt]; loc = loc } in
+    { exp = Block stmt_list; loc=loc }
 }
 | token=SWITCH LPAR e=expression RPAR s=stmt {
     ignore token;
@@ -405,7 +406,9 @@ block:
   RBRACE
 {
     ignore token;
-    { exp = Block l; loc = $startpos(token) }
+    let loc = $startpos(token) in
+    let stmt_list = { exp = StmtList l; loc = loc } in
+    { exp = Block stmt_list; loc = loc }
 }
 
 expr_eof:

@@ -76,7 +76,8 @@ and stmt_exp =
   | Switch of expr_s * stmt
   | Break
   | Continue
-  | Block of stmt list
+  | Block of stmt
+  | StmtList of stmt list
 and stmt = stmt_exp node
 and binop = Add | Sub | Mul | Div | Mod | Lt | Le | Eq | Ne | BitAnd | BitXor | BitOr | LShift | RShift | LAnd | LOr | Comma | Store of Type.t
 and expr_exp =

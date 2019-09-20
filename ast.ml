@@ -107,7 +107,8 @@ and stmt_exp =
 | Switch of expr_s * stmt
 | Break
 | Continue
-| Block of stmt list
+| Block of stmt
+| StmtList of stmt list
 and stmt = stmt_exp node
 
 and binop =
@@ -275,7 +276,8 @@ let op_assign op loc l r =
                 loc = loc
             }
         ] in
-    let block = { exp = Block stmts; loc = loc } in
+    let stmt_list = { exp = StmtList stmts; loc = loc } in
+    let block = { exp = Block stmt_list; loc = loc } in
     { exp = BlockExpr block; loc = block.loc }
 
 (* 左辺値である式lの値を保存しそれを更新するような式を実行後 *)
@@ -297,5 +299,6 @@ let save_and_return_l_with l f =
             expr_st @@ f deref_tmp;
             expr_st save
         ] in
-    let block = { exp = Block stmts; loc = l.loc } in
+    let stmt_list = { exp = StmtList stmts; loc = l.loc } in
+    let block = { exp = Block stmt_list; loc = l.loc } in
     { exp = BlockExpr block; loc = block.loc }

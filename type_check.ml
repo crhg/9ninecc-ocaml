@@ -28,7 +28,7 @@ and declare_function { func_ds = ds; func_decl = decl; func_body = body; func_ha
     Env.register_global_var ty name label;
 
     (* ローカル変数にオフセットを割り当てる *)
-    let prepare_func function_r stmt_list =
+    let prepare_func function_r body =
         Env.with_new_local_frame function_r (fun _ ->
         Env.with_new_scope (fun _ ->
             let open Type in
@@ -45,7 +45,7 @@ and declare_function { func_ds = ds; func_decl = decl; func_body = body; func_ha
                     param_offset = offset
                 } in
             let r = List.map register function_r.function_params in
-            List.iter check_stmt stmt_list;
+            check_stmt body;
             r
         )) in
 
@@ -53,11 +53,7 @@ and declare_function { func_ds = ds; func_decl = decl; func_body = body; func_ha
         | Type.Function function_r -> function_r
         | _ -> raise (Misc.Error_at("not function type", loc)) in
 
-    let stmt_list = match body.exp with 
-        | Block stmt_list -> stmt_list
-        | _ -> raise(Misc.Error_at("not block", body.loc)) in
-
-    let frame_size, params = prepare_func function_r stmt_list in
+    let frame_size, params = prepare_func function_r body in
     let open Function in
     register {
         ty = ty;
@@ -196,10 +192,12 @@ and check_stmt stmt = match stmt.exp with
 | Switch (expr, stmt) ->
     convert_and_store expr;
     check_stmt stmt
-| Block stmt_list ->
+| Block stmt ->
     Env.with_new_scope (fun _ ->
-        List.iter check_stmt stmt_list
+        check_stmt stmt
     )
+| StmtList stmts ->
+    List.iter check_stmt stmts
 | Empty
 | Break
 | Continue ->
@@ -295,26 +293,35 @@ and convert' expr = match expr.exp with
     | _ ->
         raise(Misc.Error_at("not function pointer: "^(Type.show_type ty), func.loc))
     )
-| BlockExpr ({exp=Block stmts;_} as block) ->
+| BlockExpr stmt ->
     (* TODO: 本当はblockの最後に実行した式文の型になりそうだが
      *       真面目に考えると分岐だのループだので面倒なので
      *       当面blockの最後が式文ならその型, 式文でなければInt固定とする *)
 
-    let rec check stmts = match stmts with
-    | [{exp = Expr e; _}] ->
+    let rec type_of stmt = match stmt.exp with
+    | Expr e ->
         let ty, i_expr = convert e.expr in
         e.i_expr <- Some i_expr;
         ty
+    | Block stmt ->
+        type_of stmt;
+    | StmtList stmts ->
+        type_of_last stmts
+    | _ ->
+        check_stmt stmt;
+        Type.Int
+
+    and type_of_last stmts = match stmts with
+    | [] ->
+        Type.Int
+    | [stmt] ->
+        type_of stmt;
     | stmt::stmts ->
         check_stmt stmt;
-        check stmts
-    | _ ->
-        Type.Int in
+        type_of_last stmts in
 
-    let ty = check stmts in
-    (ty, I_block block)
-| BlockExpr _ ->
-    failwith "BlockExpr?"
+    let ty = type_of stmt in
+    (ty, I_block stmt)
 | Addr e ->
     let ty, e = convert_lval e in
     (Ptr ty, e)
